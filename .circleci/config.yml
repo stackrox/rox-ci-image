@@ -1,0 +1,54 @@
+defaults: &defaults
+  docker:
+    - image: circleci/golang:1.9.5
+  working_directory: /go/src/bitbucket.org/stack-rox/apollo-ci-image
+
+version: 2
+jobs:
+  sanity:
+    <<: *defaults
+    steps:
+    - checkout
+    - run:
+        name: Check environment for required secrets
+        command: |
+          : ${DOCKERHUB_USERNAME:?}
+          : ${DOCKERHUB_PASSWORD:?}
+    - run:
+        name: Check that current Git ref is describable
+        command: git describe --tags
+
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+
+      - run:
+          name: Refresh base image
+          command: docker pull circleci/golang:1.9.5 | cat
+
+      - run:
+          name: Build all
+          command: docker build -t stackrox/apollo-ci:$(git describe --tags) .
+
+      - run:
+          name: Push new Docker image
+          command: |
+            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+            docker push stackrox/apollo-ci:$(git describe --tags) | cat
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - sanity:
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          requires:
+            - sanity
+          filters:
+            tags:
+              only: /.*/
