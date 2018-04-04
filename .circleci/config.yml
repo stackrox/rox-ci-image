@@ -44,7 +44,13 @@ workflows:
   version: 2
   build:
     jobs:
-      - sanity
+      - sanity:
+          filters:
+            tags:
+              only: /.*/
       - build:
           requires:
             - sanity
+          filters:
+            tags:
+              only: /.*/
