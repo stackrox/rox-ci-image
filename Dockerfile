@@ -1,4 +1,4 @@
-FROM circleci/golang:1.9.5
+FROM circleci/golang:1.10.2
 
 # Install Bazel
 ARG BAZEL_VERSION=0.13.0
