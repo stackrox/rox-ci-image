@@ -1,7 +1,7 @@
 FROM circleci/golang:1.10.2
 
 # Install Bazel
-ARG BAZEL_VERSION=0.13.0
+ARG BAZEL_VERSION=0.13.1
 RUN sudo apt-get update && \
     sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python && \
     wget -q https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh && \
