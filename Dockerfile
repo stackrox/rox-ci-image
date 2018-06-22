@@ -50,3 +50,14 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s
     sudo mv ./kubectl /usr/local/bin/kubectl && \
     mkdir -p ~/.kube && \
     touch ~/.kube/config
+
+# Install gradle
+ARG GRADLE_VERSION=4.8.1
+RUN sudo apt-get update && \
+    sudo apt-get install -y openjdk-8-jdk && \
+    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
+    sudo mkdir /opt/gradle && \
+    unzip -q gradle-${GRADLE_VERSION}-bin.zip && \
+    sudo mv gradle-${GRADLE_VERSION}/* /opt/gradle && \
+    rm gradle-${GRADLE_VERSION}-bin.zip
+ENV PATH=$PATH:/opt/gradle/bin
