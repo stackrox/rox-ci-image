@@ -11,11 +11,11 @@ RUN sudo apt-get update && \
     sudo apt-get autoremove -y
 
 # Add necessary Go build tools
-RUN sudo chown $(whoami) $GOPATH -R && \
+RUN sudo chown "$(whoami)" "$GOPATH" -R && \
     go get -u github.com/golang/lint/golint && \
     go get -u golang.org/x/tools/cmd/goimports && \
     go get -u github.com/jstemmer/go-junit-report && \
-    sudo curl -L -o $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 && \
+    sudo wget -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 && \
     sudo chmod +x $GOPATH/bin/dep
 
 # Add Node
@@ -45,7 +45,7 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     sudo apt-get update && sudo apt-get install google-cloud-sdk
 
 # Install kubectl
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
+RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x ./kubectl && \
     sudo mv ./kubectl /usr/local/bin/kubectl && \
     mkdir -p ~/.kube && \
