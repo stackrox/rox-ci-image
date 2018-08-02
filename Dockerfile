@@ -51,6 +51,11 @@ RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -
     mkdir -p ~/.kube && \
     touch ~/.kube/config
 
+RUN wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz && \
+    tar -xf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz && \
+    sudo install openshift-origin-client-tools-v3.9.0-191fece-linux-64bit/oc /usr/local/bin && \
+    rm -rf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit*
+
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
 RUN sudo apt-get update && \
