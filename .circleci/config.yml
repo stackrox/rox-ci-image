@@ -14,6 +14,8 @@ jobs:
         command: |
           : ${DOCKERHUB_USERNAME:?}
           : ${DOCKERHUB_PASSWORD:?}
+          : ${QUAY_USERNAME:?}
+          : ${QUAY_PASSWORD:?}
     - run:
         name: Check that current Git ref is describable
         command: git describe --tags
@@ -30,13 +32,21 @@ jobs:
 
       - run:
           name: Build all
-          command: docker build -t stackrox/apollo-ci:$(git describe --tags) .
+          command: |
+            export TAG=$(git describe --tags --abbrev=10)
+            docker build -t stackrox/apollo-ci:$TAG .
 
       - run:
           name: Push new Docker image
           command: |
-            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-            docker push stackrox/apollo-ci:$(git describe --tags) | cat
+            export TAG=$(git describe --tags --abbrev=10)
+
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+            docker push stackrox/apollo-ci:$TAG | cat
+
+            docker login -u "$QUAY_USERNAME" -p "$QUAY_PASSWORD" quay.io
+            docker tag stackrox/apollo-ci:$TAG quay.io/stackrox/apollo-ci:$TAG | cat
+            docker push quay.io/stackrox/apollo-ci:$TAG | cat
 
 workflows:
   version: 2
