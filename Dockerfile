@@ -48,6 +48,7 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
 RUN set -ex \
  && wget --no-verbose -O kubectl "https://storage.googleapis.com/kubernetes-release/release/v1.11.2/bin/linux/amd64/kubectl" \
  && sudo install ./kubectl /usr/local/bin \
+ && rm kubectl \
  && mkdir -p /home/circleci/.kube \
  && touch /home/circleci/.kube/config \
  && chown -R circleci /home/circleci/.kube/ \
