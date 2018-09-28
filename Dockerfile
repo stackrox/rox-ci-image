@@ -44,17 +44,23 @@ RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
     sudo apt-get update && sudo apt-get install google-cloud-sdk
 
-# Install kubectl
-RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" && \
-    chmod +x ./kubectl && \
-    sudo mv ./kubectl /usr/local/bin/kubectl && \
-    mkdir -p ~/.kube && \
-    touch ~/.kube/config
+# kubectl
+RUN set -ex \
+ && wget --no-verbose -O kubectl "https://storage.googleapis.com/kubernetes-release/release/v1.11.2/bin/linux/amd64/kubectl" \
+ && sudo install ./kubectl /usr/local/bin \
+ && rm kubectl \
+ && mkdir -p /home/circleci/.kube \
+ && touch /home/circleci/.kube/config \
+ && chown -R circleci /home/circleci/.kube/ \
+ && which kubectl
 
-RUN wget https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz && \
-    tar -xf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz && \
-    sudo install openshift-origin-client-tools-v3.9.0-191fece-linux-64bit/oc /usr/local/bin && \
-    rm -rf openshift-origin-client-tools-v3.9.0-191fece-linux-64bit*
+# oc
+RUN set -ex \
+ && wget --no-verbose -O oc.tgz https://github.com/openshift/origin/releases/download/v3.10.0/openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit.tar.gz \
+ && tar -xf oc.tgz \
+ && sudo install openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc /usr/local/bin \
+ && rm -rf openshift-* oc.tgz \
+ && which oc
 
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
