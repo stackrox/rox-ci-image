@@ -1,53 +1,127 @@
-FROM circleci/golang:1.10.3
+FROM ubuntu:18.04@sha256:de774a3145f7ca4f0bd144c7d4ffb2931e06634f11529653b23eba85aef8e378
 
-# Install Bazel
+# https://github.com/CircleCI-Public/circleci-dockerfiles/blob/master/golang/images/1.10.3/Dockerfile#L11:21
+# https://github.com/docker-library/golang/blob/1a7381c32220091f35bd76e34bc28af251954acb/1.10/stretch/Dockerfile
+
+# make Apt non-interactive and remove suggested/recommended packages
+RUN echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90circleci \
+ && echo 'APT::Get::Install-Recommends "false";' >> /etc/apt/apt.conf.d/90circleci \
+ && echo 'APT::Get::Install-Suggests "false";' >> /etc/apt/apt.conf.d/90circleci \
+ && echo 'DPkg::Options "--force-confnew";' >> /etc/apt/apt.conf.d/90circleci
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Configure all necessary apt repositories
+RUN apt-get update \
+ && apt-get install \
+      apt-transport-https \
+      gnupg2 \
+      wget \
+ && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
+ && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+ && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+ && apt-get remove \
+      apt-transport-https \
+      gnupg2 \
+ && apt-get autoremove \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install all the packages
+RUN apt-get update \
+ && apt-get install \
+      curl \
+      git \
+      jq \
+      openjdk-8-jdk-headless \
+      nodejs \
+      unzip \
+      yarn \
+      # Cypress dependencies:
+      xvfb \
+      libgtk2.0-0 \
+      libnotify-dev \
+      libgconf-2-4 \
+      libnss3 \
+      libxss1 \
+      libasound2 \
+ && rm -rf /var/lib/apt/lists/*
+
+# Configure CircleCI user
+RUN set -ex \
+ && groupadd --gid 3434 circleci \
+ && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci
+
+# Install docker binary
+ARG DOCKER_VERSION=18.06.1-ce
+RUN set -ex \
+ && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
+ && echo Docker URL: $DOCKER_URL \
+ && wget --no-verbose -O /tmp/docker.tgz "${DOCKER_URL}" \
+ && ls -lha /tmp/docker.tgz \
+ && tar -xz -C /tmp -f /tmp/docker.tgz \
+ && install /tmp/docker/docker /usr/local/bin \
+ && rm -rf /tmp/docker /tmp/docker.tgz \
+ && which docker \
+ && (docker version --format {{.Client.Version}} || true)
+
+# Install Bazel.
+# Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
 ARG BAZEL_VERSION=0.17.2
-RUN sudo apt-get update && \
-    sudo apt-get install pkg-config zip g++ zlib1g-dev unzip python && \
-    wget -q https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh && \
-    chmod +x bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh && \
-    sudo ./bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh --prefix=/usr/local && \
-    rm ./bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh && \
-    sudo apt-get autoremove -y
+ARG BAZEL_INSTALLER_SHA256=31fac8b2edcc6d95f1afb21725f604479eb440596e7fc7554fd47e293020ced9
+RUN set -ex \
+ && wget --no-verbose -O install.sh https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh \
+ && chmod +x install.sh \
+ && echo "${BAZEL_INSTALLER_SHA256} install.sh" | sha256sum -c - \
+ && ./install.sh --prefix=/usr/local \
+ && rm ./install.sh \
+ && which bazel
+
+# Install Go
+# See https://github.com/docker-library/golang/blob/1a7381c32220091f35bd76e34bc28af251954acb/1.10/stretch/Dockerfile
+ARG GOLANG_VERSION=1.10.4
+ARG GOLANG_SHA256=fa04efdb17a275a0c6e137f969a1c4eb878939e91e1da16060ce42f02c2ec5ec
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+RUN set -ex \
+ && url="https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz" \
+ && wget --no-verbose -O go.tgz "$url" \
+ && echo "${GOLANG_SHA256} *go.tgz" | sha256sum -c - \
+ && tar -C /usr/local -xzf go.tgz \
+ && rm go.tgz \
+ && which go \
+ && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
+ && chmod -R 777 "$GOPATH" \
+ && chown -R circleci "$GOPATH"
 
 # Add necessary Go build tools
-RUN sudo chown "$(whoami)" "$GOPATH" -R && \
-    go get -u github.com/golang/lint/golint && \
-    go get -u golang.org/x/tools/cmd/goimports && \
-    go get -u github.com/jstemmer/go-junit-report && \
-    sudo wget -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 && \
-    sudo chmod +x $GOPATH/bin/dep
-
-# Add Node
-RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
-    sudo apt-get install -y nodejs
-
-# Add Yarn
-RUN sudo apt-get update && \
-    sudo apt-get install apt-transport-https && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list && \
-    sudo apt-get update && \
-    sudo apt-get install yarn
-
-# Add cypress.io dependencies
-RUN sudo apt-get update && \
-    sudo apt-get install xvfb libgtk2.0-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
-
-# Install envsubst
-RUN sudo apt-get update && \
-    sudo apt-get install -y gettext
+RUN set -ex \
+ && go get -u github.com/golang/lint/golint \
+ && which golint \
+ && go get -u golang.org/x/tools/cmd/goimports \
+ && which goimports \
+ && go get -u github.com/jstemmer/go-junit-report \
+ && which go-junit-report \
+ && wget --no-verbose -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 \
+ && chmod +x $GOPATH/bin/dep \
+ && which dep \
+ && rm -rf $GOPATH/src/* $GOPATH/pkg/*
 
 # Install gcloud
-RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-    echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-    sudo apt-get update && sudo apt-get install google-cloud-sdk
+# gcloud prefers to run out of a user's home directory.
+ARG GCLOUD_VERSION=218.0.0
+ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
+RUN set -ex \
+ && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
+ && mkdir -p /home/circleci/google-cloud-sdk \
+ && tar -xz -C /home/circleci -f /tmp/gcloud.tgz \
+ && /home/circleci/google-cloud-sdk/install.sh \
+ && chown -R circleci /home/circleci/google-cloud-sdk \
+ && rm -rf /tmp/gcloud.tgz \
+ && which gcloud
 
 # kubectl
 RUN set -ex \
  && wget --no-verbose -O kubectl "https://storage.googleapis.com/kubernetes-release/release/v1.11.2/bin/linux/amd64/kubectl" \
- && sudo install ./kubectl /usr/local/bin \
+ && install ./kubectl /usr/local/bin \
  && rm kubectl \
  && mkdir -p /home/circleci/.kube \
  && touch /home/circleci/.kube/config \
@@ -58,17 +132,19 @@ RUN set -ex \
 RUN set -ex \
  && wget --no-verbose -O oc.tgz https://github.com/openshift/origin/releases/download/v3.10.0/openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit.tar.gz \
  && tar -xf oc.tgz \
- && sudo install openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc /usr/local/bin \
+ && install openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc /usr/local/bin \
  && rm -rf openshift-* oc.tgz \
  && which oc
 
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
-RUN sudo apt-get update && \
-    sudo apt-get install -y openjdk-8-jdk && \
-    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
-    sudo mkdir /opt/gradle && \
-    unzip -q gradle-${GRADLE_VERSION}-bin.zip && \
-    sudo mv gradle-${GRADLE_VERSION}/* /opt/gradle && \
-    rm gradle-${GRADLE_VERSION}-bin.zip
 ENV PATH=$PATH:/opt/gradle/bin
+RUN set -ex \
+ && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+ && mkdir /opt/gradle \
+ && unzip -q gradle-${GRADLE_VERSION}-bin.zip \
+ && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
+ && rm gradle-${GRADLE_VERSION}-bin.zip \
+ && which gradle
+
+USER circleci
