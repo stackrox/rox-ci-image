@@ -11,11 +11,12 @@ RUN echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90circleci \
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Configure all necessary apt repositories
-RUN apt-get update \
+RUN set -ex \
+ && apt-get update \
  && apt-get install \
-      apt-transport-https \
-      gnupg2 \
-      wget \
+      apt-transport-https=1.6.3ubuntu0.1 \
+      gnupg2=2.2.4-1ubuntu1.1 \
+      wget=1.19.4-1ubuntu2.1 \
  && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
@@ -26,23 +27,24 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Install all the packages
-RUN apt-get update \
+RUN set -ex \
+ && apt-get update \
  && apt-get install \
-      curl \
-      git \
-      jq \
-      openjdk-8-jdk-headless \
-      nodejs \
-      unzip \
-      yarn \
+      curl=7.58.0-2ubuntu3.3 \
+      git=1:2.17.1-1ubuntu0.1 \
+      jq=1.5+dfsg-2 \
+      openjdk-8-jdk-headless=8u181-b13-0ubuntu0.18.04.1 \
+      nodejs=8.12.0-1nodesource1 \
+      unzip=6.0-21ubuntu1 \
+      yarn=1.10.1-1 \
       # Cypress dependencies:
-      xvfb \
-      libgtk2.0-0 \
-      libnotify-dev \
-      libgconf-2-4 \
-      libnss3 \
-      libxss1 \
-      libasound2 \
+      xvfb=2:1.19.6-1ubuntu4 \
+      libgtk2.0-0=2.24.32-1ubuntu1 \
+      libnotify-dev=0.7.7-3 \
+      libgconf-2-4=3.2.6-4ubuntu1 \
+      libnss3=2:3.35-2ubuntu2 \
+      libxss1=1:1.2.2-1 \
+      libasound2=1.1.3-5ubuntu0.1 \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
