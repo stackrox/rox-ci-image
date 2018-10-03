@@ -1,35 +1,28 @@
 FROM ubuntu:18.04@sha256:de774a3145f7ca4f0bd144c7d4ffb2931e06634f11529653b23eba85aef8e378
 
-# https://github.com/CircleCI-Public/circleci-dockerfiles/blob/master/golang/images/1.10.3/Dockerfile#L11:21
-# https://github.com/docker-library/golang/blob/1a7381c32220091f35bd76e34bc28af251954acb/1.10/stretch/Dockerfile
-
-# make Apt non-interactive and remove suggested/recommended packages
-RUN echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/90circleci \
- && echo 'APT::Get::Install-Recommends "false";' >> /etc/apt/apt.conf.d/90circleci \
- && echo 'APT::Get::Install-Suggests "false";' >> /etc/apt/apt.conf.d/90circleci \
- && echo 'DPkg::Options "--force-confnew";' >> /etc/apt/apt.conf.d/90circleci
-ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Configure all necessary apt repositories
 RUN set -ex \
  && apt-get update \
- && apt-get install \
+ && apt-get install --no-install-recommends -y \
       apt-transport-https=1.6.3ubuntu0.1 \
+      ca-certificates=20180409 \
       gnupg2=2.2.4-1ubuntu1.1 \
       wget=1.19.4-1ubuntu2.1 \
  && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
- && apt-get remove \
+ && apt-get remove -y \
       apt-transport-https \
       gnupg2 \
- && apt-get autoremove \
+ && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Install all the packages
 RUN set -ex \
  && apt-get update \
- && apt-get install \
+ && apt-get install --no-install-recommends -y \
       curl=7.58.0-2ubuntu3.3 \
       git=1:2.17.1-1ubuntu0.1 \
       jq=1.5+dfsg-2 \
@@ -37,6 +30,9 @@ RUN set -ex \
       nodejs=8.12.0-1nodesource1 \
       unzip=6.0-21ubuntu1 \
       yarn=1.10.1-1 \
+      # gcloud SDK dependencies:
+      python2.7-minimal=2.7.15~rc1-1 \
+      libpython-stdlib=2.7.15~rc1-1 \
       # Cypress dependencies:
       xvfb=2:1.19.6-1ubuntu4 \
       libgtk2.0-0=2.24.32-1ubuntu1 \
@@ -62,8 +58,8 @@ RUN set -ex \
  && tar -xz -C /tmp -f /tmp/docker.tgz \
  && install /tmp/docker/docker /usr/local/bin \
  && rm -rf /tmp/docker /tmp/docker.tgz \
- && which docker \
- && (docker version --format {{.Client.Version}} || true)
+ && command -v docker \
+ && (docker version --format '{{.Client.Version}}' || true)
 
 # Install Bazel.
 # Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
@@ -75,7 +71,7 @@ RUN set -ex \
  && echo "${BAZEL_INSTALLER_SHA256} install.sh" | sha256sum -c - \
  && ./install.sh --prefix=/usr/local \
  && rm ./install.sh \
- && which bazel
+ && command -v bazel
 
 # Install Go
 # See https://github.com/docker-library/golang/blob/1a7381c32220091f35bd76e34bc28af251954acb/1.10/stretch/Dockerfile
@@ -89,7 +85,7 @@ RUN set -ex \
  && echo "${GOLANG_SHA256} *go.tgz" | sha256sum -c - \
  && tar -C /usr/local -xzf go.tgz \
  && rm go.tgz \
- && which go \
+ && command -v go \
  && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
  && chmod -R 777 "$GOPATH" \
  && chown -R circleci "$GOPATH"
@@ -97,14 +93,14 @@ RUN set -ex \
 # Add necessary Go build tools
 RUN set -ex \
  && go get -u github.com/golang/lint/golint \
- && which golint \
+ && command -v golint \
  && go get -u golang.org/x/tools/cmd/goimports \
- && which goimports \
+ && command -v goimports \
  && go get -u github.com/jstemmer/go-junit-report \
- && which go-junit-report \
+ && command -v go-junit-report \
  && wget --no-verbose -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 \
  && chmod +x $GOPATH/bin/dep \
- && which dep \
+ && command -v dep \
  && rm -rf $GOPATH/src/* $GOPATH/pkg/*
 
 # Install gcloud
@@ -118,7 +114,7 @@ RUN set -ex \
  && /home/circleci/google-cloud-sdk/install.sh \
  && chown -R circleci /home/circleci/google-cloud-sdk \
  && rm -rf /tmp/gcloud.tgz \
- && which gcloud
+ && command -v gcloud
 
 # kubectl
 RUN set -ex \
@@ -128,7 +124,7 @@ RUN set -ex \
  && mkdir -p /home/circleci/.kube \
  && touch /home/circleci/.kube/config \
  && chown -R circleci /home/circleci/.kube/ \
- && which kubectl
+ && command -v kubectl
 
 # oc
 RUN set -ex \
@@ -136,7 +132,7 @@ RUN set -ex \
  && tar -xf oc.tgz \
  && install openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc /usr/local/bin \
  && rm -rf openshift-* oc.tgz \
- && which oc
+ && command -v oc
 
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
@@ -147,6 +143,6 @@ RUN set -ex \
  && unzip -q gradle-${GRADLE_VERSION}-bin.zip \
  && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
- && which gradle
+ && command -v gradle
 
 USER circleci
