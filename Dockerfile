@@ -23,6 +23,7 @@ RUN set -ex \
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
+      build-essential=12.4ubuntu1 \
       curl=7.58.0-2ubuntu3.3 \
       git=1:2.17.1-1ubuntu0.1 \
       jq=1.5+dfsg-2 \
@@ -33,6 +34,8 @@ RUN set -ex \
       # gcloud SDK dependencies:
       python2.7-minimal=2.7.15~rc1-1 \
       libpython-stdlib=2.7.15~rc1-1 \
+      # OpenShift deployment dependencies:
+      openssh-client=1:7.6p1-4 \
       # Cypress dependencies:
       xvfb=2:1.19.6-1ubuntu4 \
       libgtk2.0-0=2.24.32-1ubuntu1 \
