@@ -1,5 +1,8 @@
 FROM ubuntu:18.04@sha256:de774a3145f7ca4f0bd144c7d4ffb2931e06634f11529653b23eba85aef8e378
 
+# This line makes sure that piped commands in RUN instructions exit early.
+# This should not affect use in CircleCI because Circle doesn't use
+# CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Configure all necessary apt repositories
@@ -23,27 +26,27 @@ RUN set -ex \
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
-      build-essential=12.4ubuntu1 \
-      curl=7.58.0-2ubuntu3.3 \
-      git=1:2.17.1-1ubuntu0.1 \
-      jq=1.5+dfsg-2 \
+      build-essential \
+      curl \
+      git \
+      jq \
       openjdk-8-jdk-headless=8u181-b13-0ubuntu0.18.04.1 \
       nodejs=8.12.0-1nodesource1 \
-      unzip=6.0-21ubuntu1 \
+      unzip \
       yarn=1.10.1-1 \
       # gcloud SDK dependencies:
       python2.7-minimal=2.7.15~rc1-1 \
       libpython-stdlib=2.7.15~rc1-1 \
       # OpenShift deployment dependencies:
-      openssh-client=1:7.6p1-4 \
+      openssh-client \
       # Cypress dependencies:
-      xvfb=2:1.19.6-1ubuntu4 \
-      libgtk2.0-0=2.24.32-1ubuntu1 \
-      libnotify-dev=0.7.7-3 \
-      libgconf-2-4=3.2.6-4ubuntu1 \
-      libnss3=2:3.35-2ubuntu2 \
-      libxss1=1:1.2.2-1 \
-      libasound2=1.1.3-5ubuntu0.1 \
+      xvfb \
+      libgtk2.0-0 \
+      libnotify-dev \
+      libgconf-2-4 \
+      libnss3 \
+      libxss1 \
+      libasound2 \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
