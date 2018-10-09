@@ -80,9 +80,9 @@ RUN set -ex \
  && command -v bazel
 
 # Install Go
-# See https://github.com/docker-library/golang/blob/1a7381c32220091f35bd76e34bc28af251954acb/1.10/stretch/Dockerfile
-ARG GOLANG_VERSION=1.10.4
-ARG GOLANG_SHA256=fa04efdb17a275a0c6e137f969a1c4eb878939e91e1da16060ce42f02c2ec5ec
+# https://github.com/docker-library/golang/blob/ed78459fac108dab72556146b759516cc65ee109/1.11/stretch/Dockerfile
+ARG GOLANG_VERSION=1.11.1
+ARG GOLANG_SHA256=2871270d8ff0c8c69f161aaae42f9f28739855ff5c5204752a8d92a1c9f63993
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
