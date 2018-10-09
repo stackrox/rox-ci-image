@@ -47,12 +47,14 @@ RUN set -ex \
       libnss3 \
       libxss1 \
       libasound2 \
+      sudo \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
 RUN set -ex \
  && groupadd --gid 3434 circleci \
- && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci
+ && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
+ && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
 
 # Install docker binary
 ARG DOCKER_VERSION=18.06.1-ce
