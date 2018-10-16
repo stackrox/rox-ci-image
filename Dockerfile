@@ -100,7 +100,7 @@ RUN set -ex \
 
 # Add necessary Go build tools
 RUN set -ex \
- && go get -u github.com/golang/lint/golint \
+ && go get -u golang.org/x/lint/golint \
  && command -v golint \
  && go get -u golang.org/x/tools/cmd/goimports \
  && command -v goimports \
