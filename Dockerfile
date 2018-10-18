@@ -109,6 +109,8 @@ RUN set -ex \
  && wget --no-verbose -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 \
  && chmod +x $GOPATH/bin/dep \
  && command -v dep \
+ && go get github.com/mattn/goveralls \
+ && command -v goveralls \
  && rm -rf $GOPATH/src/* $GOPATH/pkg/*
 
 # Install gcloud
