@@ -30,7 +30,7 @@ RUN set -ex \
       curl \
       git \
       jq \
-      openjdk-8-jdk-headless=8u181-b13-0ubuntu0.18.04.1 \
+      openjdk-8-jdk-headless=8u181-b13-1ubuntu0.18.04.1 \
       nodejs=8.12.0-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
