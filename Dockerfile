@@ -35,8 +35,8 @@ RUN set -ex \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
-      python2.7-minimal=2.7.15~rc1-1 \
-      libpython-stdlib=2.7.15~rc1-1 \
+      python2.7-minimal \
+      libpython-stdlib \
       `# OpenShift deployment dependencies:` \
       openssh-client \
       `# Cypress dependencies:` \
