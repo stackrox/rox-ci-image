@@ -34,12 +34,12 @@ RUN set -ex \
       nodejs=8.12.0-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
-      # gcloud SDK dependencies:
-      python2.7-minimal=2.7.15~rc1-1 \
-      libpython-stdlib=2.7.15~rc1-1 \
-      # OpenShift deployment dependencies:
+      `# gcloud SDK dependencies:` \
+      python2.7-minimal \
+      libpython-stdlib \
+      `# OpenShift deployment dependencies:` \
       openssh-client \
-      # Cypress dependencies:
+      `# Cypress dependencies:` \
       xvfb \
       libgtk2.0-0 \
       libnotify-dev \
@@ -48,6 +48,8 @@ RUN set -ex \
       libxss1 \
       libasound2 \
       sudo \
+      `# For envsubst:` \
+      gettext \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
