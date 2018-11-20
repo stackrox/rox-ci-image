@@ -12,12 +12,15 @@ jobs:
     - setup_remote_docker
 
     - run:
-        name: Build Docker image
+        name: Build Docker images
         command: |
           export TAG=$(git describe --tags --abbrev=10)
           docker build \
             -t stackrox/apollo-ci:snapshot-$TAG \
-            -t stackrox/apollo-ci:$TAG .
+            -t stackrox/apollo-ci:$TAG rox
+          docker build \
+            -t stackrox/apollo-ci:snapshot-$TAG-collector \
+            -t stackrox/apollo-ci:$TAG-collector collector
 
     - run:
         name: Push Docker image
@@ -27,10 +30,14 @@ jobs:
           export TAG=$(git describe --tags --abbrev=10)
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
             echo Pushing release images
-            docker push stackrox/apollo-ci:$TAG
+            docker push \
+              stackrox/apollo-ci:$TAG \
+              stackrox/apollo-ci:$TAG-collector
           else
             echo Pushing snapshot images
-            docker push stackrox/apollo-ci:snapshot-$TAG
+            docker push \
+              stackrox/apollo-ci:snapshot-$TAG \
+              stackrox/apollo-ci:snapshot-$TAG-collector
           fi
 
 workflows:
