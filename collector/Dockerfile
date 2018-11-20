@@ -10,6 +10,8 @@ RUN \
     apt-key add - && \
     apt-get update -y && apt-get install google-cloud-sdk -y
 
+RUN apt-get install -y --no-install-recommends cmake
+
 USER circleci
 
 ENV ROX_CI_IMAGE collector-ci-image

@@ -30,14 +30,12 @@ jobs:
           export TAG=$(git describe --tags --abbrev=10)
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
             echo Pushing release images
-            docker push \
-              stackrox/apollo-ci:$TAG \
-              stackrox/apollo-ci:$TAG-collector
+            docker push stackrox/apollo-ci:$TAG
+            docker push stackrox/apollo-ci:$TAG-collector
           else
             echo Pushing snapshot images
-            docker push \
-              stackrox/apollo-ci:snapshot-$TAG \
-              stackrox/apollo-ci:snapshot-$TAG-collector
+            docker push stackrox/apollo-ci:snapshot-$TAG
+            docker push stackrox/apollo-ci:snapshot-$TAG-collector
           fi
 
 workflows:
