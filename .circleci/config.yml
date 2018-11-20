@@ -15,12 +15,12 @@ jobs:
         name: Build Docker images
         command: |
           export TAG="$(git describe --tags --abbrev=10)"
-          docker build \
+          docker build rox \
             -t "stackrox/apollo-ci:snapshot-$TAG" \
-            -t "stackrox/apollo-ci:$TAG" rox
-          docker build \
-            -t "stackrox/apollo-ci:snapshot-$TAG-collector" \
-            -t "stackrox/apollo-ci:$TAG-collector" collector
+            -t "stackrox/apollo-ci:$TAG"
+          docker build collector \
+            -t "stackrox/apollo-ci:snapshot-collector-$TAG" \
+            -t "stackrox/apollo-ci:collector-$TAG"
 
     - run:
         name: Push Docker image
@@ -31,11 +31,11 @@ jobs:
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
             echo Pushing release images
             docker push "stackrox/apollo-ci:$TAG"
-            docker push "stackrox/apollo-ci:$TAG-collector"
+            docker push "stackrox/apollo-ci:collector-$TAG"
           else
             echo Pushing snapshot images
             docker push "stackrox/apollo-ci:snapshot-$TAG"
-            docker push "stackrox/apollo-ci:snapshot-$TAG-collector"
+            docker push "stackrox/apollo-ci:snapshot-collector-$TAG"
           fi
 
 workflows:
