@@ -15,12 +15,12 @@ jobs:
         name: Build Docker images
         command: |
           export TAG="$(git describe --tags --abbrev=10)"
-          docker build rox \
-            -t "stackrox/apollo-ci:snapshot-$TAG" \
-            -t "stackrox/apollo-ci:$TAG"
           docker build collector \
             -t "stackrox/apollo-ci:snapshot-collector-$TAG" \
             -t "stackrox/apollo-ci:collector-$TAG"
+          docker build rox \
+            -t "stackrox/apollo-ci:snapshot-$TAG" \
+            -t "stackrox/apollo-ci:$TAG"
 
     - run:
         name: Push Docker image
