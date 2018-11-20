@@ -50,6 +50,8 @@ RUN set -ex \
       sudo \
       `# For envsubst:` \
       gettext \
+      `# For collector build:` \
+      cmake \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
