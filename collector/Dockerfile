@@ -2,6 +2,8 @@ FROM circleci/golang:1.11.2-stretch
 
 USER 0
 
+RUN apt-get update && apt-get install -y --no-install-recommends lsb-release
+
 # Install GCloud SDK, copied from
 # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
 RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
