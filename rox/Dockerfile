@@ -113,6 +113,8 @@ RUN set -ex \
  && command -v dep \
  && go get github.com/mattn/goveralls \
  && command -v goveralls \
+  && go get github.com/gobuffalo/packr \
+ && command -v packr \
  && rm -rf $GOPATH/src/* $GOPATH/pkg/*
 
 # Install gcloud
