@@ -146,6 +146,14 @@ RUN set -ex \
  && rm -rf openshift-* oc.tgz \
  && command -v oc
 
+# helm
+RUN set -ex \
+ && wget --no-verbose -O helm.tgz https://storage.googleapis.com/kubernetes-helm/helm-v2.12.0-linux-arm64.tar.gz \
+ && tar -xf helm.tgz \
+ && install linux-arm64/helm /usr/local/bin \
+ && rm -rf helm.tgz linux-arm64 \
+ && command -v helm
+
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
 ENV PATH=$PATH:/opt/gradle/bin
