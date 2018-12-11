@@ -148,10 +148,10 @@ RUN set -ex \
 
 # helm
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://storage.googleapis.com/kubernetes-helm/helm-v2.12.0-linux-arm64.tar.gz \
+ && wget --no-verbose -O helm.tgz https://storage.googleapis.com/kubernetes-helm/helm-v2.12.0-linux-amd64.tar.gz \
  && tar -xf helm.tgz \
- && install linux-arm64/helm /usr/local/bin \
- && rm -rf helm.tgz linux-arm64 \
+ && install linux-amd64/helm /usr/local/bin \
+ && rm -rf helm.tgz linux-amd64 \
  && command -v helm
 
 # Install gradle
