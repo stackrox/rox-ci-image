@@ -104,7 +104,10 @@ RUN set -ex \
 RUN set -ex \
  && go get -u golang.org/x/lint/golint \
  && command -v golint \
- && go get -u golang.org/x/tools/cmd/goimports \
+ && go get -d golang.org/x/tools/cmd/goimports \
+ && cd "$GOPATH/src/golang.org/x/tools" \
+ && git checkout -q a28dfb48e06b2296b66678872c2cb638f0304f20 \
+ && go install golang.org/x/tools/cmd/goimports \
  && command -v goimports \
  && go get -u github.com/jstemmer/go-junit-report \
  && command -v go-junit-report \
