@@ -30,8 +30,8 @@ RUN set -ex \
       curl \
       git \
       jq \
-      openjdk-8-jdk-headless=8u181-b13-1ubuntu0.18.04.1 \
-      nodejs=8.12.0-1nodesource1 \
+      openjdk-8-jdk-headless=8u191-b12-0ubuntu0.18.04.1 \
+      nodejs=8.14.0-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
@@ -145,6 +145,14 @@ RUN set -ex \
  && install openshift-origin-client-tools-v3.10.0-dd10d17-linux-64bit/oc /usr/local/bin \
  && rm -rf openshift-* oc.tgz \
  && command -v oc
+
+# helm
+RUN set -ex \
+ && wget --no-verbose -O helm.tgz https://storage.googleapis.com/kubernetes-helm/helm-v2.12.0-linux-amd64.tar.gz \
+ && tar -xf helm.tgz \
+ && install linux-amd64/helm /usr/local/bin \
+ && rm -rf helm.tgz linux-amd64 \
+ && command -v helm
 
 # Install gradle
 ARG GRADLE_VERSION=4.8.1
