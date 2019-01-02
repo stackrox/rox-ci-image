@@ -31,7 +31,7 @@ RUN set -ex \
       git \
       jq \
       openjdk-8-jdk-headless=8u191-b12-0ubuntu0.18.04.1 \
-      nodejs=8.14.0-1nodesource1 \
+      nodejs=8.15.0-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
@@ -73,8 +73,8 @@ RUN set -ex \
 
 # Install Bazel.
 # Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
-ARG BAZEL_VERSION=0.19.0
-ARG BAZEL_INSTALLER_SHA256=b9e988643b10444d6d8eb04461418b7b80e3d171e12d1c8b6e2a50f541e739e7
+ARG BAZEL_VERSION=0.21.0
+ARG BAZEL_INSTALLER_SHA256=328d5fa87a61e1f6e674a8f88c5ae54b8987eaf5a6c944257600c5029c8feef8
 RUN set -ex \
  && wget --no-verbose -O install.sh https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh \
  && chmod +x install.sh \
