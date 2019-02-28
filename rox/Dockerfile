@@ -6,6 +6,9 @@ FROM ubuntu:18.04@sha256:de774a3145f7ca4f0bd144c7d4ffb2931e06634f11529653b23eba8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Configure all necessary apt repositories
+
+ADD yarn-gpg-key.asc /
+
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
@@ -14,7 +17,7 @@ RUN set -ex \
       gnupg2 \
       wget=1.19.4-1ubuntu2.1 \
  && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
- && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+ && apt-key add /yarn-gpg-key.asc && rm /yarn-gpg-key.asc \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
  && apt-get remove -y \
       apt-transport-https \
