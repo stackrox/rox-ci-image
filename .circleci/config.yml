@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/golang:1.11.2
+    - image: circleci/golang:1.12
   working_directory: /go/src/bitbucket.org/stack-rox/apollo-ci-image
 
 version: 2
@@ -30,12 +30,12 @@ jobs:
           export TAG=$(git describe --tags --abbrev=10)
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
             echo Pushing release images
-            docker push "stackrox/apollo-ci:$TAG"
-            docker push "stackrox/apollo-ci:collector-$TAG"
+            docker push "stackrox/apollo-ci:$TAG" | cat
+            docker push "stackrox/apollo-ci:collector-$TAG" | cat
           else
             echo Pushing snapshot images
-            docker push "stackrox/apollo-ci:snapshot-$TAG"
-            docker push "stackrox/apollo-ci:snapshot-collector-$TAG"
+            docker push "stackrox/apollo-ci:snapshot-$TAG" | cat
+            docker push "stackrox/apollo-ci:snapshot-collector-$TAG" | cat
           fi
 
 workflows:

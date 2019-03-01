@@ -9,9 +9,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
-      apt-transport-https=1.6.3ubuntu0.1 \
+      apt-transport-https=1.6.6ubuntu0.1 \
       ca-certificates=20180409 \
-      gnupg2=2.2.4-1ubuntu1.1 \
+      gnupg2=2.2.4-1ubuntu1.2 \
       wget=1.19.4-1ubuntu2.1 \
  && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
@@ -30,8 +30,8 @@ RUN set -ex \
       curl \
       git \
       jq \
-      openjdk-8-jdk-headless=8u191-b12-0ubuntu0.18.04.1 \
-      nodejs=8.15.0-1nodesource1 \
+      openjdk-8-jdk-headless=8u191-b12-2ubuntu0.18.04.1 \
+      nodejs=8.15.1-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
@@ -84,9 +84,9 @@ RUN set -ex \
  && command -v bazel
 
 # Install Go
-# https://github.com/docker-library/golang/blob/ed78459fac108dab72556146b759516cc65ee109/1.11/stretch/Dockerfile
-ARG GOLANG_VERSION=1.11.1
-ARG GOLANG_SHA256=2871270d8ff0c8c69f161aaae42f9f28739855ff5c5204752a8d92a1c9f63993
+# https://github.com/docker-library/golang/blob/f689d126eed7dda6897eebfc11df49e87629df45/1.12/stretch/Dockerfile#L19
+ARG GOLANG_VERSION=1.12
+ARG GOLANG_SHA256=750a07fef8579ae4839458701f4df690e0b20b8bcce33b437e4df89c451b6f13
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
