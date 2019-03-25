@@ -29,6 +29,7 @@ RUN set -ex \
       build-essential \
       curl \
       git \
+      lsof \
       jq \
       openjdk-8-jdk-headless=8u191-b12-2ubuntu0.18.04.1 \
       nodejs=8.15.1-1nodesource1 \
