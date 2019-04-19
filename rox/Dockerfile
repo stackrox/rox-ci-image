@@ -48,6 +48,7 @@ RUN set -ex \
       libnss3 \
       libxss1 \
       libasound2 \
+      xxd \
       sudo \
       `# For envsubst:` \
       gettext \
