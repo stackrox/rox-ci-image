@@ -12,7 +12,7 @@ RUN set -ex \
       apt-transport-https=1.6.6ubuntu0.1 \
       ca-certificates=20180409 \
       gnupg2=2.2.4-1ubuntu1.2 \
-      wget=1.19.4-1ubuntu2.1 \
+      wget=1.19.4-1ubuntu2.2 \
  && wget --no-verbose -O - https://deb.nodesource.com/setup_8.x | bash - \
  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
