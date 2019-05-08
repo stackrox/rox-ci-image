@@ -3,7 +3,7 @@ defaults: &defaults
     - image: circleci/golang:1.12
   working_directory: /go/src/bitbucket.org/stack-rox/apollo-ci-image
 
-version: 2
+version: 2.1
 jobs:
   build:
     <<: *defaults
@@ -25,7 +25,7 @@ jobs:
     - run:
         name: Push Docker image
         command: |
-          docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+          docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
 
           export TAG=$(git describe --tags --abbrev=10)
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
@@ -43,6 +43,7 @@ workflows:
   build:
     jobs:
     - build:
+        context: docker-io-push
         filters:
           tags:
             only: /.*/
