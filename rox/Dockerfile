@@ -87,8 +87,8 @@ RUN set -ex \
 
 # Install Go
 # https://github.com/docker-library/golang/blob/f689d126eed7dda6897eebfc11df49e87629df45/1.12/stretch/Dockerfile#L19
-ARG GOLANG_VERSION=1.12
-ARG GOLANG_SHA256=750a07fef8579ae4839458701f4df690e0b20b8bcce33b437e4df89c451b6f13
+ARG GOLANG_VERSION=1.12.5
+ARG GOLANG_SHA256=aea86e3c73495f205929cfebba0d63f1382c8ac59be081b6351681415f4063cf
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
