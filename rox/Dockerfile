@@ -31,7 +31,7 @@ RUN set -ex \
       git \
       lsof \
       jq \
-      openjdk-8-jdk-headless=8u191-b12-2ubuntu0.18.04.1 \
+      openjdk-8-jdk-headless=8u212-b03-0ubuntu1.18.04.1 \
       nodejs=8.16.0-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
@@ -160,7 +160,7 @@ RUN set -ex \
  && command -v helm
 
 # Install gradle
-ARG GRADLE_VERSION=4.8.1
+ARG GRADLE_VERSION=5.4.1
 ENV PATH=$PATH:/opt/gradle/bin
 RUN set -ex \
  && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
