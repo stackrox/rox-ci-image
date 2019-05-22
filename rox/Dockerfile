@@ -171,3 +171,5 @@ RUN set -ex \
  && command -v gradle
 
 USER circleci
+
+COPY bin/cci-export /usr/bin/cci-export

@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+fatal() {
+    echo "$*" 1>&2
+    exit 1
+}
+
+main() {
+    if [ "$CI" != "true" ]; then
+        fatal "Not running inside CircleCI"
+    fi
+
+    if [ -z "$BASH_ENV" ]; then
+        fatal "Env var BASH_ENV not properly set"
+    fi
+
+    if [ "$#" -ne 2 ]; then
+        fatal "Usage: cci-export KEY VALUE"
+    fi
+
+    key="$1"
+    value="$2"
+
+    echo "export ${key}='${value}'" >> "$BASH_ENV"
+}
+main "$@"
