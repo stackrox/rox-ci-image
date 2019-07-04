@@ -52,6 +52,7 @@ RUN set -ex \
       sudo \
       `# For envsubst:` \
       gettext \
+      zip \
  && rm -rf /var/lib/apt/lists/*
 
 # Configure CircleCI user
