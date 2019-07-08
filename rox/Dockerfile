@@ -76,20 +76,21 @@ RUN set -ex \
 
 # Install Bazel.
 # Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
-ARG BAZEL_VERSION=0.21.0
-ARG BAZEL_INSTALLER_SHA256=328d5fa87a61e1f6e674a8f88c5ae54b8987eaf5a6c944257600c5029c8feef8
+ARG BAZEL_VERSION=0.27.1
+# https://github.com/bazelbuild/bazel/releases/download/0.27.1/bazel-0.27.1-installer-linux-x86_64.sh.sha256
+ARG BAZEL_INSTALLER_SHA256=8c6983cfe49258f8a0102c68cba2328deaaa2325c9c63ac54074a3785f0c4b55
 RUN set -ex \
  && wget --no-verbose -O install.sh https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh \
  && chmod +x install.sh \
- && echo "${BAZEL_INSTALLER_SHA256} install.sh" | sha256sum -c - \
+ && echo "${BAZEL_INSTALLER_SHA256}  install.sh" | sha256sum -c - \
  && ./install.sh --prefix=/usr/local \
  && rm ./install.sh \
  && command -v bazel
 
 # Install Go
-# https://github.com/docker-library/golang/blob/f689d126eed7dda6897eebfc11df49e87629df45/1.12/stretch/Dockerfile#L19
-ARG GOLANG_VERSION=1.12.5
-ARG GOLANG_SHA256=aea86e3c73495f205929cfebba0d63f1382c8ac59be081b6351681415f4063cf
+# https://github.com/docker-library/golang/blob/a9171b851ba926f2979e8c711d25faa025194def/1.12/stretch/Dockerfile#L19
+ARG GOLANG_VERSION=1.12.6
+ARG GOLANG_SHA256=dbcf71a3c1ea53b8d54ef1b48c85a39a6c9a935d01fc8291ff2b92028e59913c
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
@@ -123,10 +124,12 @@ RUN set -ex \
 
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
-ARG GCLOUD_VERSION=218.0.0
+ARG GCLOUD_VERSION=253.0.0
+ARG GCLOUD_SHA256=df3834e538025b257b7cc5d6e7518ca16f05e99aa82671dda19045e688b5268a
 ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
 RUN set -ex \
  && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
+ && echo "${GCLOUD_SHA256} */tmp/gcloud.tgz" | sha256sum -c - \
  && mkdir -p /home/circleci/google-cloud-sdk \
  && tar -xz -C /home/circleci -f /tmp/gcloud.tgz \
  && /home/circleci/google-cloud-sdk/install.sh \
