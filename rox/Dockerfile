@@ -76,9 +76,9 @@ RUN set -ex \
 
 # Install Bazel.
 # Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
-ARG BAZEL_VERSION=0.27.1
-# https://github.com/bazelbuild/bazel/releases/download/0.27.1/bazel-0.27.1-installer-linux-x86_64.sh.sha256
-ARG BAZEL_INSTALLER_SHA256=8c6983cfe49258f8a0102c68cba2328deaaa2325c9c63ac54074a3785f0c4b55
+ARG BAZEL_VERSION=0.28.1
+# https://github.com/bazelbuild/bazel/releases/download/0.28.1/bazel-0.28.1-installer-linux-x86_64.sh.sha256
+ARG BAZEL_INSTALLER_SHA256=a2a7e4cb38d7bc774a5bbfab4d45293f5f2158eb6caf0128792cc1148732a4e6
 RUN set -ex \
  && wget --no-verbose -O install.sh https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh \
  && chmod +x install.sh \
