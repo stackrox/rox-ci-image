@@ -31,8 +31,8 @@ RUN set -ex \
       git \
       lsof \
       jq \
-      openjdk-8-jdk-headless=8u212-b03-0ubuntu1.18.04.1 \
-      nodejs=8.16.0-1nodesource1 \
+      openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
+      nodejs=8.16.1-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
@@ -88,9 +88,9 @@ RUN set -ex \
  && command -v bazel
 
 # Install Go
-# https://github.com/docker-library/golang/blob/a9171b851ba926f2979e8c711d25faa025194def/1.12/stretch/Dockerfile#L19
-ARG GOLANG_VERSION=1.12.6
-ARG GOLANG_SHA256=dbcf71a3c1ea53b8d54ef1b48c85a39a6c9a935d01fc8291ff2b92028e59913c
+# https://golang.org/dl/
+ARG GOLANG_VERSION=1.12.9
+ARG GOLANG_SHA256=ac2a6efcc1f5ec8bdc0db0a988bb1d301d64b6d61b7e8d9e42f662fbb75a2b9b
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
