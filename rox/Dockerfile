@@ -31,8 +31,8 @@ RUN set -ex \
       git \
       lsof \
       jq \
-      openjdk-8-jdk-headless=8u212-b03-0ubuntu1.18.04.1 \
-      nodejs=8.16.0-1nodesource1 \
+      openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
+      nodejs=8.16.1-1nodesource1 \
       unzip \
       yarn=1.10.1-1 \
       `# gcloud SDK dependencies:` \
