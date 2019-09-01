@@ -135,7 +135,8 @@ RUN set -ex \
  && /home/circleci/google-cloud-sdk/install.sh \
  && chown -R circleci /home/circleci/google-cloud-sdk \
  && rm -rf /tmp/gcloud.tgz \
- && command -v gcloud
+ && command -v gcloud \
+ && gcloud components install alpha beta gsutil
 
 # kubectl
 RUN set -ex \
