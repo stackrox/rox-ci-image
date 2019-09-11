@@ -173,11 +173,11 @@ RUN set -ex \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
 
-USER circleci
-
 # chown $GOPATH for the circleci user.
 # This has to be done at the end since some of the other Go commands are run as root.
 RUN chmod -R 777 "$GOPATH" \
- && chown -R circleci "$GOPATH"
+  && chown -R circleci "$GOPATH"
+
+USER circleci
 
 COPY bin/cci-export /usr/bin/cci-export
