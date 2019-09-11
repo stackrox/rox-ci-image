@@ -101,8 +101,7 @@ RUN set -ex \
  && rm go.tgz \
  && command -v go \
  && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
- && chmod -R 777 "$GOPATH" \
- && chown -R circleci "$GOPATH"
+
 
 # Add necessary Go build tools
 RUN set -ex \
@@ -175,5 +174,10 @@ RUN set -ex \
  && command -v gradle
 
 USER circleci
+
+# chown $GOPATH for the circleci user.
+# This has to be done at the end since some of the other Go commands are run as root.
+RUN chmod -R 777 "$GOPATH" \
+ && chown -R circleci "$GOPATH"
 
 COPY bin/cci-export /usr/bin/cci-export
