@@ -100,7 +100,7 @@ RUN set -ex \
  && tar -C /usr/local -xzf go.tgz \
  && rm go.tgz \
  && command -v go \
- && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
+ && mkdir -p "$GOPATH/src" "$GOPATH/bin"
 
 
 # Add necessary Go build tools
