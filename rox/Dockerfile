@@ -102,24 +102,9 @@ RUN set -ex \
  && command -v go \
  && mkdir -p "$GOPATH/src" "$GOPATH/bin"
 
-
-# Add necessary Go build tools
-RUN set -ex \
- && go get -u golang.org/x/lint/golint \
- && command -v golint \
- && go get -d golang.org/x/tools/cmd/goimports \
- && cd "$GOPATH/src/golang.org/x/tools" \
- && git checkout -q 0268d3dd0724eb8b65d4e71a1285076f6efd643d \
- && go install golang.org/x/tools/cmd/goimports \
- && command -v goimports \
- && go get -u github.com/jstemmer/go-junit-report \
- && command -v go-junit-report \
- && wget --no-verbose -O $GOPATH/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 \
- && chmod +x $GOPATH/bin/dep \
- && command -v dep \
- && go get github.com/mattn/goveralls \
- && command -v goveralls \
- && rm -rf $GOPATH/src/* $GOPATH/pkg/*
+# chown $GOPATH for the circleci user.
+RUN chmod -R 777 "$GOPATH" \
+  && chown -R circleci "$GOPATH"
 
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
@@ -173,10 +158,7 @@ RUN set -ex \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
 
-# chown $GOPATH for the circleci user.
-# This has to be done at the end since some of the other Go commands are run as root.
-RUN chmod -R 777 "$GOPATH" \
-  && chown -R circleci "$GOPATH"
+
 
 USER circleci
 
