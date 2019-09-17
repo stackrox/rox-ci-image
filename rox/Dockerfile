@@ -100,11 +100,9 @@ RUN set -ex \
  && tar -C /usr/local -xzf go.tgz \
  && rm go.tgz \
  && command -v go \
- && mkdir -p "$GOPATH/src" "$GOPATH/bin"
-
-# chown $GOPATH for the circleci user.
-RUN chmod -R 777 "$GOPATH" \
-  && chown -R circleci "$GOPATH"
+ && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
+ && chmod -R 777 "$GOPATH" \
+ && chown -R circleci "$GOPATH"
 
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
@@ -157,8 +155,6 @@ RUN set -ex \
  && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
-
-
 
 USER circleci
 
