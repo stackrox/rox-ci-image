@@ -30,7 +30,6 @@ RUN set -ex \
       curl \
       git \
       lsof \
-      jq \
       openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
       nodejs=8.16.1-1nodesource1 \
       unzip \
@@ -54,6 +53,12 @@ RUN set -ex \
       gettext \
       zip \
  && rm -rf /var/lib/apt/lists/*
+
+# Install jq
+RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
+  && chmod +x ./jq
+  && sudo mv ./jq /usr/bin
+  && command -v jq
 
 # Configure CircleCI user
 RUN set -ex \
