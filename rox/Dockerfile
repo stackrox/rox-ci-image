@@ -56,8 +56,8 @@ RUN set -ex \
 
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
-  && chmod +x ./jq
-  && sudo mv ./jq /usr/bin
+  && chmod +x ./jq \
+  && sudo mv ./jq /usr/bin \
   && command -v jq
 
 # Configure CircleCI user
