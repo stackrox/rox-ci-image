@@ -10,7 +10,7 @@ cci-export() {
 
 	export "${key}=${value}"
 
-    if [ "$CI" == "true" ]; then
+    if [ "$CIRCLECI" == "true" ]; then
     	if [ -z "$BASH_ENV" ]; then
         	echo >&2 "Env var BASH_ENV not properly set"
         	return 1
