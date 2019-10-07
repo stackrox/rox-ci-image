@@ -162,6 +162,6 @@ RUN set -ex \
  && command -v gradle
 
 COPY ./static-contents/* /
-RUN echo '. extra-bash.bashrc' >> /etc/bash.bashrc
+RUN echo '. /etc/extra-bash.bashrc' >> /etc/bash.bashrc
 
 USER circleci
