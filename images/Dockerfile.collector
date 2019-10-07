@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends cmake
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
-COPY ./static-contents/* /
+COPY ./static-contents/etc/extra-bash.bashrc /etc/
 RUN echo '. /etc/extra-bash.bashrc' >> /etc/bash.bashrc
 
 USER circleci
