@@ -24,7 +24,7 @@ commands:
             export TAG="$(git describe --tags --abbrev=10)"
             docker build images/ -f << parameters.dockerfile-path >> \
               -t "stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" \
-              -t "stackrox/apollo-ci:-<< parameters.tag-prefix >>$TAG"
+              -t "stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG"
 
       - run:
           name: Push image
