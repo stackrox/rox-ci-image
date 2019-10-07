@@ -43,13 +43,13 @@ jobs:
   build-and-push-rox:
     <<: *defaults
     steps:
-      - build_and_push_image:
+      - build-and-push-image:
           dockerfile-path: images/Dockerfile.rox
 
   build-and-push-collector:
     <<: *defaults
     steps:
-      - build_and_push_image:
+      - build-and-push-image:
           dockerfile-path: images/Dockerfile.collector
           tag-prefix: "collector-"
 
