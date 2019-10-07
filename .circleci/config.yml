@@ -30,6 +30,8 @@ commands:
           name: Push image
           command: |
             docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
+
+            export TAG="$(git describe --tags --abbrev=10)"
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
               docker push "stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG" | cat
