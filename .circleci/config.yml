@@ -4,45 +4,65 @@ defaults: &defaults
   working_directory: /go/src/bitbucket.org/stack-rox/apollo-ci-image
 
 version: 2.1
+
+commands:
+  build-and-push-image:
+    parameters:
+      tag-prefix:
+        description: Prefix to be added before the tag.
+        type: string
+        default: ""
+      dockerfile-path:
+        description: Path to the Dockerfile
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build image
+          command: |
+            export TAG="$(git describe --tags --abbrev=10)"
+            docker build images/ -f << parameters.dockerfile-path >> \
+              -t "stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" \
+              -t "stackrox/apollo-ci:-<< parameters.tag-prefix >>$TAG"
+
+      - run:
+          name: Push image
+          command: |
+            docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
+            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
+              echo "Pushing release image"
+              docker push "stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG" | cat
+            else
+              echo "Pushing snapshot image"
+              docker push "stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" | cat
+            fi
+
+
 jobs:
-  build:
+  build-and-push-rox:
     <<: *defaults
     steps:
-    - checkout
-    - setup_remote_docker
+    - build_and_push_image:
+      dockerfile-path: images/Dockerfile.rox
 
-    - run:
-        name: Build Docker images
-        command: |
-          export TAG="$(git describe --tags --abbrev=10)"
-          docker build images/ -f images/Dockerfile.collector \
-            -t "stackrox/apollo-ci:snapshot-collector-$TAG" \
-            -t "stackrox/apollo-ci:collector-$TAG"
-          docker build images/ -f images/Dockerfile.rox \
-            -t "stackrox/apollo-ci:snapshot-$TAG" \
-            -t "stackrox/apollo-ci:$TAG"
-
-    - run:
-        name: Push Docker image
-        command: |
-          docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
-
-          export TAG=$(git describe --tags --abbrev=10)
-          if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-            echo Pushing release images
-            docker push "stackrox/apollo-ci:$TAG" | cat
-            docker push "stackrox/apollo-ci:collector-$TAG" | cat
-          else
-            echo Pushing snapshot images
-            docker push "stackrox/apollo-ci:snapshot-$TAG" | cat
-            docker push "stackrox/apollo-ci:snapshot-collector-$TAG" | cat
-          fi
+  build-and-push-collector:
+    <<: *defaults
+    steps:
+      - build_and_push_image:
+        dockerfile-path: images/Dockerfile.collector
+        tag-prefix: "collector-"
 
 workflows:
   version: 2
   build:
     jobs:
-    - build:
+    - build-and-push-rox:
+        context: docker-io-push
+        filters:
+          tags:
+            only: /.*/
+    - build-and-push-collector:
         context: docker-io-push
         filters:
           tags:
