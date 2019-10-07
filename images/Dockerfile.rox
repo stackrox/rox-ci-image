@@ -161,6 +161,6 @@ RUN set -ex \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
 
-USER circleci
+COPY ./static-contents/* /
 
-COPY bin/cci-export /usr/bin/cci-export
+USER circleci
