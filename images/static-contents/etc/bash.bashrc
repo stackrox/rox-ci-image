@@ -1,6 +1,7 @@
-# This file defines a cci-export function, which can be used to export environment variables in a way that is persistent
-# across CircleCI steps.
+# This is the BashRC file for the container.
 
+# cci-export is a function which can be used to export environment variables in a way that is persistent
+# across CircleCI steps.
 cci-export() {
 	if [ "$#" -ne 2 ]; then
 		echo >&2 "Usage: $0 KEY VALUE"
