@@ -161,7 +161,9 @@ RUN set -ex \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
 
-COPY ./static-contents/etc/extra-bash.bashrc /etc/
-RUN echo '. /etc/extra-bash.bashrc' >> /etc/bash.bashrc
+COPY ./static-contents/ /
+RUN \
+	mv /bin/bash /bin/real-bash && \
+	mv /bin/bash-wrapper /bin/bash
 
 USER circleci
