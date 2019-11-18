@@ -89,23 +89,10 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
-# Install Bazel.
-# Bazel installation requires: pkg-config zip g++ zlib1g-dev unzip python
-ARG BAZEL_VERSION=0.28.1
-# https://github.com/bazelbuild/bazel/releases/download/0.28.1/bazel-0.28.1-installer-linux-x86_64.sh.sha256
-ARG BAZEL_INSTALLER_SHA256=a2a7e4cb38d7bc774a5bbfab4d45293f5f2158eb6caf0128792cc1148732a4e6
-RUN set -ex \
- && wget --no-verbose -O install.sh https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-linux-x86_64.sh \
- && chmod +x install.sh \
- && echo "${BAZEL_INSTALLER_SHA256}  install.sh" | sha256sum -c - \
- && ./install.sh --prefix=/usr/local \
- && rm ./install.sh \
- && command -v bazel
-
 # Install Go
 # https://golang.org/dl/
-ARG GOLANG_VERSION=1.13.3
-ARG GOLANG_SHA256=0804bf02020dceaa8a7d7275ee79f7a142f1996bfd0c39216ccb405f93f994c0
+ARG GOLANG_VERSION=1.13.4
+ARG GOLANG_SHA256=692d17071736f74be04a72a06dab9cac1cd759377bd85316e52b2227604c004c
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
