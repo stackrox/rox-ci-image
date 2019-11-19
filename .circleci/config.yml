@@ -55,6 +55,13 @@ jobs:
           dockerfile-path: images/Dockerfile.collector
           tag-prefix: "collector-"
 
+  build-and-push-jenkins-plugin:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/Dockerfile.jenkins-plugin
+          tag-prefix: "jenkins-plugin-"
+
 workflows:
   version: 2
   build:
@@ -65,6 +72,11 @@ workflows:
           tags:
             only: /.*/
     - build-and-push-collector:
+        context: docker-io-push
+        filters:
+          tags:
+            only: /.*/
+    - build-and-push-jenkins-plugin:
         context: docker-io-push
         filters:
           tags:
