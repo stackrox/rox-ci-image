@@ -28,8 +28,6 @@ RUN set -ex \
  && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-
 # Install all the packages
 RUN set -ex \
  && apt-get update \
@@ -45,7 +43,7 @@ RUN set -ex \
       unzip \
       # used in scanner
       postgresql-client-12 \
-      yarn=1.19.2 \
+      yarn=1.19.2-1 \
       `# gcloud SDK dependencies:` \
       python2.7-minimal \
       libpython-stdlib \
