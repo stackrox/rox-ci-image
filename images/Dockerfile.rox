@@ -109,7 +109,7 @@ RUN set -ex \
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
 ARG GCLOUD_VERSION=272.0.0
-ARG GCLOUD_SHA256=df3834e538025b257b7cc5d6e7518ca16f05e99aa82671dda19045e688b5268a
+ARG GCLOUD_SHA256=1920b14a985e12e8658607685aec9abed8f8dde499d773bc1ca6f0abe1b25425
 ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
 RUN set -ex \
  && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
