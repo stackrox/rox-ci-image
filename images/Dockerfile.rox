@@ -49,14 +49,17 @@ RUN set -ex \
       libpython-stdlib \
       `# OpenShift deployment dependencies:` \
       openssh-client \
-      `# Cypress dependencies:` \
-      xvfb \
+      `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
+      libgtk2.0-0 \
       libgtk-3-0 \
       libnotify-dev \
       libgconf-2-4 \
       libnss3 \
       libxss1 \
       libasound2 \
+      libxtst6 \
+      xauth \
+      xvfb \
       xxd \
       sudo \
       `# For envsubst:` \
