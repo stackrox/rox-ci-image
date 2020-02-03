@@ -36,7 +36,7 @@ RUN set -ex \
       curl \
       git \
       lsof \
-      openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
+      openjdk-8-jdk-headless \
       # Note that the nodejs version is determined by which of the scripts from deb.nodesource.com
       # we execute in the previous job. See https://github.com/nodesource/distributions/blob/master/README.md#deb
       nodejs \
