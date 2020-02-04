@@ -13,7 +13,7 @@ RUN set -ex \
       curl \
       ca-certificates=20180409 \
       git \
-      openjdk-8-jdk-headless=8u222-b10-1ubuntu1~18.04.1 \
+      openjdk-8-jdk-headless \
       maven \
       unzip \
       openssh-client \
