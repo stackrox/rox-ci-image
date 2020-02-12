@@ -47,6 +47,8 @@ RUN set -ex \
       `# gcloud SDK dependencies:` \
       python2.7-minimal \
       libpython-stdlib \
+      python3-pip \
+      python3-setuptools \
       `# OpenShift deployment dependencies:` \
       openssh-client \
       `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
@@ -161,6 +163,11 @@ RUN set -ex \
  && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
  && command -v gradle
+
+# Install aws cli
+RUN set -ex \
+ && pip3 install awscli==1.17.16 \
+ && aws --version
 
 COPY ./static-contents/ /
 RUN \
