@@ -96,8 +96,8 @@ RUN set -ex \
 
 # Install Go
 # https://golang.org/dl/
-ARG GOLANG_VERSION=1.14
-ARG GOLANG_SHA256=08df79b46b0adf498ea9f320a0f23d6ec59e9003660b4c9c1ce8e5e2c6f823ca
+ARG GOLANG_VERSION=1.13.9
+ARG GOLANG_SHA256=f4ad8180dd0aaf7d7cda7e2b0a2bf27e84131320896d376549a7d849ecf237d7
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
