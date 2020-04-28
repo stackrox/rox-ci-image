@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends lsb-release
 
 # Install GCloud SDK, copied from
 # https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
-RUN curl https://sdk.cloud.google.com | bash
+RUN cd /opt; curl https://sdk.cloud.google.com | bash
+
+ENV PATH /opt/google-cloud-sdk:${PATH}
 
 RUN apt-get update && apt-get install -y --no-install-recommends cmake
 
