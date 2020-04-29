@@ -1,17 +1,8 @@
-FROM circleci/golang:1.11.2-stretch
+FROM circleci/golang:1.13.8-stretch
 
 USER 0
 
-RUN apt-get update && apt-get install -y --no-install-recommends lsb-release
-
-# Install GCloud SDK, copied from
-# https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
-RUN export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-    echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    apt-get update -y && apt-get install google-cloud-sdk -y
-
-RUN apt-get update && apt-get install -y --no-install-recommends cmake
+RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
@@ -21,3 +12,10 @@ RUN \
 	mv /bin/bash-wrapper /bin/bash
 
 USER circleci
+
+# Install GCloud SDK per https://cloud.google.com/sdk/docs/downloads-interactive#linux
+# Note: We DO NOT use apt-get to install it in order to be able to use the built-in
+# upgrade functionality.
+RUN curl https://sdk.cloud.google.com | bash
+
+ENV PATH /home/circleci/google-cloud-sdk/bin:${PATH}
