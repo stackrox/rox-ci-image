@@ -2,15 +2,7 @@ FROM circleci/golang:1.11.2-stretch
 
 USER 0
 
-RUN apt-get update && apt-get install -y --no-install-recommends lsb-release
-
-# Install GCloud SDK, copied from
-# https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
-RUN cd /opt; curl https://sdk.cloud.google.com | bash
-
-ENV PATH /opt/google-cloud-sdk:${PATH}
-
-RUN apt-get update && apt-get install -y --no-install-recommends cmake
+RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
@@ -20,3 +12,9 @@ RUN \
 	mv /bin/bash-wrapper /bin/bash
 
 USER circleci
+
+# Install GCloud SDK, copied from
+# https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
+RUN curl https://sdk.cloud.google.com | bash
+
+ENV PATH /home/circleci/google-cloud-sdk/bin:${PATH}
