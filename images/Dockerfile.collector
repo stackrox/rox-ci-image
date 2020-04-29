@@ -13,8 +13,9 @@ RUN \
 
 USER circleci
 
-# Install GCloud SDK, copied from
-# https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu#before-you-begin
+# Install GCloud SDK per https://cloud.google.com/sdk/docs/downloads-interactive#linux
+# Note: We DO NOT use apt-get to install it in order to be able to use the built-in
+# upgrade functionality.
 RUN curl https://sdk.cloud.google.com | bash
 
 ENV PATH /home/circleci/google-cloud-sdk/bin:${PATH}
