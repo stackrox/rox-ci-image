@@ -2,7 +2,7 @@ FROM ubuntu:18.04 as rocksdb
 
 ENV ROCKSDB_VERSION="v6.7.3"
 
-RUN apt-get update && apt-get install -y gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+RUN apt-get update && apt-get install -y git gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
 RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
 
 FROM ubuntu:18.04
