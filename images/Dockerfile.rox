@@ -74,6 +74,7 @@ RUN set -ex \
       `# For envsubst:` \
       gettext \
       zip \
+      bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
 # Install jq
