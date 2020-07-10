@@ -16,7 +16,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
-      apt-transport-https=1.6.6ubuntu0.1 \
+      apt-transport-https \
       ca-certificates=20180409 \
       gnupg2=2.2.4-1ubuntu1.2 \
       wget=1.19.4-1ubuntu2.2 \
@@ -74,6 +74,7 @@ RUN set -ex \
       `# For envsubst:` \
       gettext \
       zip \
+      bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
 # Install jq
