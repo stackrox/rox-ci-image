@@ -179,7 +179,7 @@ RUN set -ex \
 
 # Install anchore cli
 RUN set -ex \
- && pip3 install anchorecli==0.7.2 \
+ && pip install anchorecli==0.7.2 \
  && anchore-cli --version
 
 COPY ./static-contents/ /
