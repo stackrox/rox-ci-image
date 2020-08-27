@@ -23,7 +23,7 @@ RUN set -ex \
       # Required in scanner
       rpm \
       lsb-core \
- && wget --no-verbose -O - https://deb.nodesource.com/setup_lts.x| bash - \
+ && wget --no-verbose -O - https://deb.nodesource.com/setup_lts.x | bash - \
  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
