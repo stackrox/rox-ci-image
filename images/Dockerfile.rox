@@ -58,7 +58,7 @@ RUN set -ex \
       yarn=1.19.2-1 \
       `# gcloud SDK dependencies:` \
       python2.7-minimal \
-      libpython-stdlib \
+      libpython2-stdlib \
       python3-pip \
       python3-setuptools \
       `# OpenShift deployment dependencies:` \
