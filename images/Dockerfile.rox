@@ -189,10 +189,10 @@ RUN set -ex \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
 COPY ./static-contents/ /
-RUN find /bin
 RUN \
-	cp /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash
+	mv /bin/bash /bin/real-bash && \
+	mv /static-bin/bash-wrapper /bin/bash && \
+	rm -rf /static-bin/
 
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
