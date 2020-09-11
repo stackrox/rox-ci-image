@@ -189,6 +189,7 @@ RUN set -ex \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
 COPY ./static-contents/ /
+RUN find /bin
 RUN \
 	cp /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
