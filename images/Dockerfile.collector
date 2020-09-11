@@ -9,7 +9,8 @@ ENV ROX_CI_IMAGE=collector-ci-image
 COPY ./static-contents/ /
 RUN \
 	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash
+	mv /static-bin/bash-wrapper /bin/bash && \
+	rm -rf /static-bin/
 
 USER circleci
 
