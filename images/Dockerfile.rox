@@ -190,7 +190,7 @@ RUN set -ex \
 
 COPY ./static-contents/ /
 RUN \
-	mv /bin/bash /bin/real-bash && \
+	cp /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
 
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
