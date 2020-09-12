@@ -188,6 +188,9 @@ RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
+# Symlink python to python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 COPY ./static-contents/ /
 RUN \
 	mv /bin/bash /bin/real-bash && \
