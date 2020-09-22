@@ -56,9 +56,6 @@ RUN set -ex \
       # used in scanner
       postgresql-client-12 \
       yarn=1.19.2-1 \
-      `# gcloud SDK dependencies:` \
-      python2.7-minimal \
-      libpython2-stdlib \
       python3-pip \
       python3-setuptools \
       `# OpenShift deployment dependencies:` \
@@ -125,10 +122,13 @@ RUN set -ex \
  && chmod -R 777 "$GOPATH" \
  && chown -R circleci "$GOPATH"
 
+ # Symlink python to python3
+ RUN ln -s /usr/bin/python3 /usr/bin/python
+
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
-ARG GCLOUD_VERSION=272.0.0
-ARG GCLOUD_SHA256=1920b14a985e12e8658607685aec9abed8f8dde499d773bc1ca6f0abe1b25425
+ARG GCLOUD_VERSION=311.0.0
+ARG GCLOUD_SHA256=ec6353b28c5cf2f8737b9604dd45274baccb15fc0aa05157a2a8eb77f4ad37ca
 ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
 RUN set -ex \
  && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
@@ -188,14 +188,16 @@ RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
-# Symlink python to python3
-RUN ln -s /usr/bin/python3 /usr/bin/python
+COPY ./static-contents/ /static-tmp
+RUN set -e \
+  for file in $(find /static-tmp -type f); do \
+    dir="$(dirname "${file}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${file}" "${new_dir}"; \
+  done \
+  && rm -r /static-tmp
 
-COPY ./static-contents/ /
 RUN \
 	mv /bin/bash /bin/real-bash && \
-	mv /static-bin/bash-wrapper /bin/bash && \
-	rm -rf /static-bin/
+	mv /bin/bash-wrapper /bin/bash
 
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
