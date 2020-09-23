@@ -1,7 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/golang:1.12
-  working_directory: /go/src/bitbucket.org/stack-rox/apollo-ci-image
+    - image: cimg/base:20.01
 
 version: 2.1
 
@@ -34,11 +33,18 @@ commands:
             export TAG="$(git describe --tags --abbrev=10)"
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
-              docker push "stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG" | cat
+              image_to_push="stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG"
             else
               echo "Pushing snapshot image"
-              docker push "stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" | cat
+              image_to_push="stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG"
             fi
+            docker push "${image_to_push}" | cat
+            echo "${image_to_push}" > /tmp/pushed_image
+
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - pushed_image
 
 
 jobs:
@@ -47,6 +53,22 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/Dockerfile.rox
+
+  create-or-update-dependent-rox-pr:
+    <<: *defaults
+    steps:
+    - add_ssh_keys:
+        fingerprints:
+          - "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
+    - attach_workspace:
+        at: /tmp
+
+    - run:
+        name: Create or update dependent PR
+        command: |
+          pushed_image="$(cat /tmp/pushed_image)"
+          [[ -n "${pushed_image}" ]]
+          echo "Image pushed: ${pushed_image}"
 
   build-and-push-collector:
     <<: *defaults
@@ -71,6 +93,11 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - create-or-update-dependent-rox-pr:
+        context: docker-io-pull
+        filters:
+          branches:
+            ignore: master
     - build-and-push-collector:
         context: docker-io-push
         filters:
