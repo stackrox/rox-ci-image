@@ -65,12 +65,7 @@ jobs:
         at: /tmp
 
     - run:
-        name: Add SSH key of github.com
-        command: |
-          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-
-    - run:
-        name: Clone rox repo , copy dev license
+        name: Clone rox repo
         command: |
           git clone git@github.com:stackrox/rox.git /tmp/rox
 
