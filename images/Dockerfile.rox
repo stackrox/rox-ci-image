@@ -190,7 +190,7 @@ RUN set -ex \
 
 COPY ./static-contents/ /static-tmp
 RUN set -e \
-  for file in $(find /static-tmp -type f); do \
+  && for file in $(find /static-tmp -type f); do \
     dir="$(dirname "${file}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${file}" "${new_dir}"; \
   done \
   && rm -r /static-tmp
