@@ -33,5 +33,5 @@ curl -sS \
 	\"base\": \"master\"
 }" > "${status_code_file}"
 
-echo "Got status code: $(cat status_code_file)"
-echo "Got PR response: $(cat pr_response_file)"
+echo "Got status code: $(cat "${status_code_file}")"
+echo "Got PR response: $(cat "${pr_response_file}")"
