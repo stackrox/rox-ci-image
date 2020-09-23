@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: cimg/base:20.01
+    - image: cimg/base:stable
 
 version: 2.1
 
@@ -98,6 +98,8 @@ workflows:
         filters:
           branches:
             ignore: master
+        requires:
+        - build-and-push-rox
     - build-and-push-collector:
         context: docker-io-push
         filters:
