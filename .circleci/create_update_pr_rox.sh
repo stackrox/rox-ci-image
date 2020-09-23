@@ -21,7 +21,7 @@ This is an automated PR created to bump the base image.
 It was created from ${CIRCLE_PULL_REQUEST}."
 
 curl -sS \
-  -w '%{http_status_code}' \
+  -w '%{http_code}' \
 	-o "$pr_response_file" \
 	-X POST \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
@@ -33,5 +33,5 @@ curl -sS \
 	\"base\": \"master\"
 }" > "${status_code_file}"
 
-echo "Got status code: ${status_code_file}"
-echo "Got PR response: ${pr_response_file}"
+echo "Got status code: $(cat status_code_file)"
+echo "Got PR response: $(cat pr_response_file)"
