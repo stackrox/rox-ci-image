@@ -70,18 +70,15 @@ jobs:
           git clone git@github.com:stackrox/rox.git /tmp/rox
 
     - run:
-        name: Configure git
-        command: |
-          git config user.email "roxbot@stackrox.com"
-          git config user.name "RoxBot"
-
-    - run:
         name: Create commit that updates the base image, and create PR
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
           [[ -n "${pushed_image}" ]]
           echo "Image pushed: ${pushed_image}"
           cd /tmp/rox
+
+          git config user.email "roxbot@stackrox.com"
+          git config user.name "RoxBot"
 
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           if git branch -a | grep -qx '[[:space:]]*remotes/origin/'"${branch_name}"; then
