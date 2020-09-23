@@ -101,11 +101,11 @@ jobs:
           sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"'@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
 
-     - run:
-         name: Create PR
-         command: |
-           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
-           .circleci/create_update_pr_rox.sh "${branch_name}"
+    - run:
+        name: Create PR
+        command: |
+          branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+          .circleci/create_update_pr_rox.sh "${branch_name}"
 
   build-and-push-collector:
     <<: *defaults
