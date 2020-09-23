@@ -64,11 +64,48 @@ jobs:
         at: /tmp
 
     - run:
-        name: Create or update dependent PR
+        name: Clone rox repo , copy dev license
+        command: |
+          git clone git@github.com:stackrox/rox.git /tmp/rox
+
+    - run:
+        name: Configure git
+        command: |
+          git config user.email "roxbot@stackrox.com"
+          git config user.name "RoxBot"
+
+    - run:
+        name: Add SSH key of github.com
+        command: |
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+    - run:
+        name: Create commit that updates the base image, and create PR
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
           [[ -n "${pushed_image}" ]]
           echo "Image pushed: ${pushed_image}"
+          cd /tmp/rox
+
+          branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+          if git branch -a | grep -qx '[[:space:]]*remotes/origin/'"${branch_name}"; then
+            echo "Found existing branch, halting..."
+            git checkout "${branch_name}"
+          else
+            echo "Creating new branch"
+            git checkout -b "${branch_name}"
+            git push --set-upstream origin "${branch_name}"
+          fi
+
+
+          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"'@g' .circleci/config.yml
+          git commit -am "Bump base image to ${pushed_image##:}"
+
+     - run:
+         name: Create PR
+         command: |
+           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+           .circleci/create_update_pr_rox.sh "${branch_name}"
 
   build-and-push-collector:
     <<: *defaults
