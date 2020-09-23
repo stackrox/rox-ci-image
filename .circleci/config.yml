@@ -93,6 +93,7 @@ jobs:
 
           sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"'@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
+          git push
 
     - run:
         name: Create PR
