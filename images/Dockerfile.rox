@@ -188,6 +188,11 @@ RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
+# We are copying the contents in static-contents into / in the image, following the directory structure.
+# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
+# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
+# the contents of static-contents/bin, which is NOT what we want.
+# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
 COPY ./static-contents/ /static-tmp
 RUN set -e \
   && for file in $(find /static-tmp -type f); do \
