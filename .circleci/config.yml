@@ -57,6 +57,7 @@ jobs:
   create-or-update-dependent-rox-pr:
     <<: *defaults
     steps:
+    - checkout
     - add_ssh_keys:
         fingerprints:
           - "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
