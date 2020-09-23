@@ -1,11 +1,16 @@
-FROM ubuntu:18.04 as rocksdb
+FROM ubuntu:20.04 as rocksdb
 
 ENV ROCKSDB_VERSION="v6.7.3"
 
 RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
 RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+
+# Avoid interaction with apt-get commands.
+# This pops up when doing apt-get install lsb-core,
+# which asks for user input for timezone data.
+ARG DEBIAN_FRONTEND=noninteractive
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
@@ -51,9 +56,6 @@ RUN set -ex \
       # used in scanner
       postgresql-client-12 \
       yarn=1.19.2-1 \
-      `# gcloud SDK dependencies:` \
-      python2.7-minimal \
-      libpython-stdlib \
       python3-pip \
       python3-setuptools \
       `# OpenShift deployment dependencies:` \
@@ -105,8 +107,8 @@ RUN set -ex \
 
 # Install Go
 # https://golang.org/dl/
-ARG GOLANG_VERSION=1.14.7
-ARG GOLANG_SHA256=4a7fa60f323ee1416a4b1425aefc37ea359e9d64df19c326a58953a97ad41ea5
+ARG GOLANG_VERSION=1.15.2
+ARG GOLANG_SHA256=b49fda1ca29a1946d6bb2a5a6982cf07ccd2aba849289508ee0f9918f6bb4552
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -ex \
@@ -120,10 +122,13 @@ RUN set -ex \
  && chmod -R 777 "$GOPATH" \
  && chown -R circleci "$GOPATH"
 
+ # Symlink python to python3
+ RUN ln -s /usr/bin/python3 /usr/bin/python
+
 # Install gcloud
 # gcloud prefers to run out of a user's home directory.
-ARG GCLOUD_VERSION=272.0.0
-ARG GCLOUD_SHA256=1920b14a985e12e8658607685aec9abed8f8dde499d773bc1ca6f0abe1b25425
+ARG GCLOUD_VERSION=311.0.0
+ARG GCLOUD_SHA256=ec6353b28c5cf2f8737b9604dd45274baccb15fc0aa05157a2a8eb77f4ad37ca
 ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
 RUN set -ex \
  && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
@@ -183,7 +188,18 @@ RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
-COPY ./static-contents/ /
+# We are copying the contents in static-contents into / in the image, following the directory structure.
+# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
+# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
+# the contents of static-contents/bin, which is NOT what we want.
+# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
+COPY ./static-contents/ /static-tmp
+RUN set -e \
+  && for file in $(find /static-tmp -type f); do \
+    dir="$(dirname "${file}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${file}" "${new_dir}"; \
+  done \
+  && rm -r /static-tmp
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
