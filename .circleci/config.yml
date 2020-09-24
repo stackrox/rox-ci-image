@@ -89,11 +89,11 @@ jobs:
             git checkout -b "${branch_name}"
             git push --set-upstream origin "${branch_name}"
           fi
-
+          git reset --hard origin/HEAD
 
           sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"'@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
-          git push
+          git push --force
 
     - run:
         name: Create PR
