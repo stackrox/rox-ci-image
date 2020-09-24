@@ -1,3 +1,10 @@
+FROM ubuntu:20.04 as rocksdb
+
+ENV ROCKSDB_VERSION="v6.7.3"
+
+RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
+
 FROM ubuntu:20.04
 
 # Avoid interaction with apt-get commands.
@@ -196,5 +203,13 @@ RUN set -e \
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
+
+COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
+COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
+
+RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+
+ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
+ENV CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
 
 USER circleci
