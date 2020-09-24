@@ -90,7 +90,7 @@ jobs:
           fi
           git reset --hard origin/HEAD
 
-          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"' # TODO(don't-merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
+          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
           git push origin "${branch_name}" --force
 
