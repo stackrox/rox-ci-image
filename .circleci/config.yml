@@ -74,7 +74,7 @@ jobs:
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
           [[ -n "${pushed_image}" ]]
-          echo "Image pushed: ${pushed_image}"
+          echo "Pushed image: ${pushed_image}"
           cd /tmp/rox
 
           git config user.email "roxbot@stackrox.com"
@@ -82,7 +82,7 @@ jobs:
 
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           if git branch -a | grep -qx '[[:space:]]*remotes/origin/'"${branch_name}"; then
-            echo "Found existing branch, halting..."
+            echo "Found existing branch"
             git checkout "${branch_name}"
           else
             echo "Creating new branch"
