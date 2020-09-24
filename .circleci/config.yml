@@ -30,13 +30,13 @@ commands:
           command: |
             docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
 
-            export TAG="$(git describe --tags --abbrev=10)"
+            export TAG="<< parameters.tag-prefix >>$(git describe --tags --abbrev=10)"
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
-              image_to_push="stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG"
+              image_to_push="stackrox/apollo-ci:$TAG"
             else
               echo "Pushing snapshot image"
-              image_to_push="stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG"
+              image_to_push="stackrox/apollo-ci:snapshot-$TAG"
             fi
             docker push "${image_to_push}" | cat
             echo "${image_to_push}" > /tmp/pushed_image
@@ -71,11 +71,11 @@ jobs:
 
     - run:
         name: Create commit that updates the base image, and create PR
+        working_directory: /tmp/rox
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
           [[ -n "${pushed_image}" ]]
           echo "Pushed image: ${pushed_image}"
-          cd /tmp/rox
 
           git config user.email "roxbot@stackrox.com"
           git config user.name "RoxBot"
@@ -87,13 +87,12 @@ jobs:
           else
             echo "Creating new branch"
             git checkout -b "${branch_name}"
-            git push --set-upstream origin "${branch_name}"
           fi
           git reset --hard origin/HEAD
 
-          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"'@g' .circleci/config.yml
+          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"' # TODO(don't-merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
-          git push --force
+          git push origin "${branch_name}" --force
 
     - run:
         name: Create PR
