@@ -21,18 +21,33 @@ It was created from ${CIRCLE_PULL_REQUEST}."
 
 status_code="$(curl -sS \
   -w '%{http_code}' \
-	-o "$pr_response_file" \
-	-X POST \
-	-H "Authorization: token ${GITHUB_TOKEN}" \
-	'https://api.github.com/repos/stackrox/rox/pulls' \
-	-d"{
-	\"title\": \"Update rox-ci-image\",
-	\"body\": $(jq -sR <<<"$message"),
-	\"head\": \"${branch_name}\",
-	\"base\": \"master\"
+  -o "$pr_response_file" \
+  -X POST \
+  -H "Authorization: token ${GITHUB_TOKEN}" \
+  'https://api.github.com/repos/stackrox/rox/pulls' \
+  -d"{
+  \"title\": \"Update rox-ci-image\",
+  \"body\": $(jq -sR <<<"$message"),
+  \"head\": \"${branch_name}\",
+  \"base\": \"master\"
 }")"
 
 echo "Got status code: ${status_code}"
 echo "Got PR response: $(cat "${pr_response_file}")"
 # 422 is returned if the PR exists already.
 [[ "${status_code}" -eq 201 || "${status_code}" -eq 422 ]]
+
+if [[ "${status_code}" -eq 201 ]]; then
+  [[ -n "${CIRCLE_USERNAME}" ]] || die "No CIRCLE_USERNAME found."
+
+  pr_number="$(jq <"$pr_response_file" -r '.number')"
+  [[ -n "${pr_number}" ]]
+
+  curl -sS --fail \
+ -X POST \
+ -H "Authorization: token ${GITHUB_TOKEN}" \
+ "https://api.github.com/repos/stackrox/rox/pulls/${pr_number}/requested_reviewers" \
+ -d"{
+    \"reviewers\": [\"${CIRCLE_USERNAME}\"]
+  }"
+fi
