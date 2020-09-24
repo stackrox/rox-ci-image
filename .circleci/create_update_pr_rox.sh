@@ -34,4 +34,5 @@ status_code="$(curl -sS \
 
 echo "Got status code: ${status_code}"
 echo "Got PR response: $(cat "${pr_response_file}")"
+# 422 is returned if the PR exists already.
 [[ "${status_code}" -eq 201 || "${status_code}" -eq 422 ]]
