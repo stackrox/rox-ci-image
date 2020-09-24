@@ -46,8 +46,8 @@ if [[ "${status_code}" -eq 201 ]]; then
   curl -sS --fail \
  -X POST \
  -H "Authorization: token ${GITHUB_TOKEN}" \
- "https://api.github.com/repos/stackrox/rox/pulls/${pr_number}/requested_reviewers" \
+ "https://api.github.com/repos/stackrox/rox/issues/${pr_number}/assignees" \
  -d"{
-    \"reviewers\": [\"${CIRCLE_USERNAME}\"]
+    \"assignees\": [\"${CIRCLE_USERNAME}\"]
   }"
 fi

@@ -70,7 +70,7 @@ jobs:
           git clone git@github.com:stackrox/rox.git /tmp/rox
 
     - run:
-        name: Create commit that updates the base image, and create PR
+        name: Create commit in rox that updates the base image
         working_directory: /tmp/rox
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
