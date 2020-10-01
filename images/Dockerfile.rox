@@ -180,7 +180,9 @@ RUN set -ex \
 
 # Install aws cli
 RUN set -ex \
- && pip3 install awscli==1.17.16 \
+ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" -o "awscliv2.zip" \
+ && unzip awscliv2.zip \
+ && sudo ./aws/install \
  && aws --version
 
 # Install anchore cli
