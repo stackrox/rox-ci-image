@@ -82,10 +82,7 @@ RUN set -ex \
 
 # Install bats
 RUN set -ex \
-  && wget https://github.com/bats-core/bats-core/archive/v1.2.0.tar.gz \
-  && tar xzf v1.2.0.tar.gz \
-  && cd bats-core-1.2.0 \
-  && ./install.sh /usr/local \
+  && npm install -g bats@1.2.0 tap-junit \
   && bats -v
 
 # Install jq
