@@ -82,8 +82,9 @@ RUN set -ex \
 
 # Install bats
 RUN set -ex \
-  && git clone https://github.com/bats-core/bats-core.git \
-  && cd bats-core \
+  && wget https://github.com/bats-core/bats-core/archive/v1.2.0.tar.gz \
+  && tar xzf v1.2.0.tar.gz \
+  && cd bats-core-1.2.0 \
   && ./install.sh /usr/local \
   && bats -v
 
