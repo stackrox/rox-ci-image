@@ -80,6 +80,10 @@ RUN set -ex \
       bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
+# Install bats
+RUN set -ex \
+  && npm install -g bats
+
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
   && chmod +x ./jq \
