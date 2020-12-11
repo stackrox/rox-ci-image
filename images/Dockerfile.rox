@@ -82,7 +82,10 @@ RUN set -ex \
 
 # Install bats
 RUN set -ex \
-  && npm install -g bats
+  && git clone https://github.com/bats-core/bats-core.git \
+  && cd bats-core \
+  && ./install.sh /usr/local \
+  && bats -v
 
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
