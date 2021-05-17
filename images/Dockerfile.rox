@@ -98,7 +98,7 @@ RUN set -ex \
  && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
 
 # Install docker binary
-ARG DOCKER_VERSION=18.06.1-ce
+ARG DOCKER_VERSION=20.10.6
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
