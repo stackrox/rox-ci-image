@@ -5,6 +5,15 @@ ENV ROCKSDB_VERSION="v6.7.3"
 RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
 RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
 
+FROM golang:1.16 AS roxci-builder
+WORKDIR /go/src/github.com/stackrox
+RUN git clone https://roxbot:5e0a5f3b3fef4da8ce7576d4c6b46cfbf73132e3@github.com/stackrox/workflow.git \
+  && cd workflow \
+  && git checkout gavin/roxci \
+  && cd tools/roxci \
+  && go build -o roxci cmd/main.go \
+  && ./roxci help
+
 FROM ubuntu:20.04
 
 # Avoid interaction with apt-get commands.
@@ -194,6 +203,9 @@ RUN set -ex \
 RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
+
+# Install roxci
+COPY --from=roxci-builder /go/src/github.com/stackrox/workflow/tools/roxci/roxci /usr/bin/roxci
 
 # We are copying the contents in static-contents into / in the image, following the directory structure.
 # The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
