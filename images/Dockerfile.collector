@@ -2,7 +2,10 @@ FROM circleci/golang:1.16.2-buster
 
 USER 0
 
-RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake python3-distutils
+RUN printf "deb http://deb.debian.org/debian/ buster-backports main contrib non-free" > /etc/apt/sources.list.d/backports.list
+
+RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake python3-distutils clang-format-11
+RUN update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-11 100
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
