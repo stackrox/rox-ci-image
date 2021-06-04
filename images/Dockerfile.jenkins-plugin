@@ -18,7 +18,7 @@ RUN set -ex \
       unzip \
       openssh-client \
       sudo \
-      wget=1.19.4-1ubuntu2.2 \
+      wget \
       zip \
  && rm -rf /var/lib/apt/lists/*
 
