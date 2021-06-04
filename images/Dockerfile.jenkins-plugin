@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
@@ -11,14 +11,14 @@ RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
       curl \
-      ca-certificates=20180409 \
+      ca-certificates \
       git \
       openjdk-8-jdk-headless \
       maven \
       unzip \
       openssh-client \
       sudo \
-      wget=1.19.4-1ubuntu2.2 \
+      wget \
       zip \
  && rm -rf /var/lib/apt/lists/*
 
@@ -35,7 +35,7 @@ RUN set -ex \
  && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
 
 # Install docker binary
-ARG DOCKER_VERSION=18.06.1-ce
+ARG DOCKER_VERSION=20.10.6
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
