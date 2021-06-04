@@ -11,7 +11,7 @@ RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
       curl \
-      ca-certificates=20180409 \
+      ca-certificates \
       git \
       openjdk-8-jdk-headless \
       maven \
