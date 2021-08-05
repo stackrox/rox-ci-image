@@ -22,21 +22,21 @@ commands:
           command: |
             export TAG="$(git describe --tags --abbrev=10)"
             docker build images/ -f << parameters.dockerfile-path >> \
-              -t "stackrox/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" \
-              -t "stackrox/apollo-ci:<< parameters.tag-prefix >>$TAG"
+              -t "quay.io/cgorman1/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" \
+              -t "quay.io/cgorman1/apollo-ci:<< parameters.tag-prefix >>$TAG"
 
       - run:
           name: Push image
           command: |
-            docker login -u "$DOCKER_IO_PUSH_USERNAME" -p "$DOCKER_IO_PUSH_PASSWORD"
+            docker login -u "$QUAY_CGORMAN1_RW_USER" -p "$QUAY_CGORMAN1_RW_PASSWORD" quay.io
 
             export TAG="<< parameters.tag-prefix >>$(git describe --tags --abbrev=10)"
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
-              image_to_push="stackrox/apollo-ci:$TAG"
+              image_to_push="quay.io/cgorman1/apollo-ci:$TAG"
             else
               echo "Pushing snapshot image"
-              image_to_push="stackrox/apollo-ci:snapshot-$TAG"
+              image_to_push="quay.io/cgorman1/apollo-ci:snapshot-$TAG"
             fi
             docker push "${image_to_push}" | cat
             echo "${image_to_push}" > /tmp/pushed_image
@@ -84,7 +84,7 @@ jobs:
           git checkout "${branch_name}" || git checkout -b "${branch_name}"
           git reset --hard origin/HEAD
 
-          sed -i 's@stackrox/apollo-ci:.*@'"${pushed_image}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
+          sed -i 's@quay.io/cgorman/apollo-ci:.*@'"${pushed_image}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
           git push origin "${branch_name}" --force
 
@@ -113,24 +113,26 @@ workflows:
   build:
     jobs:
     - build-and-push-rox:
-        context: docker-io-push
+        context:
+        - quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
     - create-or-update-dependent-rox-pr:
-        context: docker-io-pull
         filters:
           branches:
             ignore: master
         requires:
         - build-and-push-rox
     - build-and-push-collector:
-        context: docker-io-push
+        context:
+        - quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
     - build-and-push-jenkins-plugin:
-        context: docker-io-push
+        context:
+        - quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
