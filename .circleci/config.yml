@@ -113,8 +113,7 @@ workflows:
   build:
     jobs:
     - build-and-push-rox:
-        context:
-        - quay-cgorman1-readwrite
+        context: quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
@@ -125,14 +124,12 @@ workflows:
         requires:
         - build-and-push-rox
     - build-and-push-collector:
-        context:
-        - quay-cgorman1-readwrite
+        context: quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
     - build-and-push-jenkins-plugin:
-        context:
-        - quay-cgorman1-readwrite
+        context: quay-cgorman1-readwrite
         filters:
           tags:
             only: /.*/
