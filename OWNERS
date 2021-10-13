@@ -1,8 +1,10 @@
 approvers:
-    connorgorman
-    gavin-stackrox
-    sbostick
+- connorgorman
+- gavin-stackrox
+- sbostick
+- viswajithiii
 reviewers:
-    connorgorman
-    gavin-stackrox
-    sbostick
+- connorgorman
+- gavin-stackrox
+- sbostick
+- viswajithiii
