@@ -54,6 +54,20 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/Dockerfile.rox
 
+  unit-test-rox:
+    machine:
+      image: ubuntu-2004:202111-01
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run unit tests for circleci-tools using the built image
+          command: |
+            export TAG="$(git describe --tags --abbrev=10)"
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:$TAG"
+            images/circleci-tools/test/test.bats
+
   create-or-update-dependent-rox-pr:
     <<: *defaults
     steps:
@@ -117,12 +131,16 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - unit-test-rox:
+        context: quay-rhacs-eng-readonly
+        requires:
+        - build-and-push-rox
     - create-or-update-dependent-rox-pr:
         filters:
           branches:
-            ignore: master
+            ignore: [master, gavin/RS-344-env-checks]
         requires:
-        - build-and-push-rox
+        - unit-test-rox
     - build-and-push-collector:
         context: quay-rhacs-eng-readwrite
         filters:
