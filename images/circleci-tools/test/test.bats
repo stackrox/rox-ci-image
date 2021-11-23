@@ -18,8 +18,7 @@ fi
 
 @test "no env values exposed" {
     run ${CMD[@]} "-e" "$TEST_FIXTURES/test.env" "-b" "$TEST_FIXTURES/data-no-env-values"
-    # [ "$status" -eq 0 ]
-    echo $output
+    [ "$status" -eq 0 ]
     [ "$output" == "" ]
 }
 
