@@ -1,0 +1,16 @@
+>>>> STEP: middle
+build
+has ONE no
+env
+>>>> STEP: nope
+and 
+will
+not
+show up
+>>>> STEP: beginning
+SOMTHING no
+build
+env
+>>>> STEP: end
+build
+has SOMTHING

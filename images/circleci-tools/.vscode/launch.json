@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "pull workflow",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/pull-workflow-output.js",
+            "args": ["8ba746e8-9d4f-4220-baa3-7ac871aa6a97"],
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "check env",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/check-for-sensitive-env-values.js",
+            "args": ["-e", "${workspaceFolder}/test/test.env", "-b", "${workspaceFolder}/test/data-with-env-values"],
+        }
+    ]
+}
