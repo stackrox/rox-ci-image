@@ -18,6 +18,22 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "poll workflow",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/poll-for-workflow-completion.js",
+            "args": ["300"],
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "CIRCLE_WORKFLOW_ID": "9480a7ce-66f1-4dbe-a987-2af0ae4f237a",
+                "CIRCLE_PROJECT_REPONAME": "collector",
+                "CIRCLE_BUILD_NUM": "207376"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "check env",
             "skipFiles": [
                 "<node_internals>/**"

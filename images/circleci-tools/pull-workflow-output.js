@@ -5,14 +5,12 @@ import fs from "fs/promises";
 import path from "path";
 import os from "os";
 
-const V1_1_API_BASE = "https://circleci.com/api/v1.1";
-const V2_API_BASE = "https://circleci.com/api/v2";
-
+import { getCircleCI } from "./common.js";
 import * as CONSTANTS from "./constants.js";
 
 if (process.argv.length < 3) {
     console.error(
-        `usage: ./pull-workflow-output.js <circle CI workflow id> [<output dir>]`
+        `usage: pull-workflow-output.js <circle CI workflow id> [<output dir>]`
     );
     process.exit(1);
 }
@@ -33,7 +31,7 @@ async function main(workflowId, outputDir) {
     console.log(`Getting workflow job data for ${workflowId}`);
 
     const workflowJobs = await getCircleCI(
-        `${V2_API_BASE}/workflow/${workflowId}/job`
+        `${CONSTANTS.V2_API_BASE}/workflow/${workflowId}/job`
     );
     console.log(`This workflow has ${workflowJobs.items.length} jobs`);
 
@@ -83,7 +81,7 @@ async function processJobs(jobs, outputDir) {
     await Promise.all(
         jobs.map(async (job) => {
             const detail = await getCircleCI(
-                `${V1_1_API_BASE}/project/gh/stackrox/rox/${job.job_number}`
+                `${CONSTANTS.V1_1_API_BASE}/project/gh/stackrox/rox/${job.job_number}`
             );
             console.log(`Job ${job.name} has ${detail.steps.length} steps`);
             detail.name = job.name;
@@ -122,21 +120,6 @@ async function processJob(job, outputDir) {
         process.exit(1);
     });
     console.log(`Wrote output for ${job.name} to ${outfile}`);
-}
-
-async function getCircleCI(URL) {
-    // console.log(`Fetching: ${URL}`);
-    const res = await fetch(URL, {
-        headers: {
-            "Circle-Token": process.env["CIRCLECI_TOKEN"],
-        },
-    });
-    if (res.status != 200) {
-        console.error("Unexpected response from CircleCI: " + res.statusText);
-        process.exit(1);
-    }
-    const res_1 = res;
-    return await res_1.json();
 }
 
 async function getOutput(URL) {
