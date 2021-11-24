@@ -140,14 +140,14 @@ jobs:
             scratch="$(mktemp -d)"
             output_dir="$scratch/builds"
             mkdir -p "$output_dir"
-            docker run --rm \
+            docker run -u "$(id -u):$(id -g)" --rm \
               -e CIRCLECI_TOKEN \
               -v "$scratch":"$scratch":z \
               "$IMAGE" pull-workflow-output.js "$CIRCLE_WORKFLOW_ID" "$output_dir"
 
             env_file="$scratch/check.env"
             env > "$env_file"
-            docker run --rm \
+            docker run -u "$(id -u):$(id -g)" --rm \
               -v "$scratch":"$scratch":z \
               "$IMAGE" check-for-sensitive-env-values.js -e "$env_file" -b "$output_dir"
             rm "$env_file"
