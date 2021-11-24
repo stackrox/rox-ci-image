@@ -131,17 +131,17 @@ jobs:
             export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-$TAG"
             export CIRCLECI_TOKEN="$CIRCLE_TOKEN_ROXBOT"
             docker pull "$IMAGE"
-            docker run --rm "$IMAGE" \
+            docker run --rm \
               -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID \
               -e CIRCLE_PROJECT_REPONAME -e CIRCLE_BUILD_NUM \
-              poll-for-workflow-completion.js 1800
+              "$IMAGE" poll-for-workflow-completion.js 1800
             output_dir="$(mktemp -d)"
-            docker run --rm "$IMAGE" \
+            docker run --rm \
               -e CIRCLECI_TOKEN \
-              pull-workflow-output.js "$CIRCLE_WORKFLOW_ID" "$output_dir"
+              "$IMAGE" pull-workflow-output.js "$CIRCLE_WORKFLOW_ID" "$output_dir"
             env > check.env
-            docker run --rm "$IMAGE" \
-              check-for-sensitive-env-values.js -e check.env -b "$output_dir"
+            docker run --rm \
+              "$IMAGE" check-for-sensitive-env-values.js -e check.env -b "$output_dir"
             rm check.env
 
   build-and-push-collector:
