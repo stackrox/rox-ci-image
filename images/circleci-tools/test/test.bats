@@ -22,6 +22,12 @@ fi
     [ "$output" == "" ]
 }
 
+@test "ignores 'null' env values and other ignorable values" {
+    run ${CMD[@]} "-e" "$TEST_FIXTURES/ignorables.env" "-b" "$TEST_FIXTURES/ignorables"
+    [ "$status" -eq 0 ]
+    [ "$output" == "" ]
+}
+
 @test "env values exposed" {
     run ${CMD[@]} "-e" "$TEST_FIXTURES/test.env" "-b" "$TEST_FIXTURES/data-with-env-values"
     [ "$status" -eq 1 ]

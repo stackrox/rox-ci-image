@@ -53,6 +53,8 @@ const SKIP_KEY_MATCHES = [
     ...argv["skip-re"].map((skip) => new RegExp(skip)),
 ];
 
+const SKIP_VALUES = ["", '""', "true", "false", "null"];
+
 main(argv["env-file"], argv["build-output-dir"])
     .then((matchCount) => {
         process.exit(matchCount === 0 ? 0 : 1);
@@ -122,6 +124,7 @@ function getEnvsToCheck(envData) {
                 value: bits.slice(1).join("="),
             };
         })
+        .filter((env) => SKIP_VALUES.every((skip) => skip !== env.value))
         .map((env) => {
             try {
                 // Also check the values of any nested JSON values individually.
