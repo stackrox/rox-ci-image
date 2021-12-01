@@ -12,8 +12,12 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/pull-workflow-output.js",
-            "args": ["8ba746e8-9d4f-4220-baa3-7ac871aa6a97"],
-            "envFile": "${workspaceFolder}/.env"
+            "args": ["0a662054-2fb2-4147-8d84-f7df58ae5931"],
+            "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "CIRCLE_WORKFLOW_ID": "0a662054-2fb2-4147-8d84-f7df58ae5931",
+                "CIRCLE_PROJECT_REPONAME": "rox-ci-image"
+            }
         },
         {
             "type": "node",

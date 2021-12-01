@@ -141,9 +141,9 @@ jobs:
             output_dir="$scratch/builds"
             mkdir -p "$output_dir"
             docker run -u "$(id -u):$(id -g)" --rm \
-              -e CIRCLECI_TOKEN \
+              -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID -e CIRCLE_PROJECT_REPONAME \
               -v "$scratch":"$scratch":z \
-              "$IMAGE" pull-workflow-output.js "$CIRCLE_WORKFLOW_ID" "$output_dir"
+              "$IMAGE" pull-workflow-output.js "$output_dir"
 
             env_file="$scratch/check.env"
             env > "$env_file"

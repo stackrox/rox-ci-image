@@ -8,17 +8,25 @@ import os from "os";
 import { getCircleCI } from "./common.js";
 import * as CONSTANTS from "./constants.js";
 
-if (process.argv.length < 3) {
-    console.error(
-        `usage: pull-workflow-output.js <circle CI workflow id> [<output dir>]`
-    );
-    process.exit(1);
-}
-
 if (!process.env["CIRCLECI_TOKEN"]) {
     console.error(`A CircleCI auth token is required in: CIRCLECI_TOKEN`);
     process.exit(1);
 }
+
+// These envs should be provided by Circle CI
+
+if (!process.env["CIRCLE_WORKFLOW_ID"]) {
+    console.error(`A CircleCI workflow ID is required in: CIRCLE_WORKFLOW_ID`);
+    process.exit(1);
+}
+
+if (!process.env["CIRCLE_PROJECT_REPONAME"]) {
+    console.error(
+        `A CircleCI env denoting the project is required: CIRCLE_PROJECT_REPONAME`
+    );
+    process.exit(1);
+}
+const CIRCLE_PROJECT_REPONAME = process.env["CIRCLE_PROJECT_REPONAME"];
 
 main(...process.argv.slice(2)).catch((e) => {
     console.trace(e);
@@ -81,7 +89,7 @@ async function processJobs(jobs, outputDir) {
     await Promise.all(
         jobs.map(async (job) => {
             const detail = await getCircleCI(
-                `${CONSTANTS.V1_1_API_BASE}/project/gh/stackrox/rox/${job.job_number}`
+                `${CONSTANTS.V1_1_API_BASE}/project/gh/stackrox/${CIRCLE_PROJECT_REPONAME}/${job.job_number}`
             );
             console.log(`Job ${job.name} has ${detail.steps.length} steps`);
             detail.name = job.name;
