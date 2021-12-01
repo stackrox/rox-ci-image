@@ -73,6 +73,21 @@ jobs:
             docker pull "$IMAGE"
             images/circleci-tools/test/test.bats
 
+            echo "GAVIN_TEST_SIMPLE: ${GAVIN_TEST_SIMPLE}"
+            echo "GAVIN_TEST_JSON: ${GAVIN_TEST_JSON}"
+            echo "GAVIN_TEST_CONTEXT_SIMPLE: ${GAVIN_TEST_CONTEXT_SIMPLE}"
+            echo "GAVIN_TEST_CONTEXT_JSON: ${GAVIN_TEST_CONTEXT_JSON}"
+
+            echo "GAVIN_TEST_SIMPLE: S3CR3T!"
+            echo "GAVIN_TEST_JSON: N3ST3D!"
+            echo "GAVIN_TEST_CONTEXT_SIMPLE: C0NT3XT!"
+            echo "GAVIN_TEST_CONTEXT_JSON: GF667SSD"
+
+            echo "GAVIN_TEST_SIMPLE: AAS3CR3T!ZZ"
+            echo "GAVIN_TEST_JSON: AAN3ST3D!ZZ"
+            echo "GAVIN_TEST_CONTEXT_SIMPLE: AAC0NT3XT!ZZ"
+            echo "GAVIN_TEST_CONTEXT_JSON: AAGF667SSDZZ"
+
   create-or-update-dependent-rox-pr:
     <<: *defaults
     steps:
@@ -177,7 +192,9 @@ workflows:
           tags:
             only: /.*/
     - unit-test-rox:
-        context: quay-rhacs-eng-readonly
+        context: 
+          quay-rhacs-eng-readonly
+          gavin-test
         requires:
         - build-and-push-rox
     - create-or-update-dependent-rox-pr:
