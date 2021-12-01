@@ -193,8 +193,8 @@ workflows:
             only: /.*/
     - unit-test-rox:
         context: 
-          quay-rhacs-eng-readonly
-          gavin_test
+          - quay-rhacs-eng-readonly
+          - gavin_test
         requires:
         - build-and-push-rox
     - create-or-update-dependent-rox-pr:
