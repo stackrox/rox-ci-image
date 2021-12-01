@@ -28,7 +28,7 @@ if (!process.env["CIRCLE_PROJECT_REPONAME"]) {
 }
 const CIRCLE_PROJECT_REPONAME = process.env["CIRCLE_PROJECT_REPONAME"];
 
-main(...process.argv.slice(2)).catch((e) => {
+main(process.env["CIRCLE_WORKFLOW_ID"], ...process.argv.slice(2)).catch((e) => {
     console.trace(e);
     process.exit(1);
 });

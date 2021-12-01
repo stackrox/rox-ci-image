@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/pull-workflow-output.js",
-            "args": ["0a662054-2fb2-4147-8d84-f7df58ae5931"],
+            "args": [],
             "envFile": "${workspaceFolder}/.env",
             "env": {
                 "CIRCLE_WORKFLOW_ID": "0a662054-2fb2-4147-8d84-f7df58ae5931",
