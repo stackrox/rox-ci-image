@@ -125,7 +125,7 @@ jobs:
             docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
 
       - run:
-          name: Use the image we have built to check our own output
+          name: Check build output
           command: |
             export TAG="$(git describe --tags --abbrev=10)"
             export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-$TAG"
@@ -141,7 +141,8 @@ jobs:
             output_dir="$scratch/builds"
             mkdir -p "$output_dir"
             docker run -u "$(id -u):$(id -g)" --rm \
-              -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID -e CIRCLE_PROJECT_REPONAME \
+              -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID \
+              -e CIRCLE_PROJECT_REPONAME -e CIRCLE_BUILD_NUM \
               -v "$scratch":"$scratch":z \
               "$IMAGE" pull-workflow-output.js "$output_dir"
 
