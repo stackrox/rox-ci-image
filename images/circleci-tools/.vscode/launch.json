@@ -15,8 +15,9 @@
             "args": [],
             "envFile": "${workspaceFolder}/.env",
             "env": {
-                "CIRCLE_WORKFLOW_ID": "0a662054-2fb2-4147-8d84-f7df58ae5931",
-                "CIRCLE_PROJECT_REPONAME": "rox-ci-image"
+                "CIRCLE_WORKFLOW_ID": "6fecaaf2-22f5-48f4-af87-5ddea09cca8d",
+                "CIRCLE_PROJECT_REPONAME": "rox-ci-image",
+                "CIRCLE_BUILD_NUM": "1174"
             }
         },
         {

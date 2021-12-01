@@ -83,6 +83,13 @@ async function processJobs(jobs, outputDir) {
             console.warn(`${job.name} is missing a job_number, will skip`);
             return false;
         }
+        if (
+            process.env["CIRCLE_BUILD_NUM"] &&
+            process.env["CIRCLE_BUILD_NUM"] === "" + job.job_number
+        ) {
+            console.warn(`Skipping self: ${job.name}`);
+            return false;
+        }
         return true;
     });
 
