@@ -35,14 +35,21 @@ const argv = yargs(hideBin(process.argv))
     .alias("help", "h").argv;
 
 const SKIP_KEYS = [
+    "rvm_prefix",
     "ANCHORE_USERNAME",
     "CI",
     "CIRCLECI",
+    "DISPLAY",
     "GOOGLE_OPENSHIFT_4_CREDENTIALS-client_email",
     "GOPATH",
     "HOME",
+    "IMAGE",
     "INFLUXDB_USER",
+    "LOGNAME",
     "NO_PROXY",
+    "SHELL",
+    "TAG",
+    "USER",
     ...argv["skip"],
 ];
 
@@ -51,10 +58,11 @@ const SKIP_KEY_MATCHES = [
     new RegExp("^CI_PULL_REQUEST"),
     new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-project_id$"),
     new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-type$"),
+    new RegExp("^XDG_SESSION_"),
     ...argv["skip-re"].map((skip) => new RegExp(skip)),
 ];
 
-const SKIP_VALUES = ["", '""', "true", "false", "null"];
+const SKIP_VALUES = ["", '""', "true", "false", "null", "yes", "no"];
 
 const SKIP_VALUE_MATCHES = [new RegExp("^\\d$")];
 
