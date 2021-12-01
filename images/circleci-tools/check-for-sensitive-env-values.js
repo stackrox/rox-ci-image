@@ -48,12 +48,15 @@ const SKIP_KEYS = [
 
 const SKIP_KEY_MATCHES = [
     new RegExp("^CIRCLE_"),
+    new RegExp("^CI_PULL_REQUEST"),
     new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-project_id$"),
     new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-type$"),
     ...argv["skip-re"].map((skip) => new RegExp(skip)),
 ];
 
 const SKIP_VALUES = ["", '""', "true", "false", "null"];
+
+const SKIP_VALUE_MATCHES = [new RegExp("^\\d$")];
 
 main(argv["env-file"], argv["build-output-dir"])
     .then((matchCount) => {
@@ -125,6 +128,9 @@ function getEnvsToCheck(envData) {
             };
         })
         .filter((env) => SKIP_VALUES.every((skip) => skip !== env.value))
+        .filter((env) =>
+            SKIP_VALUE_MATCHES.every((skip) => !skip.test(env.value))
+        )
         .map((env) => {
             try {
                 // Also check the values of any nested JSON values individually.
