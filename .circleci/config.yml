@@ -73,20 +73,30 @@ jobs:
             docker pull "$IMAGE"
             images/circleci-tools/test/test.bats
 
-            echo "GAVIN_TEST_SIMPLE: ${GAVIN_TEST_SIMPLE}"
-            echo "GAVIN_TEST_JSON: ${GAVIN_TEST_JSON}"
-            echo "GAVIN_TEST_CONTEXT_SIMPLE: ${GAVIN_TEST_CONTEXT_SIMPLE}"
-            echo "GAVIN_TEST_CONTEXT_JSON: ${GAVIN_TEST_CONTEXT_JSON}"
+            echo ECHOING VALUES:
+            echo "  GAVIN_TEST_SIMPLE: ${GAVIN_TEST_SIMPLE}"
+            echo "  GAVIN_TEST_BASE64: ${GAVIN_TEST_BASE64}"
+            echo "  GAVIN_TEST_JSON: ${GAVIN_TEST_JSON}"
+            echo "  GAVIN_TEST_CONTEXT_SIMPLE: ${GAVIN_TEST_CONTEXT_SIMPLE}"
+            echo "  GAVIN_TEST_CONTEXT_JSON: ${GAVIN_TEST_CONTEXT_JSON}"
 
-            echo "GAVIN_TEST_SIMPLE: S3CR3T!"
-            echo "GAVIN_TEST_JSON: N3ST3D!"
-            echo "GAVIN_TEST_CONTEXT_SIMPLE: C0NT3XT!"
-            echo "GAVIN_TEST_CONTEXT_JSON: GF667SSD"
+            echo ECHOING VALUES WITHOUT REFERENCING THE ENV VAR:
+            echo "  GAVIN_TEST_SIMPLE: S3CR3T!"
+            echo "  GAVIN_TEST_CONTEXT_SIMPLE: C0NT3XT!"
 
-            echo "GAVIN_TEST_SIMPLE: AAS3CR3T!ZZ"
-            echo "GAVIN_TEST_JSON: AAN3ST3D!ZZ"
-            echo "GAVIN_TEST_CONTEXT_SIMPLE: AAC0NT3XT!ZZ"
-            echo "GAVIN_TEST_CONTEXT_JSON: AAGF667SSDZZ"
+            echo ECHOING PARTIAL VALUES FROM NESTED JSON: 
+            echo "  GAVIN_TEST_JSON: N3ST3D!"
+            echo "  GAVIN_TEST_CONTEXT_JSON: GF667SSD"
+
+            echo ECHOING VALUES WITH NOISE:
+            echo "  GAVIN_TEST_SIMPLE: AAS3CR3T!ZZ"
+            echo "  GAVIN_TEST_CONTEXT_SIMPLE: AAC0NT3XT!ZZ"
+
+            echo ECHOING VALUES WITH WHITESPACE:
+            echo '  GAVIN_TEST_CONTEXT_JSON: { "D": { "E": { "SECRET": "GF667SSD" } } }'
+
+            echo ECHOING VALUES BASE64 DECODED:
+            echo "  GAVIN_TEST_BASE64: BAS396!"
 
   create-or-update-dependent-rox-pr:
     <<: *defaults
