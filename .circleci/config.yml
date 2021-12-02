@@ -204,7 +204,9 @@ workflows:
         requires:
         - unit-test-rox
     - check-env-for-sensitive-values:
-        context: quay-rhacs-eng-readonly
+        context: 
+          - quay-rhacs-eng-readonly
+          - gavin_test
         requires:
         # will change to create-or-update-dependent-rox-pr
         - unit-test-rox
