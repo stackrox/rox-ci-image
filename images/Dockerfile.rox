@@ -81,16 +81,6 @@ RUN set -ex \
       bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
-# Install Circle CI tools
-COPY circleci-tools /opt/circleci-tools
-RUN find /opt/circleci-tools
-ENV PATH=/opt/circleci-tools:$PATH
-RUN set -ex \
-  && cd /opt/circleci-tools \
-  && npm install \
-  && command -v pull-workflow-output.js \
-  && command -v check-for-sensitive-env-values.js
-
 # Install bats
 RUN set -ex \
   && npm install -g bats@1.2.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
