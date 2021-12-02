@@ -44,7 +44,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/check-for-sensitive-env-values.js",
-            "args": ["-e", "${workspaceFolder}/test/test.env", "-b", "${workspaceFolder}/test/data-with-env-values"],
+            "args": ["-e", "${workspaceFolder}/test/test.env", "-b", "${workspaceFolder}/test/base64"],
         }
     ]
 }

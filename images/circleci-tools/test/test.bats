@@ -107,3 +107,10 @@ fi
     run ${CMD[@]} "-e" "$TEST_FIXTURES/multiple-vars.env" "-b" "$TEST_FIXTURES/multiple-vars" "--skip-re" "^t" "^o"
     [ "$status" -eq 0 ]
 }
+
+@test "spots decoded base64 values" {
+    run ${CMD[@]} "-e" "$TEST_FIXTURES/test.env" "-b" "$TEST_FIXTURES/base64"
+    [ "$status" -eq 1 ]
+    [ "${#lines[@]}" -eq 1 ]
+    [[ "${lines[0]}" =~ 'Key "b64-base64-value"' ]]
+}

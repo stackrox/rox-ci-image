@@ -70,6 +70,10 @@ const SKIP_VALUES = ["", '""', "true", "false", "null", "yes", "no"];
 
 const SKIP_VALUE_MATCHES = [new RegExp("^\\d$")];
 
+const B64_RE = new RegExp(
+    "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$"
+);
+
 main(argv["env-file"], argv["build-output-dir"])
     .then((matchCount) => {
         process.exit(matchCount === 0 ? 0 : 1);
@@ -162,6 +166,26 @@ function getEnvsToCheck(envData) {
             }
         })
         .flat() // flatten out the arrays of nested JSON values to check
+        .map((env) => {
+            // Also check the base64 decoded value of base64 data.
+            if (B64_RE.test(env.value)) {
+                const b64 = Buffer.from(env.value, "base64");
+                if (b64 && b64.toString()) {
+                    // Possibly a decoded intentional base64 value or just
+                    // some random data that should not appear in the output
+                    const more = [
+                        env, // Include the env.value in its original form.
+                        {
+                            key: `${env.key}-base64-value`,
+                            value: b64.toString(),
+                        },
+                    ];
+                    return more;
+                }
+            }
+            return env;
+        })
+        .flat()
         .filter((env) => SKIP_KEYS.every((skip) => skip != env.key))
         .filter((env) => SKIP_KEY_MATCHES.every((skip) => !skip.test(env.key)));
 }
