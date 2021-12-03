@@ -3,6 +3,11 @@
 # When run in the context of an env-check image in a Circle CI job, this script
 # will check the workflow build output for sensitive env values.
 
+# Two environment variables are used to specify keys to ignore:
+# SKIP_KEYS - skip any environment variables with keys that have these names
+# SKIP_KEYS_RE - skip any environment variables with keys whose name matches these regexs
+# multple values are separated by :
+
 set -euo pipefail
 
 if [[ -z "${CIRCLE_WORKFLOW_ID:-}" ]]; then
@@ -29,5 +34,12 @@ pull-workflow-output.js "$output_dir"
 
 env_file="$scratch/check.env"
 env > "$env_file"
-check-for-sensitive-env-values.js -e "$env_file" -b "$output_dir"
+
+SKIP_KEYS="${SKIP_KEYS:-}"
+IFS=":" read -r -a skip_keys <<< "$SKIP_KEYS"
+
+SKIP_KEYS_RE="${SKIP_KEYS_RE:-}"
+IFS=":" read -r -a skip_keys_re <<< "$SKIP_KEYS_RE"
+
+check-for-sensitive-env-values.js -e "$env_file" -b "$output_dir" --skip "${skip_keys[@]}" --skip-re "${skip_keys_re[@]}"
 rm "$env_file"
