@@ -203,6 +203,7 @@ workflows:
           - quay-rhacs-eng-readwrite
         requires:
         - unit-test-env-check
+        - build-and-push-rox
     - build-and-push-collector:
         context: quay-rhacs-eng-readwrite
         filters:
