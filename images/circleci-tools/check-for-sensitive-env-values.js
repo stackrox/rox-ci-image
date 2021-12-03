@@ -83,9 +83,7 @@ function checkForEnvInFileContents(env, file, contents) {
                 stepMarkerIndex + 1
             );
         }
-        console.log(
-            `Key "${env.key}"'s value (${env.value}) was found in ${file}`
-        );
+        console.log(`Key "${env.key}"'s value was found in ${file}`);
         envMatchCount++;
         if (priorStepMarkerIndex !== -1) {
             let stepMarkerContents = contents.substr(
