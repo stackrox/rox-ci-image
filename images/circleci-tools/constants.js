@@ -20,6 +20,8 @@ export const SKIP_KEYS = [
     "NO_PROXY",
     "PWD",
     "SHELL",
+    "SKIP_KEYS",
+    "SKIP_KEYS_RE",
     "TAG",
     "USER",
 ];
