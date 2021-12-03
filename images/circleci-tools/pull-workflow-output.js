@@ -144,6 +144,7 @@ async function getOutput(URL) {
         console.error(
             "Unexpected response from output site: " + res.statusText
         );
+        console.error(`URL: ${URL}`);
         process.exit(1);
     }
     const messages = await res.json();
