@@ -18,6 +18,7 @@ export const SKIP_KEYS = [
     "LOGNAME",
     "MOTD_SHOWN",
     "NO_PROXY",
+    "PWD",
     "SHELL",
     "TAG",
     "USER",
