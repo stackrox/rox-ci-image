@@ -34,45 +34,12 @@ const argv = yargs(hideBin(process.argv))
     .help()
     .alias("help", "h").argv;
 
-const SKIP_KEYS = [
-    "rvm_prefix",
-    "ANCHORE_USERNAME",
-    "CI",
-    "CIRCLECI",
-    "DBUS_SESSION_BUS_ADDRESS",
-    "DISPLAY",
-    "GIT_ASKPASS",
-    "GOOGLE_OPENSHIFT_4_CREDENTIALS-client_email",
-    "GOPATH",
-    "HOME",
-    "IMAGE",
-    "INFLUXDB_USER",
-    "LOGNAME",
-    "MOTD_SHOWN",
-    "NO_PROXY",
-    "SHELL",
-    "TAG",
-    "USER",
-    ...argv["skip"],
-];
+const SKIP_KEYS = [...CONSTANTS.SKIP_KEYS, ...argv["skip"]];
 
 const SKIP_KEY_MATCHES = [
-    new RegExp("^CIRCLE_"),
-    new RegExp("^CIRCLECI_"),
-    new RegExp("^CI_PULL_REQUEST"),
-    new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-project_id$"),
-    new RegExp("^(GCLOUD|GKE_SERVICE|GOOGLE|KOPS|OPENSHIFT).*-type$"),
-    new RegExp("^XDG_SESSION_"),
+    ...CONSTANTS.SKIP_KEY_MATCHES,
     ...argv["skip-re"].map((skip) => new RegExp(skip)),
 ];
-
-const SKIP_VALUES = ["", '""', "true", "false", "null", "yes", "no"];
-
-const SKIP_VALUE_MATCHES = [new RegExp("^\\d$")];
-
-const B64_RE = new RegExp(
-    "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$"
-);
 
 main(argv["env-file"], argv["build-output-dir"])
     .then((matchCount) => {
@@ -145,9 +112,11 @@ function getEnvsToCheck(envData) {
                 value: bits.slice(1).join("="),
             };
         })
-        .filter((env) => SKIP_VALUES.every((skip) => skip !== env.value))
         .filter((env) =>
-            SKIP_VALUE_MATCHES.every((skip) => !skip.test(env.value))
+            CONSTANTS.SKIP_VALUES.every((skip) => skip !== env.value)
+        )
+        .filter((env) =>
+            CONSTANTS.SKIP_VALUE_MATCHES.every((skip) => !skip.test(env.value))
         )
         .map((env) => {
             try {
@@ -168,7 +137,7 @@ function getEnvsToCheck(envData) {
         .flat() // flatten out the arrays of nested JSON values to check
         .map((env) => {
             // Also check the base64 decoded value of base64 data.
-            if (B64_RE.test(env.value)) {
+            if (CONSTANTS.B64_RE.test(env.value)) {
                 const b64 = Buffer.from(env.value, "base64");
                 if (b64 && b64.toString()) {
                     // Possibly a decoded intentional base64 value or just
