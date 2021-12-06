@@ -110,23 +110,24 @@ async function processJob(job, outputDir) {
     for (let i = 0; i < job.steps.length; i++) {
         const step = job.steps[i];
 
-        if (step.actions.length != 1) {
+        if (step.actions.length < 1) {
             console.trace("Unsupported");
             process.exit(1);
         }
-        const action = step.actions[0];
-        if (!action.has_output) {
-            continue;
-        }
-        if (!action.output_url) {
-            console.trace("Unsupported");
-            process.exit(1);
-        }
-        output += `${CONSTANTS.STEP_MARKER}: ${action.name} <<<<\n`;
-        output += action.start_time + "\n\n";
-        output += await getOutput(action.output_url);
-        if (i != job.steps.length - 1) {
-            output += "\n\n";
+        for (const action of step.actions) {
+            if (!action.has_output) {
+                continue;
+            }
+            if (!action.output_url) {
+                console.trace("Unsupported");
+                process.exit(1);
+            }
+            output += `${CONSTANTS.STEP_MARKER}: ${action.name} <<<<\n`;
+            output += action.start_time + "\n\n";
+            output += await getOutput(action.output_url);
+            if (i != job.steps.length - 1) {
+                output += "\n\n";
+            }
         }
     }
     const outfile = path.join(outputDir, job.name + "-out.txt");
