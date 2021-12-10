@@ -65,13 +65,13 @@ jobs:
         at: /tmp
 
     - run:
-        name: Clone rox repo
+        name: Clone stackrox repo
         command: |
-          git clone git@github.com:stackrox/rox.git /tmp/rox
+          git clone git@github.com:stackrox/stackrox.git /tmp/stackrox
 
     - run:
-        name: Create commit in rox that updates the base image
-        working_directory: /tmp/rox
+        name: Create commit in stackrox that updates the base image
+        working_directory: /tmp/stackrox
         command: |
           pushed_image="$(cat /tmp/pushed_image)"
           [[ -n "${pushed_image}" ]]

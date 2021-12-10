@@ -24,7 +24,7 @@ status_code="$(curl -sS \
   -o "$pr_response_file" \
   -X POST \
   -H "Authorization: token ${GITHUB_TOKEN}" \
-  'https://api.github.com/repos/stackrox/rox/pulls' \
+  'https://api.github.com/repos/stackrox/stackrox/pulls' \
   -d"{
   \"title\": \"Update rox-ci-image\",
   \"body\": $(jq -sR <<<"$message"),
@@ -46,7 +46,7 @@ if [[ "${status_code}" -eq 201 ]]; then
   curl -sS --fail \
  -X POST \
  -H "Authorization: token ${GITHUB_TOKEN}" \
- "https://api.github.com/repos/stackrox/rox/issues/${pr_number}/assignees" \
+ "https://api.github.com/repos/stackrox/stackrox/issues/${pr_number}/assignees" \
  -d"{
     \"assignees\": [\"${CIRCLE_USERNAME}\"]
   }"
