@@ -46,7 +46,6 @@ commands:
           paths:
             - pushed_image
 
-
 jobs:
   build-and-push-rox:
     <<: *defaults
@@ -94,6 +93,72 @@ jobs:
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           .circleci/create_update_pr_rox.sh "${branch_name}"
 
+  build-and-push-env-check:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/Dockerfile.env-check
+          tag-prefix: "env-check-"
+
+  unit-test-env-check:
+    machine:
+      image: ubuntu-2004:202111-01
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Login to quay.io
+          command: |
+            docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
+
+      - run:
+          name: Run unit tests for circleci-tools using the built image
+          command: |
+            export TAG="$(git describe --tags --abbrev=10)"
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-env-check-$TAG"
+            docker pull "$IMAGE"
+            images/circleci-tools/test/test.bats
+
+  check-env-for-sensitive-values:
+    machine:
+      image: ubuntu-2004:202111-01
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Login to quay.io
+          command: |
+            docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
+
+      - run:
+          name: Check build output using the built image
+          command: |
+            export TAG="$(git describe --tags --abbrev=10)"
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-env-check-$TAG"
+            export CIRCLECI_TOKEN="$CIRCLE_TOKEN_ROXBOT"
+            docker pull "$IMAGE"
+
+            docker run --rm \
+              -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID \
+              -e CIRCLE_PROJECT_REPONAME -e CIRCLE_BUILD_NUM \
+              "$IMAGE" poll-for-workflow-completion.js 1800
+
+            scratch="$(mktemp -d)"
+            output_dir="$scratch/builds"
+            mkdir -p "$output_dir"
+            docker run -u "$(id -u):$(id -g)" --rm \
+              -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID \
+              -e CIRCLE_PROJECT_REPONAME -e CIRCLE_BUILD_NUM \
+              -v "$scratch":"$scratch":z \
+              "$IMAGE" pull-workflow-output.js "$output_dir"
+
+            env_file="$scratch/check.env"
+            env > "$env_file"
+            docker run -u "$(id -u):$(id -g)" --rm \
+              -v "$scratch":"$scratch":z \
+              "$IMAGE" check-for-sensitive-env-values.js -e "$env_file" -b "$output_dir"
+            rm "$env_file"
+
   build-and-push-collector:
     <<: *defaults
     steps:
@@ -122,6 +187,22 @@ workflows:
           branches:
             ignore: master
         requires:
+        - build-and-push-rox
+    - build-and-push-env-check:
+        context: quay-rhacs-eng-readwrite
+        filters:
+          tags:
+            only: /.*/
+    - unit-test-env-check:
+        context: quay-rhacs-eng-readonly
+        requires:
+        - build-and-push-env-check
+    - check-env-for-sensitive-values:
+        context:
+          - quay-rhacs-eng-readonly
+          - quay-rhacs-eng-readwrite
+        requires:
+        - unit-test-env-check
         - build-and-push-rox
     - build-and-push-collector:
         context: quay-rhacs-eng-readwrite
