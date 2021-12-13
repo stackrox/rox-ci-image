@@ -5,6 +5,49 @@ defaults: &defaults
 version: 2.1
 
 commands:
+  open-test-pr:
+    parameters:
+      repo:
+        description: Name of the repo where the PR should be opened.
+        type: string
+        default: ""
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Clone << parameters.repo >> repo
+          command: |
+            git clone git@github.com:stackrox/<< parameters.repo >>.git /tmp/<< parameters.repo >>
+      - run:
+          name: Create commit in << parameters.repo >> that updates the base image
+          working_directory: /tmp/<< parameters.repo >>
+          command: |
+            set -x
+            pushed_tag="$(cat /tmp/pushed_tag)"
+            [[ -n "${pushed_tag}" ]]
+            echo "Pushed image tag: ${pushed_tag}"
+
+            git config user.email "roxbot@stackrox.com"
+            git config user.name "RoxBot"
+
+            branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+            git checkout "${branch_name}" || git checkout -b "${branch_name}"
+            git reset --hard origin/HEAD
+
+            sed -i 's@\(.*\)/apollo-ci:.*@\1/apollo-ci:'"${pushed_tag}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
+
+            git commit -am "Bump base image tag to ${pushed_tag##:}"
+            git push origin "${branch_name}" --force
+      - run:
+          name: Create PRs against << parameters.repo >> repo
+          command: |
+            branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+            .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
+
   build-and-push-image:
     parameters:
       tag-prefix:
@@ -34,17 +77,19 @@ commands:
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
               image_to_push="quay.io/rhacs-eng/apollo-ci:$TAG"
+              tag_to_push="$TAG"
             else
               echo "Pushing snapshot image"
               image_to_push="quay.io/rhacs-eng/apollo-ci:snapshot-$TAG"
+              tag_to_push="snapshot-$TAG"
             fi
             docker push "${image_to_push}" | cat
-            echo "${image_to_push}" > /tmp/pushed_image
+            echo "${tag_to_push}" > "/tmp/pushed_tag"
 
       - persist_to_workspace:
           root: /tmp
           paths:
-            - pushed_image
+            - pushed_tag
 
 jobs:
   build-and-push-rox:
@@ -184,12 +229,30 @@ jobs:
               "$IMAGE" check-for-sensitive-env-values.js -e "$env_file" -b "$output_dir"
             rm "$env_file"
 
+=======
+>>>>>>> 5961c72 (X-Smart-Squash: Squashed 9 commits:)
   build-and-push-collector:
     <<: *defaults
     steps:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
           tag-prefix: "collector-"
+
+  create-or-update-stackrox-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: stackrox
+  create-or-update-scanner-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: scanner
+  create-or-update-collector-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: collector
 
   build-and-push-jenkins-plugin:
     <<: *defaults
@@ -240,6 +303,12 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - create-or-update-collector-repo-pr:
+        filters:
+          branches:
+            ignore: master
+        requires:
+        - build-and-push-collector
     - build-and-push-jenkins-plugin:
         context: quay-rhacs-eng-readwrite
         filters:
