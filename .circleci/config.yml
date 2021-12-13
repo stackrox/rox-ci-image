@@ -38,7 +38,10 @@ commands:
             git checkout "${branch_name}" || git checkout -b "${branch_name}"
             git reset --hard origin/HEAD
 
-            sed -i 's@\(.*\)/apollo-ci:.*@\1/apollo-ci:'"${pushed_tag}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
+            sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${pushed_tag} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
+
+            # If the image parameter was originally quoted, we need to close the quote
+            sed -i "s@\"\(.*\)/apollo-ci:${pushed_tag} # TODO@\"\1/apollo-ci:${pushed_tag}\" # TODO@g" .circleci/config.yml
 
             git commit -am "Bump base image tag to ${pushed_tag##:}"
             git push origin "${branch_name}" --force
