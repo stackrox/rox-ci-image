@@ -76,14 +76,12 @@ commands:
             export TAG="<< parameters.tag-prefix >>$(git describe --tags --abbrev=10)"
             if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
               echo "Pushing release image"
-              image_to_push="quay.io/rhacs-eng/apollo-ci:$TAG"
               tag_to_push="$TAG"
             else
               echo "Pushing snapshot image"
-              image_to_push="quay.io/rhacs-eng/apollo-ci:snapshot-$TAG"
               tag_to_push="snapshot-$TAG"
             fi
-            docker push "${image_to_push}" | cat
+            docker push "quay.io/rhacs-eng/apollo-ci:${tag_to_push}" | cat
             echo "${tag_to_push}" > "/tmp/pushed_tag"
 
       - persist_to_workspace:
