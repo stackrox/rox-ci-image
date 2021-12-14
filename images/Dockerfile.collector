@@ -6,13 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cma
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
-COPY ./static-contents/bin/bash-wrapper /bin/
 COPY ./static-contents/etc/bash.env /etc/
-
-RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash && \
-    chmod 755 /bin/bash
+RUN echo '[ -f /etc/bash.env ] && source /etc/bash.env' >> /home/circleci/.bashrc
 
 USER circleci
 
