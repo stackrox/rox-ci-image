@@ -115,7 +115,11 @@ jobs:
           name: Run unit tests for circleci-tools using the built image
           command: |
             export TAG="$(git describe --tags --abbrev=10)"
-            export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-env-check-$TAG"
+            tag_prefix="snapshot-env-check-"
+            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
+              tag_prefix="env-check-"
+            fi
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:${tag_prefix}${TAG}"
             docker pull "$IMAGE"
             images/circleci-tools/test/test.bats
 
@@ -134,7 +138,11 @@ jobs:
           name: Check build output using the built image
           command: |
             export TAG="$(git describe --tags --abbrev=10)"
-            export IMAGE="quay.io/rhacs-eng/apollo-ci:snapshot-env-check-$TAG"
+            tag_prefix="snapshot-env-check-"
+            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
+              tag_prefix="env-check-"
+            fi
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:${tag_prefix}${TAG}"
             export CIRCLECI_TOKEN="$CIRCLE_TOKEN_ROXBOT"
             docker pull "$IMAGE"
 
