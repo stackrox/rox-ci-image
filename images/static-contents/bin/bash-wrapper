@@ -1,4 +1,5 @@
 #!/bin/real-bash
+# shellcheck shell=bash
 
 # cci-export is a function which can be used to export environment variables in a way that is persistent
 # across CircleCI steps.
