@@ -1,11 +1,27 @@
 #!/bin/real-bash
 
-# The second check is necessary because, in subshells of the parent shell,
-# we want to ensure that the original REAL_BASH_ENV is not clobbered.
-if [ -n "${BASH_ENV:-}" ] && [ "${BASH_ENV}" != "/etc/bash.env" ]; then
-  export REAL_BASH_ENV="${BASH_ENV}"
-fi
+# cci-export is a function which can be used to export environment variables in a way that is persistent
+# across CircleCI steps.
+cci-export() {
+	if [ "$#" -ne 2 ]; then
+		echo >&2 "Usage: $0 KEY VALUE"
+		return 1
+	fi
 
-export BASH_ENV="/etc/bash.env"
+	key="$1"
+	value="$2"
+
+	export "${key}=${value}"
+
+	if [[ "$CIRCLECI" == "true" ]]; then
+		if [[ ! -f "${BASH_ENV}" ]]; then
+			echo >&2 "Error: BASH_ENV='${BASH_ENV}' is not a file. Unable to persist variables across steps"
+			return 1
+		fi
+		echo "export ${key}=$(printf '%q' "$value")" >> "$BASH_ENV"
+	fi
+}
+
+export -f cci-export
 
 exec /bin/real-bash "$@"
