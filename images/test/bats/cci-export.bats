@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+# running locally with: docker build -t apollo-cci:cci -f images/Dockerfile.test.cci-export images && docker run -it apollo-cci:cci
+
 bats_helpers_root="/usr/lib/node_modules"
 load "${bats_helpers_root}/bats-support/load.bash"
 load "${bats_helpers_root}/bats-assert/load.bash"
@@ -16,6 +18,18 @@ setup() {
   assert_output ""
   run "$HOME/test/foo-printer.sh"
   assert_output "FOO: "
+}
+
+@test "cci-export BASH_ENV not exists" {
+  run rm -f "${BASH_ENV}"
+  run test -f "${BASH_ENV}"
+  assert_failure
+
+  run cci-export FOO cci1
+  assert_success
+  run "$HOME/test/foo-printer.sh"
+  assert_output "FOO: cci1"
+  refute_output "FOO: "
 }
 
 @test "cci-export sanity check single value" {

@@ -13,9 +13,11 @@ cci-export() {
   remove_lines_starting_with() {
     IN="$1"
     PREFIX="$2"
-    local grep_tmp
-    grep_tmp="$(mktemp -t "bash.env-XXXX")" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
-    grep --invert-match "^${PREFIX}" "$IN" > "${grep_tmp}" && mv "${grep_tmp}" "$IN"
+    if [[ -f "$IN" ]]; then
+      local grep_tmp
+      grep_tmp="$(mktemp -t "bash.env-XXXX")" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
+      grep --invert-match "^${PREFIX}" "$IN" > "${grep_tmp}" && mv "${grep_tmp}" "$IN"
+    fi
   }
 
   key="$1"
