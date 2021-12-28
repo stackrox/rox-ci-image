@@ -19,18 +19,22 @@ cci-export() {
 			echo >&2 "Env var BASH_ENV not properly set"
 			return 1
 		fi
+		set -x
+		echo "BASH_ENV pre: $(cat "${BASH_ENV}")"
 		# There must be maximally one export-line in file for a variable
 		# remove all other instances of the same exported variable from "$BASH_ENV"
 		local sed_tmp
 		sed_tmp="$(mktemp)" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
 		# shellcheck disable=SC2016 # we must produce literal ${ symbols
 		sed --quiet "/^$(printf 'export %q="${%q:-' "$key" "$key")/d" "$BASH_ENV" > "$sed_tmp" && mv "$sed_tmp" "$BASH_ENV"
-
+		echo "BASH_ENV mid: $(cat "${BASH_ENV}")"
 		# shellcheck disable=SC2016 # we must produce literal ${} symbols
 		# We use export with default value: export FOO=${FOO:-bar}, so that the exported variable can be shadowed like this:
 		# cci-export FOO bar
 		# FOO=abc ./script.sh (inside script.sh FOO is 'abc')
 		printf 'export %q="${%q:-%q}"\n' "$key" "$key" "$value" >> "$BASH_ENV"
+		echo "BASH_ENV post: $(cat "${BASH_ENV}")"
+		set +x
 	fi
 }
 
