@@ -4,38 +4,38 @@
 # cci-export is a function which can be used to export environment variables in a way that is persistent
 # across CircleCI steps.
 cci-export() {
-	if [ "$#" -ne 2 ]; then
-		echo >&2 "Usage: $0 KEY VALUE"
-		return 1
-	fi
+  if [ "$#" -ne 2 ]; then
+    echo >&2 "Usage: $0 KEY VALUE"
+    return 1
+  fi
 
-	key="$1"
-	value="$2"
+  # embedd function, so that we can skip addtional "export -f"
+  remove_lines_starting_with() {
+    IN="$1"
+    PREFIX="$2"
+    local grep_tmp
+    grep_tmp="$(mktemp -t "bash.env-XXXX")" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
+    grep --invert-match "^${PREFIX}" "$IN" > "${grep_tmp}" && mv "${grep_tmp}" "$IN"
+  }
 
-	export "${key}=${value}"
+  key="$1"
+  value="$2"
 
-	if [[ "$CIRCLECI" == "true" ]]; then
-		if [[ -z "${BASH_ENV}" ]]; then
-			echo >&2 "Env var BASH_ENV not properly set"
-			return 1
-		fi
-		set -x
-		echo "BASH_ENV pre: $(cat "${BASH_ENV}")"
-		# There must be maximally one export-line in file for a variable
-		# remove all other instances of the same exported variable from "$BASH_ENV"
-		local sed_tmp
-		sed_tmp="$(mktemp)" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
-		# shellcheck disable=SC2016 # we must produce literal ${ symbols
-		sed --quiet "/^$(printf 'export %q="${%q:-' "$key" "$key")/d" "$BASH_ENV" > "$sed_tmp" && mv "$sed_tmp" "$BASH_ENV"
-		echo "BASH_ENV mid: $(cat "${BASH_ENV}")"
-		# shellcheck disable=SC2016 # we must produce literal ${} symbols
-		# We use export with default value: export FOO=${FOO:-bar}, so that the exported variable can be shadowed like this:
-		# cci-export FOO bar
-		# FOO=abc ./script.sh (inside script.sh FOO is 'abc')
-		printf 'export %q="${%q:-%q}"\n' "$key" "$key" "$value" >> "$BASH_ENV"
-		echo "BASH_ENV post: $(cat "${BASH_ENV}")"
-		set +x
-	fi
+  export "${key}=${value}"
+
+  if [[ "$CIRCLECI" == "true" ]]; then
+    if [[ -z "${BASH_ENV}" ]]; then
+      echo >&2 "Env var BASH_ENV not properly set"
+      return 1
+    fi
+    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
+    # shellcheck disable=SC2016 # we must produce literal ${ symbols
+    remove_lines_starting_with "$BASH_ENV" "$(printf 'export %q="${%q:-' "$key" "$key")"
+
+    # shellcheck disable=SC2016 # we must produce literal ${} symbols
+    # Use export with default value: 'export FOO=${FOO:-bar}'', so that the exported variable can be locally shadowed in scripts
+    printf 'export %q="${%q:-%q}"\n' "$key" "$key" "${value}" >> "$BASH_ENV"
+  fi
 }
 
 export -f cci-export

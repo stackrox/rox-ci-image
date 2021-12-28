@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-echo "FOO: $FOO"
+if [[ -n "$1" ]]; then
+  echo "$1: ${!1}"
+else
+  echo "FOO: $FOO"
+fi

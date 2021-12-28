@@ -18,7 +18,7 @@ setup() {
   assert_output "FOO: "
 }
 
-@test "cci-export sanity check" {
+@test "cci-export sanity check single value" {
   run cci-export FOO cci1
   assert_success
   run "$HOME/test/foo-printer.sh"
@@ -31,6 +31,38 @@ setup() {
   run "$HOME/test/foo-printer.sh"
   assert_output "FOO: cci2"
   refute_output "FOO: cci1"
+
+  # Ensure characters like /.-:{} are esacped if needed
+  # TODO: support for {} is missing
+  # run cci-export FOO "quay.io/rhacs-eng/scanner:2.21.0-15-{g448f2dc8fa}"
+  # assert_success
+  # run cat $BASH_ENV
+  # run "$HOME/test/foo-printer.sh"
+  # assert_output "FOO: quay.io/rhacs-eng/scanner:2.21.0-15-{g448f2dc8fa}"
+  # refute_output "FOO: "
+}
+
+@test "cci-export sanity check many values" {
+  export _FILE="$HOME/test/bats/FILE"
+  run cat "${_FILE}"
+  assert_output "1.2.3"
+
+  export VAR=placeholder
+  run cci-export VAR1 "text/$VAR/text:$(cat "${_FILE}")"
+  run cci-export VAR2 "text/$VAR/text:$(cat "${_FILE}")"
+  run cci-export IMAGE3 "text/$VAR/text:$(cat "${_FILE}")"
+
+  run "$HOME/test/foo-printer.sh" "VAR1"
+  assert_output "VAR1: text/$VAR/text:$(cat "${_FILE}")"
+  assert_output "VAR1: text/placeholder/text:1.2.3"
+
+  run "$HOME/test/foo-printer.sh" VAR2
+  assert_output "VAR2: text/$VAR/text:$(cat "${_FILE}")"
+  assert_output "VAR2: text/placeholder/text:1.2.3"
+
+  run "$HOME/test/foo-printer.sh" IMAGE3
+  assert_output "IMAGE3: text/$VAR/text:$(cat "${_FILE}")"
+  assert_output "IMAGE3: text/placeholder/text:1.2.3"
 }
 
 @test "exported variable should be respected in a script" {
