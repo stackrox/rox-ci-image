@@ -23,18 +23,22 @@ commands:
           command: |
             git clone git@github.com:stackrox/<< parameters.repo >>.git /tmp/<< parameters.repo >>
       - run:
-          name: Create commit in << parameters.repo >> that updates the base image
+          name: Create commit in << parameters.repo >> that updates the base image if necessary
           working_directory: /tmp/<< parameters.repo >>
           command: |
-            set -x
+            if ! .circleci/changes_affect.sh << parameters.repo >>; then
+              echo "No need to open/update a PR against << parameters.repo >> - current changes are not affecting this repo."
+              return 0;
+            fi
+
             pushed_tag="$(cat /tmp/pushed_tag)"
             [[ -n "${pushed_tag}" ]]
             echo "Pushed image tag: ${pushed_tag}"
 
             git config user.email "roxbot@stackrox.com"
             git config user.name "RoxBot"
-
             branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+
             if git fetch --quiet origin "${branch_name}"; then
               git checkout "${branch_name}"
               git pull --quiet --set-upstream origin "${branch_name}"
@@ -51,11 +55,8 @@ commands:
 
             git commit -am "Bump base image tag to ${pushed_tag##:}"
             git push origin "${branch_name}"
-      - run:
-          name: Create PRs against << parameters.repo >> repo
-          command: |
-            branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
             .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
+
 
   build-and-push-image:
     parameters:
