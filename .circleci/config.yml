@@ -28,7 +28,7 @@ commands:
           command: |
             if ! .circleci/changes_affect.sh << parameters.repo >>; then
               echo "No need to open/update a PR against << parameters.repo >> - current changes are not affecting this repo."
-              return 0;
+              exit 0;
             fi
 
             pushed_tag="$(cat /tmp/pushed_tag)"
