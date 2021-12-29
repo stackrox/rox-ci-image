@@ -34,11 +34,11 @@ commands:
             [[ -n "${pushed_tag}" ]]
             echo "Pushed image tag: ${pushed_tag}"
 
+            pushd "/tmp/<< parameters.repo >>"
+
             git config user.email "roxbot@stackrox.com"
             git config user.name "RoxBot"
             branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
-
-            pushd "/tmp/<< parameters.repo >>"
             if git fetch --quiet origin "${branch_name}"; then
               git checkout "${branch_name}"
               git pull --quiet --set-upstream origin "${branch_name}"
