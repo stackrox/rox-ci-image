@@ -229,3 +229,5 @@ ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
 ENV CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
 
 USER circleci
+
+# dummy - remove me
