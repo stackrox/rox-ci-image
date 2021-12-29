@@ -197,6 +197,13 @@ RUN set -ex \
  && pip3 install anchorecli==0.7.2 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
+# Install yq v4.16.2
+RUN set -ex \
+  && wget https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64 \
+  && [[ "$(sha256sum yq_linux_amd64)" == "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" ]] \
+  && mv yq_linux_amd64 /usr/bin/yq \
+  && chmod +x /usr/bin/yq
+
 # We are copying the contents in static-contents into / in the image, following the directory structure.
 # The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
 # /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
