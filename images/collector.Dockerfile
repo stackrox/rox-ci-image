@@ -27,5 +27,3 @@ RUN \
   gcloud config set core/disable_prompts True && \
   gcloud components install gsutil -q && \
   gcloud components update -q
-
-# dummy - remove me
