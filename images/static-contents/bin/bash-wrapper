@@ -9,17 +9,6 @@ cci-export() {
     return 1
   fi
 
-  # embedd function, so that we can skip addtional "export -f"
-  remove_lines_starting_with() {
-    IN="$1"
-    PREFIX="$2"
-    if [[ -f "$IN" ]]; then
-      local grep_tmp
-      grep_tmp="$(mktemp -t "bash.env-XXXX")" # we have no guarantee that sed can create a tmp file in pwd, thus using mktemp
-      grep --invert-match "^${PREFIX}" "$IN" > "${grep_tmp}" && mv "${grep_tmp}" "$IN"
-    fi
-  }
-
   key="$1"
   value="$2"
 
@@ -30,13 +19,17 @@ cci-export() {
       echo >&2 "Env var BASH_ENV not properly set"
       return 1
     fi
-    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
-    # shellcheck disable=SC2016 # we must produce literal ${ symbols
-    remove_lines_starting_with "$BASH_ENV" "$(printf 'export %q="${%q:-' "$key" "$key")"
 
+    # Use export with default value: 'export FOO="${FOO:-bar}"', so that the exported variable can be locally shadowed in scripts
+    key_part="export ${key}"
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    # Use export with default value: 'export FOO=${FOO:-bar}'', so that the exported variable can be locally shadowed in scripts
-    printf 'export %q="${%q:-%q}"\n' "$key" "$key" "${value}" >> "$BASH_ENV"
+    value_part="$(printf '"${%q:-%q}"\n' "$key" "${value}")"
+
+    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
+    local grep_tmp
+    grep_tmp="$(mktemp -t "bash.env-XXXX")"
+    grep --invert-match --fixed-strings "$key_part" "$BASH_ENV" > "${grep_tmp}" && mv "${grep_tmp}" "$BASH_ENV"
+    echo "${key_part}=${value_part}" >> "$BASH_ENV"
   fi
 }
 
