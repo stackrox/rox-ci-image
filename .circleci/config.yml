@@ -51,7 +51,7 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.rox
+          dockerfile-path: images/rox.Dockerfile
 
   create-or-update-dependent-rox-pr:
     <<: *defaults
@@ -103,7 +103,7 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.test.cci-export
+          dockerfile-path: images/test.cci-export.Dockerfile
           tag-prefix: "cci-export-test-"
 
   run-cci-export-test:
@@ -130,7 +130,7 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.env-check
+          dockerfile-path: images/env-check.Dockerfile
           tag-prefix: "env-check-"
 
   unit-test-env-check:
@@ -204,14 +204,14 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.collector
+          dockerfile-path: images/collector.Dockerfile
           tag-prefix: "collector-"
 
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.jenkins-plugin
+          dockerfile-path: images/jenkins-plugin.Dockerfile
           tag-prefix: "jenkins-plugin-"
 
 workflows:
