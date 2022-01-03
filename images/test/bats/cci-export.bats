@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
-# running locally with: docker build -t apollo-cci:cci -f images/Dockerfile.test.cci-export images && docker run -it apollo-cci:cci
+# To run the test locally do:
+# docker build -t apollo-cci:test -f images/test.cci-export.Dockerfile images && docker run -it apollo-cci:test
 
 bats_helpers_root="/usr/lib/node_modules"
 load "${bats_helpers_root}/bats-support/load.bash"
