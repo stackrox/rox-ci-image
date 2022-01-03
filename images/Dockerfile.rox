@@ -200,7 +200,7 @@ RUN set -ex \
 # Install yq v4.16.2
 RUN set -ex \
   && wget https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64 \
-  && [[ "$(sha256sum yq_linux_amd64)" == "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" ]] \
+  && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" ]] \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
