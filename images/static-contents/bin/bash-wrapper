@@ -26,9 +26,10 @@ cci-export() {
     value_part="$(printf '"${%q:-%q}"\n' "$key" "${value}")"
 
     # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
-    local grep_tmp
-    grep_tmp="$(mktemp -t "bash.env-XXXX")"
-    grep --invert-match --fixed-strings "$key_part" "$BASH_ENV" > "${grep_tmp}" && mv "${grep_tmp}" "$BASH_ENV"
+    if [[ -f "$BASH_ENV" ]]; then
+      filtered_envfile="$(mktemp -t "bash.env-XXXX")"
+      grep --invert-match --fixed-strings "${key_part}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
+    fi
     echo "${key_part}=${value_part}" >> "$BASH_ENV"
   fi
 }
