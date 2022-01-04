@@ -80,6 +80,18 @@ setup() {
   assert_output "IMAGE3: text/placeholder/text:1.2.3"
 }
 
+@test "cci-export potentially colliding variable names" {
+  run cci-export PART1 "value1"
+  run cci-export PART1_PART2 "value_joined"
+  run cci-export PART1 "value2"
+
+  run "$HOME/test/foo-printer.sh" PART1
+  assert_output "PART1: value2"
+  refute_output "PART1: value1"
+  run "$HOME/test/foo-printer.sh" PART1_PART2
+  assert_output "PART1_PART2: value_joined"
+}
+
 @test "exported variable should be respected in a script" {
   export FOO=bar
   run "$HOME/test/foo-printer.sh"
