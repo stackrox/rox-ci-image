@@ -46,15 +46,15 @@ setup() {
   run "$HOME/test/foo-printer.sh"
   assert_output "FOO: cci2"
   refute_output "FOO: cci1"
+}
 
-  # Ensure characters like /.-:{} are esacped if needed
-  # TODO: support for {} is missing
-  # run cci-export FOO "quay.io/rhacs-eng/scanner:2.21.0-15-{g448f2dc8fa}"
-  # assert_success
-  # run cat $BASH_ENV
-  # run "$HOME/test/foo-printer.sh"
-  # assert_output "FOO: quay.io/rhacs-eng/scanner:2.21.0-15-{g448f2dc8fa}"
-  # refute_output "FOO: "
+@test "cci-export should escape special characters in values" {
+  run cci-export FOO "quay.io/rhacs-eng/scanner:2.21.0-15-{{g44}(8f)2dc8fa}"
+  assert_success
+  run cat $BASH_ENV
+  run "$HOME/test/foo-printer.sh"
+  assert_output "FOO: quay.io/rhacs-eng/scanner:2.21.0-15-{{g44}(8f)2dc8fa}"
+  refute_output "FOO: "
 }
 
 @test "cci-export sanity check many values" {
