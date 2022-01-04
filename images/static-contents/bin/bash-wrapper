@@ -23,7 +23,7 @@ cci-export() {
     # Use export with default value: 'export FOO="${FOO:-bar}"', so that the exported variable can be locally shadowed in scripts
     key_part="export ${key}"
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    value_part="$(printf '"${%q:-%q}"\n' "$key" "${value}")"
+    value_part="$(printf '"${%q:-"%q"}"\n' "$key" "$value")"
 
     # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
     if [[ -f "$BASH_ENV" ]]; then
