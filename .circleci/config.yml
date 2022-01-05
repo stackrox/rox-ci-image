@@ -107,10 +107,8 @@ jobs:
     - run:
         name: Test cci-export inside Docker
         command: |
-          export TAG="$(git describe --tags --abbrev=10)"
-          docker build images/ -f images/test.cci-export.Dockerfile \
-            -t "quay.io/rhacs-eng/apollo-ci:test-cci-export-$TAG"
-          docker run "quay.io/rhacs-eng/apollo-ci:test-cci-export-${TAG}"
+          docker build images/ -f images/test.cci-export.Dockerfile -t test.cci-export
+          docker run --rm test.cci-export
 
   build-and-push-env-check:
     <<: *defaults
