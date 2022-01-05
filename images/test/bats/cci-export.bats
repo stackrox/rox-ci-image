@@ -8,6 +8,12 @@ load "${bats_helpers_root}/bats-support/load.bash"
 load "${bats_helpers_root}/bats-assert/load.bash"
 
 setup() {
+  export _FILE="$HOME/test/bats/FILE"
+  # Create a file used in test-cases using subshell execution of 'cat'
+  echo "1.2.3" > "${_FILE}"
+  run test -f "${_FILE}"
+  assert_success
+
   bash_env="$(mktemp)"
   export BASH_ENV="$bash_env"
   # ensure clean start of every test case
@@ -60,7 +66,6 @@ setup() {
 }
 
 @test "cci-export sanity check many values" {
-  export _FILE="$HOME/test/bats/FILE"
   run cat "${_FILE}"
   assert_output "1.2.3"
 
