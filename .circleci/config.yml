@@ -98,7 +98,7 @@ jobs:
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           .circleci/create_update_pr_rox.sh "${branch_name}"
 
-  run-test-cci-export:
+  test-cci-export:
     <<: *defaults
     resource_class: medium
     steps:
@@ -202,7 +202,7 @@ workflows:
   version: 2
   build:
     jobs:
-    - run-test-cci-export:
+    - test-cci-export:
         filters:
           tags:
             only: /.*/
@@ -212,7 +212,7 @@ workflows:
           tags:
             only: /.*/
         requires:
-        - run-test-cci-export
+        - test-cci-export
     - create-or-update-dependent-rox-pr:
         filters:
           branches:
