@@ -25,7 +25,9 @@ cci-export() {
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
     value_part="$(printf '"${%q:-"%q"}"\n' "$key" "$value")"
 
-    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls
+    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls,
+    # otherwise the first call to cci-export would define a default value for the variable, so that
+    # second and subsequent calls to cci-export would have no effect.
     if [[ -f "$BASH_ENV" ]]; then
       filtered_envfile="$(mktemp -t "bash.env-XXXX")"
       grep --invert-match --fixed-strings "${key_part}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
