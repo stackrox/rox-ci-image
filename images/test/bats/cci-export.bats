@@ -19,6 +19,10 @@ setup() {
   assert_output ""
   run "$HOME/test/foo-printer.sh"
   assert_output "FOO: "
+  run test -n $CIRCLECI
+  assert_success
+  run echo $CIRCLECI
+  assert_output "true"
 }
 
 @test "cci-export BASH_ENV does not exist" {
