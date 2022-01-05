@@ -99,14 +99,14 @@ jobs:
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           .circleci/create_update_pr_rox.sh "${branch_name}"
 
-  build-and-push-cci-export-test:
+  build-and-push-test-cci-export:
     <<: *defaults
     steps:
       - build-and-push-image:
           dockerfile-path: images/test.cci-export.Dockerfile
-          tag-prefix: "cci-export-test-"
+          tag-prefix: "test-cci-export-"
 
-  run-cci-export-test:
+  run-test-cci-export:
     machine:
       image: ubuntu-2004:202111-01
     resource_class: medium
@@ -120,9 +120,9 @@ jobs:
         name: Test cci-export
         command: |
           export TAG="$(git describe --tags --abbrev=10)"
-          tag_prefix="snapshot-cci-export-test-"
+          tag_prefix="snapshot-test-cci-export-"
           if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-            tag_prefix="cci-export-test-"
+            tag_prefix="test-cci-export-"
           fi
           docker run "quay.io/rhacs-eng/apollo-ci:${tag_prefix}${TAG}"
 
@@ -218,22 +218,22 @@ workflows:
   version: 2
   build:
     jobs:
-    - build-and-push-cci-export-test:
+    - build-and-push-test-cci-export:
         context: quay-rhacs-eng-readwrite
         filters:
           tags:
             only: /.*/
-    - run-cci-export-test:
+    - run-test-cci-export:
         context: quay-rhacs-eng-readonly
         requires:
-        - build-and-push-cci-export-test
+        - build-and-push-test-cci-export
     - build-and-push-rox:
         context: quay-rhacs-eng-readwrite
         filters:
           tags:
             only: /.*/
         requires:
-        - run-cci-export-test
+        - run-test-cci-export
     - create-or-update-dependent-rox-pr:
         filters:
           branches:
