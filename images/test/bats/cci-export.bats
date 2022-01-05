@@ -130,4 +130,13 @@ setup() {
   refute_output "FOO: bar-export"
   refute_output "FOO: cci"
   refute_output "FOO: "
+
+
+  run cci-export FOO cci2
+  export FOO=bar-export2
+  FOO=bar-shadow2 run "$HOME/test/foo-printer.sh"
+  assert_output "FOO: bar-shadow2"
+  refute_output "FOO: bar-export2"
+  refute_output "FOO: cci2"
+  refute_output "FOO: "
 }
