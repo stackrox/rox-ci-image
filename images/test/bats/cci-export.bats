@@ -21,7 +21,7 @@ setup() {
   assert_output "FOO: "
 }
 
-@test "cci-export BASH_ENV not exists" {
+@test "cci-export BASH_ENV does not exist" {
   run rm -f "${BASH_ENV}"
   run test -f "${BASH_ENV}"
   assert_failure
