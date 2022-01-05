@@ -100,7 +100,7 @@ jobs:
           .circleci/create_update_pr_rox.sh "${branch_name}"
 
   run-test-cci-export:
-    executor: custom
+    <<: *defaults
     resource_class: medium
     steps:
     - checkout
