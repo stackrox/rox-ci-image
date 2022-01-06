@@ -51,7 +51,7 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.rox
+          dockerfile-path: images/rox.Dockerfile
 
   create-or-update-dependent-rox-pr:
     <<: *defaults
@@ -80,12 +80,17 @@ jobs:
           git config user.name "RoxBot"
 
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
-          git checkout "${branch_name}" || git checkout -b "${branch_name}"
-          git reset --hard origin/HEAD
+          if git fetch --quiet origin "${branch_name}"; then
+            git checkout "${branch_name}"
+            git pull --quiet --set-upstream origin "${branch_name}"
+          else
+            git checkout -b "${branch_name}"
+            git push --set-upstream origin "${branch_name}"
+          fi
 
           sed -i 's@quay.io/rhacs-eng/apollo-ci:.*@'"${pushed_image}"' # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g' .circleci/config.yml
           git commit -am "Bump base image to ${pushed_image##:}"
-          git push origin "${branch_name}" --force
+          git push origin "${branch_name}"
 
     - run:
         name: Create PR
@@ -93,11 +98,23 @@ jobs:
           branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
           .circleci/create_update_pr_rox.sh "${branch_name}"
 
+  test-cci-export:
+    <<: *defaults
+    resource_class: medium
+    steps:
+    - checkout
+    - setup_remote_docker
+    - run:
+        name: Test cci-export inside Docker
+        command: |
+          docker build images/ -f images/test.cci-export.Dockerfile -t test.cci-export
+          docker run --rm test.cci-export
+
   build-and-push-env-check:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.env-check
+          dockerfile-path: images/env-check.Dockerfile
           tag-prefix: "env-check-"
 
   unit-test-env-check:
@@ -171,25 +188,31 @@ jobs:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.collector
+          dockerfile-path: images/collector.Dockerfile
           tag-prefix: "collector-"
 
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/Dockerfile.jenkins-plugin
+          dockerfile-path: images/jenkins-plugin.Dockerfile
           tag-prefix: "jenkins-plugin-"
 
 workflows:
   version: 2
   build:
     jobs:
+    - test-cci-export:
+        filters:
+          tags:
+            only: /.*/
     - build-and-push-rox:
         context: quay-rhacs-eng-readwrite
         filters:
           tags:
             only: /.*/
+        requires:
+        - test-cci-export
     - create-or-update-dependent-rox-pr:
         filters:
           branches:
