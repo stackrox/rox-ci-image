@@ -33,13 +33,13 @@ cci-export() {
     # __BAZ_VALUE=baz
     # export BAZ="${BAZ:-"${__BAZ_VALUE}"}"'
 
-    value_variable_key="export __${key}_VALUE" # hopefullly this is var name is unique enough
-    value_variable_value="$(printf '%q\n' "$value")"
+    default_var_key="export __${key}_VALUE" # hopefullly this is var name-pattern is unique enough
+    default_var_value="$(printf '%q\n' "$value")"
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    new_export="$(printf 'export %q="${%q:-"${__%q_VALUE}"}"\n' "$key" "$key" "$key")"
+    export_with_default="$(printf 'export %q="${%q:-"${__%q_VALUE}"}"\n' "$key" "$key" "$key")"
 
     # Remove all lines starting with:
-    # __VAR_VALUE=
+    # export __VAR_VALUE=
     # export VAR=
     # for the same exported variable (VAR), to 'forget' about past cci-export calls,
     # otherwise the first call to cci-export would define a default value for the variable, so that
@@ -47,12 +47,12 @@ cci-export() {
     if [[ -f "$BASH_ENV" ]]; then
       filtered_envfile="$(mktemp -t "bash.env-XXXX")"
       # The first grep is necessary for correctness
-      grep --invert-match --fixed-strings "__${key}_VALUE=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
       # The second grep is optional for correctness, but it prevents duplicates
-      grep --invert-match --fixed-strings "export ${key}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
+      grep --invert-match --fixed-strings "${default_var_key}=" "$BASH_ENV" > "${filtered_envfile}" \
+      ; grep --invert-match --fixed-strings "export ${key}=" "$BASH_ENV" > "${filtered_envfile}" \
+      && mv "${filtered_envfile}" "$BASH_ENV"
     fi
-    echo "${value_variable_key}=${value_variable_value}" >> "$BASH_ENV"
-    echo "$new_export" >> "$BASH_ENV"
+    printf "%s=%s\n%s\n" "$default_var_key" "$default_var_value" "$export_with_default" >> "$BASH_ENV"
   fi
 }
 
