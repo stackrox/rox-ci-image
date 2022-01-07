@@ -14,12 +14,6 @@ setup() {
   run test -f "${_FILE}"
   assert_success
 
-  # Generate test cert
-  export _CERT="$HOME/test/bats/cert.pem"
-  openssl req -x509 -newkey rsa:2048 -nodes -keyout /dev/null -out "${_CERT}" -sha256 -days 1 -subj "/C=US/ST=Oregon/L=Portland/O=Company Name/OU=Org/CN=www.example.com"
-  run test -f "${_CERT}"
-  assert_success
-
   bash_env="$(mktemp)"
   export BASH_ENV="$bash_env"
   # ensure clean start of every test case
@@ -72,12 +66,28 @@ setup() {
 }
 
 @test "cci-export should escape special characters multiline strings" {
-  skip "test not fully ready yet"
-  run cci-export FOO "$(cat ${_CERT})"
+  # Sanity check on cert test fixture
+  export _CERT="$HOME/test/bats/test-ca.crt"
+  run test -f "${_CERT}"
   assert_success
-  run "$HOME/test/foo-printer.sh" FOO
-  assert_output --partial 'FOO: -----BEGIN CERTIFICATE-----\nM'
-  refute_output --partial 'FOO: -----BEGIN CERTIFICATE-----nM'
+  # The cert should be parsable with openssl
+  run openssl x509 -in "${_CERT}" -noout
+  assert_success
+
+  run cci-export CERT "$(cat ${_CERT})"
+  assert_success
+
+  post_cert="$(mktemp)"
+  "$HOME/test/foo-printer.sh" CERT --silent > "$post_cert"
+  # openssl should be able to load the cert after processing it with cci-export
+  run openssl x509 -in "$post_cert" -noout
+  assert_success
+
+  # assert_output --partial 'FOO: -----BEGIN CERTIFICATE-----\nM'
+  # refute_output --partial 'FOO: -----BEGIN CERTIFICATE-----nM'
+
+  # // cert_test.go:43: testCentralCertCAPEM=$'-----BEGIN CERTIFICATE-----nMIIC0zCCAbugAwIBAgIUSFuSMLD/aC2joxO+PejsFLyXQuMwDQYJKoZIhvcNAQELnBQAwGTEXMBUGA1UEAwwOUm9vdCBTZXJ2ZXIgQ0EwHhcNMjIwMTA2MTY0MzA5WhcNnMjIwMjA1MTY0MzA5WjAZMRcwFQYDVQQDDA5Sb290IFNlcnZlciBDQTCCASIwDQYJnKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKKcTJ+DYLpFWVPcKFzu+O205SNULgJ7ngAnBpwezFWVUgolf1rsvBX5nS8kXi7kVN5xGBE5cVuI3yqTtIdjpMi5Nt0vznAFln3pEf/P4rt6BqmzQiUBXaoWtEo0tMqC1eMxhQjLM80DQDxjzBcKsVwKLYGxGf0cPSnXpn8A9yWuyoU8zMRcu18awUHOCr1Ugv+q/SjlLASrZs0l5sRQaaAqILVkcUeY1tNntyINELmvYtolDrlNVgijrMsRRCLHbOZgcBZMZsf8O9skLuKAVX89OvIz1NJoOcminKHVvYP3YL5hsjWHvHIqixQC5AlRIG14AmYZjnNhZWJho8yPuQ5B/vrsCAwEAAaMTnMBEwDwYDVR0TBAgwBgEB/wIBATANBgkqhkiG9w0BAQsFAAOCAQEAVcakPXtKjDSNnlkre2xaYuYktTdeqgCkaR/533o17p+6k51Uz/yV4VhddaE6BYxiEsERVeC0lbO4anoU5gsKapqpypxhzxqV/npMcN8l8zw8lh9jD7NCD3UN+0+Y2xufrvZEE3LH31hdL2nNJ2xrzZohrY0a0PS9brlxNVgewUcsI6ldhxQN0tC4v4BYYrESrmDMXqL/cGbs+o9n6GkNpjL38PXbitIBha7YV3VulfVutWLZEmVfmeoJjP3vpMh6x9wfuRefbZ2U4GM2nhfJNWlEHt15qxlkF0gVTUn8jlr6f6Ww/o3UDSzfu6yLExj6ldnA4NGf58mqF5vFPnDNY/2odaPw==n-----END CERTIFICATE-----'
+  # export ROX_TEST_CA_PEM="${ROX_TEST_CA_PEM:-"$'-----BEGIN CERTIFICATE-----\nMIIC0zCCAbugAwIBAgIUSFuSMLD/aC2joxO+PejsFLyXQuMwDQYJKoZIhvcNAQEL\nBQAwGTEXMBUGA1UEAwwOUm9vdCBTZXJ2ZXIgQ0EwHhcNMjIwMTA2MTY0MzA5WhcN\nMjIwMjA1MTY0MzA5WjAZMRcwFQYDVQQDDA5Sb290IFNlcnZlciBDQTCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKKcTJ+DYLpFWVPcKFzu+O205SNULgJ7\ngAnBpwezFWVUgolf1rsvBX5nS8kXi7kVN5xGBE5cVuI3yqTtIdjpMi5Nt0vznAFl\n3pEf/P4rt6BqmzQiUBXaoWtEo0tMqC1eMxhQjLM80DQDxjzBcKsVwKLYGxGf0cPS\nXpn8A9yWuyoU8zMRcu18awUHOCr1Ugv+q/SjlLASrZs0l5sRQaaAqILVkcUeY1tN\ntyINELmvYtolDrlNVgijrMsRRCLHbOZgcBZMZsf8O9skLuKAVX89OvIz1NJoOcmi\nKHVvYP3YL5hsjWHvHIqixQC5AlRIG14AmYZjnNhZWJho8yPuQ5B/vrsCAwEAAaMT\nMBEwDwYDVR0TBAgwBgEB/wIBATANBgkqhkiG9w0BAQsFAAOCAQEAVcakPXtKjDSN\nlkre2xaYuYktTdeqgCkaR/533o17p+6k51Uz/yV4VhddaE6BYxiEsERVeC0lbO4a\noU5gsKapqpypxhzxqV/npMcN8l8zw8lh9jD7NCD3UN+0+Y2xufrvZEE3LH31hdL2\nNJ2xrzZohrY0a0PS9brlxNVgewUcsI6ldhxQN0tC4v4BYYrESrmDMXqL/cGbs+o9\n6GkNpjL38PXbitIBha7YV3VulfVutWLZEmVfmeoJjP3vpMh6x9wfuRefbZ2U4GM2\nhfJNWlEHt15qxlkF0gVTUn8jlr6f6Ww/o3UDSzfu6yLExj6ldnA4NGf58mqF5vFP\nDNY/2odaPw==\n-----END CERTIFICATE-----'"}"
 
   # Manual generation
   #
