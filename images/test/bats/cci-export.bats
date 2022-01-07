@@ -65,7 +65,7 @@ setup() {
   refute_output "FOO: "
 }
 
-@test "cci-export should escape special characters multiline strings" {
+@test "cci-export should properly handle multiline values" {
   # Sanity check on cert test fixture
   export _CERT="$HOME/test/bats/test-ca.crt"
   run test -f "${_CERT}"
