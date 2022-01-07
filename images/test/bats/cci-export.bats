@@ -88,6 +88,14 @@ setup() {
   assert_success
 }
 
+@test "cci-export should not leave duplicate lines in BASH_ENV" {
+  run cci-export FOO foo # creates 2 lines in BASH_ENV
+  run cci-export FOO foo2 # removes 2 and creates 2 lines in BASH_ENV
+
+  run bash -c "cat $BASH_ENV | grep FOO | wc -l"
+  assert_output 2
+}
+
 @test "cci-export sanity check many values" {
   run cat "${_FILE}"
   assert_output "1.2.3"
