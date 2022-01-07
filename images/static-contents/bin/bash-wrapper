@@ -20,29 +20,38 @@ cci-export() {
       return 1
     fi
 
-    value_variable="export __${key}_VALUE=\"${value}\"" # hopefullly this is unique enough
+    # Use export with default value in the following form
+    # __FOO_VALUE=bar
+    # export FOO="${FOO:-"${__FOO_VALUE}"}"'
+    # for the following reasons:
+    # - Using Bash default value (FOO=${FOO:-default}) - so that variables set in the environment are not overwritten by `$BASH_ENV`
+    # - Using a variable holding the default value (__FOO_VALUE=value) - so that multiline values (e.g., certificates) are supported
+    #
+    # An example of BASH_ENV contents:
+    # __FOO_VALUE=bar
+    # export FOO="${FOO:-"${__FOO_VALUE}"}"'
+    # __BAZ_VALUE=baz
+    # export BAZ="${BAZ:-"${__BAZ_VALUE}"}"'
+
+    value_variable_key="export __${key}_VALUE" # hopefullly this is var name is unique enough
+    value_variable_value="$(printf '%q\n' "$value")"
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
     new_export="$(printf 'export %q="${%q:-"${__%q_VALUE}"}"\n' "$key" "$key" "$key")"
 
-    # # Use export with default value: 'export FOO="${FOO:-bar}"', so that variables set in the environment are not overwritten by `$BASH_ENV`
-    # key_part="export ${key}"
-    # # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    # value_part="$(printf '"${%q:-"%q"}"\n' "$key" "$value")"
-
-    # # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls,
-    # # otherwise the first call to cci-export would define a default value for the variable, so that
-    # # second and subsequent calls to cci-export would have no effect.
-    # if [[ -f "$BASH_ENV" ]]; then
-    #   filtered_envfile="$(mktemp -t "bash.env-XXXX")"
-    #   grep --invert-match --fixed-strings "${key_part}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
-    # fi
-    # echo "${key_part}=${value_part}" >> "$BASH_ENV"
-
+    # Remove all lines starting with:
+    # __VAR_VALUE=
+    # export VAR=
+    # for the same exported variable (VAR), to 'forget' about past cci-export calls,
+    # otherwise the first call to cci-export would define a default value for the variable, so that
+    # second and subsequent calls to cci-export would have no effect.
     if [[ -f "$BASH_ENV" ]]; then
       filtered_envfile="$(mktemp -t "bash.env-XXXX")"
+      # The first grep is necessary for correctness
       grep --invert-match --fixed-strings "__${key}_VALUE=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
+      # The second grep is optional for correctness, but it prevents duplicates
+      grep --invert-match --fixed-strings "export ${key}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
     fi
-    echo "$value_variable" >> "$BASH_ENV"
+    echo "${value_variable_key}=${value_variable_value}" >> "$BASH_ENV"
     echo "$new_export" >> "$BASH_ENV"
   fi
 }
