@@ -47,7 +47,7 @@ cci-export() {
     if [[ -f "$BASH_ENV" ]]; then
       filtered_envfile="$(mktemp -t "bash.env-XXXX")"
       # The first pattern (-e) is necessary for correctness
-      # The second pattern is optional for correctness, but it prevents duplicates
+      # The second pattern is optional for correctness, but it prevents duplicate lines cluttering the file
       grep --invert-match --fixed-strings \
         -e "${default_var_key}=" \
         -e "export ${key}=" \

@@ -80,10 +80,6 @@ setup() {
   post_cert="${_CERT}.post"
   "$HOME/test/foo-printer.sh" CERT --silent > "$post_cert"
   # openssl should be able to load the cert after processing it with cci-export
-  run ls -la
-  run echo "post_cert: $post_cert"
-  run cat "$post_cert"
-
   run openssl x509 -in "$post_cert" -noout
   assert_success
 }
