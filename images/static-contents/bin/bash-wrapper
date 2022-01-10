@@ -33,10 +33,7 @@ cci-export() {
     # export __BAZ_VALUE=baz
     # export BAZ="${BAZ:-"${__BAZ_VALUE}"}"'
 
-    default_var_key="export __${key}_VALUE" # hopefullly this is var name-pattern is unique enough
-    default_var_value="$(printf '%q\n' "$value")"
-    # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    export_with_default="$(printf 'export %q="${%q:-"${__%q_VALUE}"}"\n' "$key" "$key" "$key")"
+    shadow_key="__${key}_VALUE"
 
     # Remove all lines starting with:
     # export __VAR_VALUE=
@@ -49,11 +46,14 @@ cci-export() {
       # The first pattern (-e) is necessary for correctness
       # The second pattern is optional for correctness, but it prevents duplicate lines cluttering the file
       grep --invert-match --fixed-strings \
-        -e "${default_var_key}=" \
+        -e "export ${shadow_key}=" \
         -e "export ${key}=" \
         "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
     fi
-    printf "%s=%s\n%s\n" "$default_var_key" "$default_var_value" "$export_with_default" >> "$BASH_ENV"
+
+    printf "export %s=%q\n" "$shadow_key" "$value" >> "$BASH_ENV"
+    # shellcheck disable=SC2016 # we must produce literal ${} symbols
+    printf 'export %q="${%q:-"${%q}"}"\n' "$key" "$key" "$shadow_key" >> "$BASH_ENV"
   fi
 }
 
