@@ -8,6 +8,7 @@ load "${bats_helpers_root}/bats-support/load.bash"
 load "${bats_helpers_root}/bats-assert/load.bash"
 
 setup() {
+  export _CERT="$HOME/test/bats/test-ca.crt"
   export _FILE="$HOME/test/bats/FILE"
   # Create a file used in test-cases using subshell execution of 'cat'
   echo "1.2.3" > "${_FILE}"
@@ -67,7 +68,6 @@ setup() {
 
 @test "cci-export should properly handle multiline values" {
   # Sanity check on cert test fixture
-  export _CERT="$HOME/test/bats/test-ca.crt"
   run test -f "${_CERT}"
   assert_success
   # The unprocessed cert should be parsable with openssl
@@ -85,6 +85,18 @@ setup() {
 
   run diff -q "${_CERT}" "$post_cert"
   assert_success
+}
+
+@test "cci-export should allow overwriting multiline values" {
+  run cci-export CERT "$(cat ${_CERT})"
+  assert_success
+  run "$HOME/test/foo-printer.sh" "CERT"
+  assert_line "CERT: -----BEGIN CERTIFICATE-----"
+  assert_line "-----END CERTIFICATE-----"
+
+  run cci-export CERT "dummy"
+  run "$HOME/test/foo-printer.sh" "CERT"
+  assert_output "CERT: dummy"
 }
 
 @test "cci-export should not leave duplicate lines in BASH_ENV" {
