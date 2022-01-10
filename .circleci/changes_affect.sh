@@ -25,15 +25,15 @@ affects_all() {
 }
 
 affects_collector() {
-  [[ " $* " =~  images/Dockerfile.collector  ]]
+  [[ " $* " =~  images/collector.Dockerfile  ]]
 }
 
 affects_scanner() {
-  [[ " $* " =~  images/Dockerfile.rox  ]]
+  [[ " $* " =~  images/rox.Dockerfile  ]]
 }
 
 affects_stackrox() {
-  [[ " $* " =~  images/Dockerfile.rox  ]]
+  [[ " $* " =~  images/rox.Dockerfile  ]]
 }
 
 main() {
