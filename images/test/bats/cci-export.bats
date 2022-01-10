@@ -82,6 +82,9 @@ setup() {
   # openssl should be able to load the cert after processing it with cci-export
   run openssl x509 -in "$post_cert" -noout
   assert_success
+
+  run diff -q "${_CERT}" "$post_cert"
+  assert_success
 }
 
 @test "cci-export should not leave duplicate lines in BASH_ENV" {
