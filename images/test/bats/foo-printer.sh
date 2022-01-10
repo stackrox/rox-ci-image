@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # prints the name (unless -s|--silent) and value of the variable given as parameter
 
+set -eo pipefail
+
 key="FOO"
 value="$FOO"
 sflag=0

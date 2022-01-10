@@ -7,6 +7,10 @@ bats_helpers_root="/usr/lib/node_modules"
 load "${bats_helpers_root}/bats-support/load.bash"
 load "${bats_helpers_root}/bats-assert/load.bash"
 
+foo_printer() {
+  "$HOME/test/bats/foo-printer.sh" "${@}"
+}
+
 setup() {
   export _CERT="$HOME/test/bats/test-ca.crt"
   export _FILE="$HOME/test/bats/FILE"
@@ -24,7 +28,7 @@ setup() {
   assert_output "$bash_env"
   run cat $BASH_ENV
   assert_output ""
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: "
   run test -n $CIRCLECI
   assert_success
@@ -39,7 +43,7 @@ setup() {
 
   run cci-export FOO cci1
   assert_success
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: cci1"
   refute_output "FOO: "
 }
@@ -47,13 +51,13 @@ setup() {
 @test "cci-export sanity check single value" {
   run cci-export FOO cci1
   assert_success
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: cci1"
   refute_output "FOO: "
 
   run cci-export FOO cci2
   assert_success
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: cci2"
   refute_output "FOO: cci1"
 }
@@ -61,7 +65,7 @@ setup() {
 @test "cci-export should escape special characters in values" {
   run cci-export FOO 'quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   assert_success
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output 'FOO: quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   refute_output "FOO: "
 }
@@ -78,7 +82,7 @@ setup() {
   assert_success
 
   post_cert="${_CERT}.post"
-  "$HOME/test/foo-printer.sh" CERT --silent > "$post_cert"
+  foo_printer CERT --silent > "$post_cert"
   # openssl should be able to load the cert after processing it with cci-export
   run openssl x509 -in "$post_cert" -noout
   assert_success
@@ -90,12 +94,12 @@ setup() {
 @test "cci-export should allow overwriting multiline values" {
   run cci-export CERT "$(cat ${_CERT})"
   assert_success
-  run "$HOME/test/foo-printer.sh" "CERT"
+  run foo_printer "CERT"
   assert_line "CERT: -----BEGIN CERTIFICATE-----"
   assert_line "-----END CERTIFICATE-----"
 
   run cci-export CERT "dummy"
-  run "$HOME/test/foo-printer.sh" "CERT"
+  run foo_printer "CERT"
   assert_output "CERT: dummy"
 }
 
@@ -116,15 +120,15 @@ setup() {
   run cci-export VAR2 "text/$VAR/text:$(cat "${_FILE}")"
   run cci-export IMAGE3 "text/$VAR/text:$(cat "${_FILE}")"
 
-  run "$HOME/test/foo-printer.sh" "VAR1"
+  run foo_printer "VAR1"
   assert_output "VAR1: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "VAR1: text/placeholder/text:1.2.3"
 
-  run "$HOME/test/foo-printer.sh" VAR2
+  run foo_printer VAR2
   assert_output "VAR2: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "VAR2: text/placeholder/text:1.2.3"
 
-  run "$HOME/test/foo-printer.sh" IMAGE3
+  run foo_printer IMAGE3
   assert_output "IMAGE3: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "IMAGE3: text/placeholder/text:1.2.3"
 }
@@ -134,22 +138,22 @@ setup() {
   run cci-export PART1_PART2 "value_joined"
   run cci-export PART1 "value2"
 
-  run "$HOME/test/foo-printer.sh" PART1
+  run foo_printer PART1
   assert_output "PART1: value2"
   refute_output "PART1: value1"
-  run "$HOME/test/foo-printer.sh" PART1_PART2
+  run foo_printer PART1_PART2
   assert_output "PART1_PART2: value_joined"
 }
 
 @test "exported variable should be respected in a script" {
   export FOO=bar
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: bar"
   refute_output "FOO: "
 }
 
 @test "shadowed variable should be respected in a script" {
-  FOO=bar run "$HOME/test/foo-printer.sh"
+  FOO=bar run foo_printer
   assert_output "FOO: bar"
   refute_output "FOO: "
 }
@@ -157,7 +161,7 @@ setup() {
 @test "exported variable should have priority over the cci-exported one" {
   run cci-export FOO cci
   export FOO=bar
-  run "$HOME/test/foo-printer.sh"
+  run foo_printer
   assert_output "FOO: bar"
   refute_output "FOO: cci"
   refute_output "FOO: "
@@ -165,7 +169,7 @@ setup() {
 
 @test "shadowed variable should have priority over the cci-exported one" {
   run cci-export FOO cci
-  FOO=bar run "$HOME/test/foo-printer.sh"
+  FOO=bar run foo_printer
   assert_output "FOO: bar"
   refute_output "FOO: cci"
   refute_output "FOO: "
@@ -174,7 +178,7 @@ setup() {
 @test "shadowed variable should have priority over both: the exported and the cci-exported one" {
   export FOO=bar-export
   run cci-export FOO cci
-  FOO=bar-shadow run "$HOME/test/foo-printer.sh"
+  FOO=bar-shadow run foo_printer
   assert_output "FOO: bar-shadow"
   refute_output "FOO: bar-export"
   refute_output "FOO: cci"
@@ -183,7 +187,7 @@ setup() {
 
   run cci-export FOO cci2
   export FOO=bar-export2
-  FOO=bar-shadow2 run "$HOME/test/foo-printer.sh"
+  FOO=bar-shadow2 run foo_printer
   assert_output "FOO: bar-shadow2"
   refute_output "FOO: bar-export2"
   refute_output "FOO: cci2"
