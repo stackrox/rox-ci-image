@@ -103,7 +103,7 @@ setup() {
   run cci-export FOO foo # creates 2 lines in BASH_ENV
   run cci-export FOO foo2 # removes 2 and creates 2 lines in BASH_ENV
 
-  run bash -c "cat $BASH_ENV | grep FOO | wc -l"
+  run bash -c "grep FOO "$BASH_ENV" | wc -l"
   assert_output 2
 }
 
