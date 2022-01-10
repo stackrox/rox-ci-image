@@ -238,12 +238,6 @@ workflows:
             only: /.*/
         requires:
         - test-cci-export
-    - create-or-update-dependent-rox-pr:
-        filters:
-          branches:
-            ignore: master
-        requires:
-        - build-and-push-rox
     - build-and-push-env-check:
         context: quay-rhacs-eng-readwrite
         filters:
@@ -271,6 +265,18 @@ workflows:
             ignore: master
         requires:
         - build-and-push-collector
+    - create-or-update-stackrox-repo-pr:
+        filters:
+          branches:
+            ignore: master
+        requires:
+        - build-and-push-rox
+    - create-or-update-scanner-repo-pr:
+        filters:
+          branches:
+            ignore: master
+        requires:
+        - build-and-push-rox
     - build-and-push-jenkins-plugin:
         context: quay-rhacs-eng-readwrite
         filters:
