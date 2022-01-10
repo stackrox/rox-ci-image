@@ -2,6 +2,11 @@
 
 set -uo pipefail
 
+die() {
+  >&2 echo "ERROR: $*"
+  exit 1
+}
+
 all_changed_files() {
   main_branch="$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')"
   [[ -n "${main_branch}" ]] || die "Failed to get main branch"
