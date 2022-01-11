@@ -9,7 +9,7 @@ ARG ROCKSDB_TAG="rocksdb-v6.7.3"
 FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
 
 # https://circleci.com/developer/images/image/cimg/base
-FROM cimg/base:latest
+FROM cimg/base:edge
 
 USER root
 # Avoid interaction with apt-get commands.
