@@ -8,6 +8,7 @@ RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/fa
 # https://circleci.com/developer/images/image/cimg/base
 FROM cimg/base:stable-20.04
 
+USER root
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
 # which asks for user input for timezone data.
@@ -84,20 +85,16 @@ RUN set -ex \
 
 # Install bats
 RUN set -ex \
-  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
+  && npm install -g bats@1.5.0 bats-support@0.3.0 tap-junit@5.0.1 \
   && bats -v
+
+# TODO(RS-410): Install bats-assert@2.0.0 from sources
 
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
   && chmod +x ./jq \
   && sudo mv ./jq /usr/bin \
   && command -v jq
-
-# Configure CircleCI user
-RUN set -ex \
- && groupadd --gid 3434 circleci \
- && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
- && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
 
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6
