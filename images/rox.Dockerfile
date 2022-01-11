@@ -1,9 +1,12 @@
-FROM ubuntu:20.04 as rocksdb
+# FROM ubuntu:20.04 as rocksdb
 
-ENV ROCKSDB_VERSION="v6.7.3" PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
+# ENV ROCKSDB_VERSION="v6.7.3" PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
 
-RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
-RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
+# RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+# RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
+
+ARG ROCKSDB_TAG="rocksdb-v6.7.3"
+FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
 
 # https://circleci.com/developer/images/image/cimg/base
 FROM cimg/base:stable-20.04
