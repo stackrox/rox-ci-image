@@ -5,7 +5,8 @@ ENV ROCKSDB_VERSION="v6.7.3" PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_P
 RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
 RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
 
-FROM ubuntu:20.04
+# https://circleci.com/developer/images/image/cimg/base
+FROM cimg/base:stable-20.04
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
