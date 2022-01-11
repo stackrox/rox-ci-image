@@ -24,8 +24,8 @@ cci-export() {
     # export __FOO_VALUE=bar
     # export FOO="${FOO:-"${__FOO_VALUE}"}"'
     # for the following reasons:
-    # - Using Bash default value (FOO=${FOO:-default}) - so that variables set in the environment are not overwritten by `$BASH_ENV`
-    # - Using a variable holding the default value (__FOO_VALUE=value) - so that multiline values (e.g., certificates) are supported
+    # - Using Bash default value (FOO=${FOO:-"${__FOO_VALUE}"})  - so that variables already set in the environment are not overwritten by `$BASH_ENV`
+    # - Using a variable holding the default value (__FOO_VALUE=value) - so that multiline values (e.g., certificates) are correctly escaped
     #
     # An example of BASH_ENV contents:
     # export __FOO_VALUE=bar
