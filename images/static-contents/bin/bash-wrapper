@@ -31,7 +31,7 @@ cci-export() {
     # export __CCI_EXPORT_FOO_VALUE=bar
     # export FOO="${FOO:-"${__CCI_EXPORT_FOO_VALUE}"}"'
     # export __CCI_EXPORT_BAZ_VALUE=baz
-    # export BAZ="${BAZ:-"${__BAZ_VALUE}"}"'
+    # export BAZ="${BAZ:-"${__CCI_EXPORT_BAZ_VALUE}"}"'
 
     shadow_key="__CCI_EXPORT_${key}_VALUE"
 
