@@ -53,7 +53,7 @@ cci-export() {
 
     printf "export %s=%q\n" "$shadow_key" "$value" >> "$BASH_ENV"
     # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    printf 'export %q="${%q:-"${%q}"}"\n' "$key" "$key" "$shadow_key" >> "$BASH_ENV"
+    printf 'export %s="${%s:-"${%s}"}"\n' "$key" "$key" "$shadow_key" >> "$BASH_ENV"
   fi
 }
 
