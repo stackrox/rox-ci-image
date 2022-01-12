@@ -20,19 +20,40 @@ cci-export() {
       return 1
     fi
 
-    # Use export with default value: 'export FOO="${FOO:-bar}"', so that variables set in the environment are not overwritten by `$BASH_ENV`
-    key_part="export ${key}"
-    # shellcheck disable=SC2016 # we must produce literal ${} symbols
-    value_part="$(printf '"${%q:-"%q"}"\n' "$key" "$value")"
+    # Use export with default value in the following form
+    # export __CCI_EXPORT_FOO_VALUE=bar
+    # export FOO="${FOO:-"${__CCI_EXPORT_FOO_VALUE}"}"'
+    # for the following reasons:
+    # - Using Bash default value (FOO=${FOO:-"${__CCI_EXPORT_FOO_VALUE}"})  - so that variables already set in the environment are not overwritten by `$BASH_ENV`
+    # - Using a variable holding the default value (__CCI_EXPORT_FOO_VALUE=value) - so that multiline values (e.g., certificates) are correctly escaped
+    #
+    # An example of BASH_ENV contents:
+    # export __CCI_EXPORT_FOO_VALUE=bar
+    # export FOO="${FOO:-"${__CCI_EXPORT_FOO_VALUE}"}"'
+    # export __CCI_EXPORT_BAZ_VALUE=baz
+    # export BAZ="${BAZ:-"${__CCI_EXPORT_BAZ_VALUE}"}"'
 
-    # Remove all export-lines for the same exported variable, to 'forget' about past cci-export calls,
+    shadow_key="__CCI_EXPORT_${key}_VALUE"
+
+    # Remove all lines starting with:
+    # export __CCI_EXPORT_VAR_VALUE=
+    # export VAR=
+    # for the same exported variable (VAR), to 'forget' about past cci-export calls,
     # otherwise the first call to cci-export would define a default value for the variable, so that
     # second and subsequent calls to cci-export would have no effect.
     if [[ -f "$BASH_ENV" ]]; then
       filtered_envfile="$(mktemp -t "bash.env-XXXX")"
-      grep --invert-match --fixed-strings "${key_part}=" "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
+      # The first pattern (-e) is necessary for correctness
+      # The second pattern is optional for correctness, but it prevents duplicate lines cluttering the file
+      grep --invert-match --fixed-strings \
+        -e "export ${shadow_key}=" \
+        -e "export ${key}=" \
+        "$BASH_ENV" > "${filtered_envfile}" && mv "${filtered_envfile}" "$BASH_ENV"
     fi
-    echo "${key_part}=${value_part}" >> "$BASH_ENV"
+
+    printf "export %s=%q\n" "$shadow_key" "$value" >> "$BASH_ENV"
+    # shellcheck disable=SC2016 # we must produce literal ${} symbols
+    printf 'export %s="${%s:-"${%s}"}"\n' "$key" "$key" "$shadow_key" >> "$BASH_ENV"
   fi
 }
 
