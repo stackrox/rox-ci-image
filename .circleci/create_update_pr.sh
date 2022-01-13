@@ -5,13 +5,15 @@ set -eo pipefail
 [[ -n "${GITHUB_TOKEN}" ]] || { echo >&2 "No GitHub token found"; exit 2; }
 
 usage() {
-  echo >&2 "Usage: $0 <branch_name>"
+  echo >&2 "Usage: $0 <branch_name> <repo_name>"
   exit 2
 }
 
 branch_name="$1"
+repo_name="$2"
 
 [[ -n "$branch_name" ]] || usage
+[[ -n "$repo_name" ]] || usage
 
 pr_response_file="$(mktemp)"
 
@@ -24,7 +26,7 @@ status_code="$(curl -sS \
   -o "$pr_response_file" \
   -X POST \
   -H "Authorization: token ${GITHUB_TOKEN}" \
-  'https://api.github.com/repos/stackrox/stackrox/pulls' \
+  "https://api.github.com/repos/stackrox/${repo_name}/pulls" \
   -d"{
   \"title\": \"Update rox-ci-image\",
   \"body\": $(jq -sR <<<"$message"),
@@ -46,7 +48,7 @@ if [[ "${status_code}" -eq 201 ]]; then
   curl -sS --fail \
  -X POST \
  -H "Authorization: token ${GITHUB_TOKEN}" \
- "https://api.github.com/repos/stackrox/stackrox/issues/${pr_number}/assignees" \
+ "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/assignees" \
  -d"{
     \"assignees\": [\"${CIRCLE_USERNAME}\"]
   }"
