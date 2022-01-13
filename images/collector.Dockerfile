@@ -1,4 +1,4 @@
-FROM circleci/golang:1.16.4-buster
+FROM cimg/go:1.16.4
 
 USER 0
 
