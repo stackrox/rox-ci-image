@@ -3,6 +3,7 @@ FROM cimg/go:1.16
 USER 0
 
 RUN apt-get update && \
+  apt-get upgrade && \
   apt-get install -y --no-install-recommends \
     lsb-release \
     cmake \
