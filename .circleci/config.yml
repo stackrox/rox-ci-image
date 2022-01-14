@@ -121,6 +121,7 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/rox.Dockerfile
+      - check-image
 
   test-cci-export:
     <<: *defaults
@@ -248,7 +249,9 @@ workflows:
           tags:
             only: /.*/
     - build-and-push-rox:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
         filters:
           tags:
             only: /.*/
