@@ -8,7 +8,6 @@ RUN apt-get update && \
     lsb-release \
     cmake \
     python3-distutils \
-    ca-certificates \
     clang-format \
     patch
 
