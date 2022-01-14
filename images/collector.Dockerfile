@@ -9,7 +9,8 @@ RUN apt-get update && \
     cmake \
     python3-distutils \
     ca-certificates \
-    clang-format
+    clang-format \
+    patch
 
 # Remove package manager tools per StackRox policy
 RUN dpkg -r --force-all apt apt-get && \
