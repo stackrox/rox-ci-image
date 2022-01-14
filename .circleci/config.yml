@@ -58,7 +58,6 @@ commands:
 
             .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
 
-
   build-and-push-image:
     parameters:
       tag-prefix:
@@ -99,6 +98,22 @@ commands:
           root: /tmp
           paths:
             - pushed_tag
+
+  check-image:
+    steps:
+      - run:
+          name: Get roxctl
+          command: |
+            curl -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
+            chmod +x ./roxctl
+      - run:
+          name: Scan images for policy deviations and vulnerabilities
+          command: |
+            pushed_tag="$(cat /tmp/pushed_tag)"
+            [[ -n "${pushed_tag}" ]]
+            echo "Pushed image tag: ${pushed_tag}"
+
+            ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${pushed_tag}"
 
 jobs:
   build-and-push-rox:
@@ -199,6 +214,7 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
           tag-prefix: "collector-"
+      - check-image
 
   create-or-update-stackrox-repo-pr:
     <<: *defaults
