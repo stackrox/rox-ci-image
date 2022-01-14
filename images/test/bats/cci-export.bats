@@ -193,3 +193,10 @@ setup() {
   refute_output "FOO: cci2"
   refute_output "FOO: "
 }
+
+@test "shadowed empty variable should be respected in a script" {
+  run cci-export FOO "value"
+  FOO="" run foo_printer
+  assert_output "FOO: "
+  refute_output "FOO: value"
+}
