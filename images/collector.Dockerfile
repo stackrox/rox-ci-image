@@ -1,4 +1,4 @@
-FROM cimg/go:1.16.4
+FROM cimg/go:1.16
 
 USER 0
 
