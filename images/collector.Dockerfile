@@ -12,10 +12,6 @@ RUN apt-get update && \
     clang-format \
     patch
 
-# Remove package manager tools per StackRox policy
-RUN dpkg -r --force-all apt apt-get && \
-    dpkg -r --force-all debconf dpkg
-
 ENV ROX_CI_IMAGE=collector-ci-image
 
 COPY ./static-contents/bin/bash-wrapper /bin/
