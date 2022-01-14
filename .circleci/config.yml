@@ -91,7 +91,10 @@ commands:
               echo "Pushing snapshot image"
               tag_to_push="snapshot-$TAG"
             fi
-            docker push "quay.io/rhacs-eng/apollo-ci:${tag_to_push}" | cat
+            for i in {1..5}
+            do
+              docker push "quay.io/rhacs-eng/apollo-ci:${tag_to_push}" && break || sleep 15
+            done
             echo "${tag_to_push}" > "/tmp/pushed_tag"
 
       - persist_to_workspace:
