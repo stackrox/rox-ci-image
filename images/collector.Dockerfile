@@ -2,7 +2,12 @@ FROM cimg/go:1.16.4
 
 USER 0
 
-RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake python3-distutils
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends \
+    lsb-release \
+    cmake \
+    python3-distutils \
+    ca-certificates
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
