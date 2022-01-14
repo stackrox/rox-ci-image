@@ -25,7 +25,7 @@ cci-export() {
     # export FOO="${FOO-"${__CCI_EXPORT_FOO_VALUE}"}"'
     # for the following reasons:
     # - Using Bash default value (FOO=${FOO-"${__CCI_EXPORT_FOO_VALUE}"}) - so that variables already set in the
-    #   environment are not overwritten by `$BASH_ENV` (including variables set to empty value).
+    #   environment are not overwritten by `$BASH_ENV` (including variables set to empty string).
     # - Using a variable holding the default value (__CCI_EXPORT_FOO_VALUE=value) - so that multiline values (e.g.
     #   certificates) are correctly escaped.
     #
