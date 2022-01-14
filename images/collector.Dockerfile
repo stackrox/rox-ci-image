@@ -7,7 +7,8 @@ RUN apt-get update && \
     lsb-release \
     cmake \
     python3-distutils \
-    ca-certificates
+    ca-certificates \
+    clang-format
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
