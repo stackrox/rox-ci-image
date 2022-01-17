@@ -230,7 +230,7 @@ workflows:
   build:
     jobs:
     - bats/run:
-        path: ./tests/bats
+        path: ./test/bats
         filters:
           tags:
             only: /.*/
