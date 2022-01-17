@@ -180,8 +180,7 @@ jobs:
 
             scratch="$(mktemp -d)"
             output_dir="$scratch/builds"
-            bats_dir="$output_dir/bats"
-            mkdir -p "$bats_dir"
+            mkdir -p "$output_dir"
             docker run -u "$(id -u):$(id -g)" --rm \
               -e CIRCLECI_TOKEN -e CIRCLE_WORKFLOW_ID \
               -e CIRCLE_PROJECT_REPONAME -e CIRCLE_BUILD_NUM \

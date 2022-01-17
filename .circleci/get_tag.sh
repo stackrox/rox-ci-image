@@ -13,7 +13,7 @@ if [[ "$image_flavor" != "" ]]; then
 fi
 
 snapshot=""
-if [[ "${CIRCLE_BRANCH:-}" != "master" ]]; then
+if [[ "${CIRCLE_BRANCH:-}" != "master" && -z "${CIRCLE_TAG:-}" ]]; then
     snapshot="snapshot-"
 fi
 

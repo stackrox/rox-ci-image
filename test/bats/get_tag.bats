@@ -41,7 +41,6 @@ setup() {
 
 @test 'prepends snapshot' {
   describe=$(git describe --tags --abbrev=10)
-  CIRCLE_BRANCH=my-pr
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
   [[ "$output" =~ ^snapshot-something-$describe$ ]]
@@ -50,6 +49,14 @@ setup() {
 @test 'does not prepend snapshot on master' {
   describe=$(git describe --tags --abbrev=10)
   export CIRCLE_BRANCH=master
+  run .circleci/get_tag.sh something
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ ^something-$describe$ ]]
+}
+
+@test 'does not prepend snapshot on tags' {
+  describe=$(git describe --tags --abbrev=10)
+  export CIRCLE_TAG=1.2.3
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
   [[ "$output" =~ ^something-$describe$ ]]
