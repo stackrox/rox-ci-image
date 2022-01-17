@@ -200,7 +200,8 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
           image-flavor: "collector"
-      - check-image
+      - check-image:
+          image-flavor: "collector"
 
   create-or-update-stackrox-repo-pr:
     <<: *defaults
