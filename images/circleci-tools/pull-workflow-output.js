@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
+import sanitize from "sanitize-filename";
 
 import { getCircleCI } from "./common.js";
 import * as CONSTANTS from "./constants.js";
@@ -130,7 +131,8 @@ async function processJob(job, outputDir) {
             }
         }
     }
-    const outfile = path.join(outputDir, job.name + "-out.txt");
+    const sanitized_name = sanitize(job.name + "-out.txt");
+    const outfile = path.join(outputDir, sanitized_name);
     await fs.writeFile(outfile, output).catch((e) => {
         console.error(`Could not write output file: ${e}`);
         process.exit(1);
