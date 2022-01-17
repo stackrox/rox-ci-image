@@ -7,7 +7,7 @@ RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/fa
 
 FROM ubuntu:20.04
 
-# Avoid interaction with apt-get commands.
+# Avid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
 # which asks for user input for timezone data.
 ARG DEBIAN_FRONTEND=noninteractive
