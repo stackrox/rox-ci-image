@@ -1,6 +1,8 @@
 setup() {
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
     PATH="$DIR/../..:$PATH"
+    CIRCLE_BRANCH=a-pr
+    unset CIRCLE_TAG
 }
 
 @test "expects an image flavor" {
