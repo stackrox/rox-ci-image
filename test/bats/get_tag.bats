@@ -1,8 +1,11 @@
+#!/usr/bin/env bats
+
 setup() {
     DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
     PATH="$DIR/../..:$PATH"
     CIRCLE_BRANCH=a-pr
     unset CIRCLE_TAG
+    describe=$(git describe --tags --abbrev=10)
 }
 
 @test "expects an image flavor" {
@@ -10,56 +13,41 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
-@test 'image flavor can be ""' {
-  run .circleci/get_tag.sh ""
-  [ "$status" -eq 0 ]
-}
-
-@test 'image flavor can be something' {
-  run .circleci/get_tag.sh something
-  [ "$status" -eq 0 ]
-}
-
-@test 'uses git describe' {
-  describe=$(git describe --tags --abbrev=10)
+@test 'appends git describe' {
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
   [[ "$output" =~ $describe$ ]]
 }
 
 @test 'adds image flavor' {
-  describe=$(git describe --tags --abbrev=10)
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
-  [[ "$output" =~ something-$describe$ ]]
+  [[ "$output" == "snapshot-something-$describe" ]]
 }
 
 @test 'only adds image flavor when not ""' {
-  describe=$(git describe --tags --abbrev=10)
   run .circleci/get_tag.sh ""
   [ "$status" -eq 0 ]
-  [[ "$output" =~ ^snapshot-$describe$ ]]
+  [[ "$output" == "snapshot-$describe" ]]
 }
 
-@test 'prepends snapshot' {
-  describe=$(git describe --tags --abbrev=10)
+@test 'prepends snapshot on PRs' {
+  export CIRCLE_BRANCH=a-pr
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
-  [[ "$output" =~ ^snapshot-something-$describe$ ]]
+  [[ "$output" == "snapshot-something-$describe" ]]
 }
 
 @test 'does not prepend snapshot on master' {
-  describe=$(git describe --tags --abbrev=10)
   export CIRCLE_BRANCH=master
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
-  [[ "$output" =~ ^something-$describe$ ]]
+  [[ "$output" == "something-$describe" ]]
 }
 
 @test 'does not prepend snapshot on tags' {
-  describe=$(git describe --tags --abbrev=10)
   export CIRCLE_TAG=1.2.3
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
-  [[ "$output" =~ ^something-$describe$ ]]
+  [[ "$output" == "something-$describe" ]]
 }
