@@ -35,7 +35,7 @@ commands:
               exit 0;
             fi
 
-            TAG=$(.circleci/get_tag.sh "<< parameters.image-flavor >>")
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
 
             pushd "/tmp/<< parameters.repo >>"
 
@@ -76,7 +76,7 @@ commands:
       - run:
           name: Build image
           command: |
-            TAG=$(.circleci/get_tag.sh "<< parameters.image-flavor >>")
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build images/ -f << parameters.dockerfile-path >> \
               -t "quay.io/rhacs-eng/apollo-ci:$TAG"
 
@@ -85,7 +85,7 @@ commands:
           command: |
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-            TAG=$(.circleci/get_tag.sh "<< parameters.image-flavor >>")
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             for i in {1..5}
             do
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
@@ -106,7 +106,7 @@ commands:
       - run:
           name: Scan images for policy deviations and vulnerabilities
           command: |
-            TAG=$(.circleci/get_tag.sh "<< parameters.image-flavor >>")
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${TAG}"
 
 jobs:
@@ -149,7 +149,7 @@ jobs:
       - run:
           name: Run unit tests for circleci-tools using the built image
           command: |
-            TAG=$(.circleci/get_tag.sh "env-check")
+            TAG="$(.circleci/get_tag.sh "env-check")"
             export IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
             docker pull "$IMAGE"
             images/circleci-tools/test/test.bats
@@ -168,7 +168,7 @@ jobs:
       - run:
           name: Check build output using the built image
           command: |
-            TAG=$(.circleci/get_tag.sh "env-check")
+            TAG="$(.circleci/get_tag.sh "env-check")"
             export IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
             export CIRCLECI_TOKEN="$CIRCLE_TOKEN_ROXBOT"
             docker pull "$IMAGE"
