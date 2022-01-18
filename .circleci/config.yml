@@ -4,6 +4,9 @@ defaults: &defaults
 
 version: 2.1
 
+orbs:
+  bats: circleci/bats@1.0.0
+
 commands:
   open-test-pr:
     parameters:
@@ -11,13 +14,15 @@ commands:
         description: Name of the repo where the PR should be opened.
         type: string
         default: ""
+      image-flavor:
+        description: The flavor of the apollo-ci image that the target repo uses.
+        type: string
+        default: ""
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
             - "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
-      - attach_workspace:
-          at: /tmp
       - run:
           name: Clone << parameters.repo >> repo
           command: |
@@ -30,9 +35,7 @@ commands:
               exit 0;
             fi
 
-            pushed_tag="$(cat /tmp/pushed_tag)"
-            [[ -n "${pushed_tag}" ]]
-            echo "Pushed image tag: ${pushed_tag}"
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
 
             pushd "/tmp/<< parameters.repo >>"
 
@@ -47,22 +50,21 @@ commands:
               git push --set-upstream origin "${branch_name}"
             fi
 
-            sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${pushed_tag} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
+            sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${TAG} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
 
             # If the image parameter was originally quoted, we need to close the quote
-            sed -i "s@\"\(.*\)/apollo-ci:${pushed_tag} # TODO@\"\1/apollo-ci:${pushed_tag}\" # TODO@g" .circleci/config.yml
+            sed -i "s@\"\(.*\)/apollo-ci:${TAG} # TODO@\"\1/apollo-ci:${TAG}\" # TODO@g" .circleci/config.yml
 
-            git commit -am "Bump base image tag to ${pushed_tag##:}"
+            git commit -am "Bump base image tag to ${TAG##:}"
             git push origin "${branch_name}"
             popd
 
             .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
 
-
   build-and-push-image:
     parameters:
-      tag-prefix:
-        description: Prefix to be added before the tag.
+      image-flavor:
+        description: A flavor used to tag the apollo-ci image.
         type: string
         default: ""
       dockerfile-path:
@@ -74,31 +76,38 @@ commands:
       - run:
           name: Build image
           command: |
-            export TAG="$(git describe --tags --abbrev=10)"
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build images/ -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:snapshot-<< parameters.tag-prefix >>$TAG" \
-              -t "quay.io/rhacs-eng/apollo-ci:<< parameters.tag-prefix >>$TAG"
+              -t "quay.io/rhacs-eng/apollo-ci:$TAG"
 
       - run:
           name: Push image
           command: |
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-            export TAG="<< parameters.tag-prefix >>$(git describe --tags --abbrev=10)"
-            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-              echo "Pushing release image"
-              tag_to_push="$TAG"
-            else
-              echo "Pushing snapshot image"
-              tag_to_push="snapshot-$TAG"
-            fi
-            docker push "quay.io/rhacs-eng/apollo-ci:${tag_to_push}" | cat
-            echo "${tag_to_push}" > "/tmp/pushed_tag"
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
+            for i in {1..5}
+            do
+              docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
+            done
 
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-            - pushed_tag
+  check-image:
+    parameters:
+      image-flavor:
+        description: The flavor of apollo-ci image to check.
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Get roxctl
+          command: |
+            curl -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
+            chmod +x ./roxctl
+      - run:
+          name: Scan images for policy deviations and vulnerabilities
+          command: |
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
+            ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${TAG}"
 
 jobs:
   build-and-push-rox:
@@ -124,7 +133,7 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
-          tag-prefix: "env-check-"
+          image-flavor: "env-check"
 
   unit-test-env-check:
     machine:
@@ -140,12 +149,8 @@ jobs:
       - run:
           name: Run unit tests for circleci-tools using the built image
           command: |
-            export TAG="$(git describe --tags --abbrev=10)"
-            tag_prefix="snapshot-env-check-"
-            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-              tag_prefix="env-check-"
-            fi
-            export IMAGE="quay.io/rhacs-eng/apollo-ci:${tag_prefix}${TAG}"
+            TAG="$(.circleci/get_tag.sh "env-check")"
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
             docker pull "$IMAGE"
             images/circleci-tools/test/test.bats
 
@@ -163,12 +168,8 @@ jobs:
       - run:
           name: Check build output using the built image
           command: |
-            export TAG="$(git describe --tags --abbrev=10)"
-            tag_prefix="snapshot-env-check-"
-            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-              tag_prefix="env-check-"
-            fi
-            export IMAGE="quay.io/rhacs-eng/apollo-ci:${tag_prefix}${TAG}"
+            TAG="$(.circleci/get_tag.sh "env-check")"
+            export IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
             export CIRCLECI_TOKEN="$CIRCLE_TOKEN_ROXBOT"
             docker pull "$IMAGE"
 
@@ -198,7 +199,9 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
-          tag-prefix: "collector-"
+          image-flavor: "collector"
+      - check-image:
+          image-flavor: "collector"
 
   create-or-update-stackrox-repo-pr:
     <<: *defaults
@@ -215,22 +218,30 @@ jobs:
     steps:
       - open-test-pr:
           repo: collector
+          image-flavor: "collector"
 
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
       - build-and-push-image:
           dockerfile-path: images/jenkins-plugin.Dockerfile
-          tag-prefix: "jenkins-plugin-"
+          image-flavor: "jenkins-plugin"
 
 workflows:
   version: 2
   build:
     jobs:
+    - bats/run:
+        path: ./test/bats
+        filters:
+          tags:
+            only: /.*/
     - test-cci-export:
         filters:
           tags:
             only: /.*/
+        requires:
+        - bats/run
     - build-and-push-rox:
         context: quay-rhacs-eng-readwrite
         filters:
@@ -243,6 +254,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+        requires:
+        - bats/run
     - unit-test-env-check:
         context: quay-rhacs-eng-readonly
         requires:
@@ -255,10 +268,14 @@ workflows:
         - unit-test-env-check
         - build-and-push-rox
     - build-and-push-collector:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
         filters:
           tags:
             only: /.*/
+        requires:
+        - bats/run
     - create-or-update-collector-repo-pr:
         filters:
           branches:
@@ -282,3 +299,5 @@ workflows:
         filters:
           tags:
             only: /.*/
+        requires:
+        - bats/run

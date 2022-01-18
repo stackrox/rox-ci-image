@@ -1,8 +1,15 @@
-FROM circleci/golang:1.16.4-buster
+FROM cimg/go:1.16
 
 USER 0
 
-RUN apt-get update && apt-get install -y --no-install-recommends lsb-release cmake python3-distutils
+RUN apt-get update && \
+  apt-get upgrade && \
+  apt-get install -y --no-install-recommends \
+    lsb-release \
+    cmake \
+    python3-distutils \
+    clang-format \
+    patch
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
