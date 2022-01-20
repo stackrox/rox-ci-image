@@ -197,7 +197,7 @@ RUN set -ex \
 
 # Install anchore cli
 RUN set -ex \
- && pip3 install anchorecli==0.7.2 \
+ && pip3 install anchorecli==0.9.3 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
 # Install yq v4.16.2
