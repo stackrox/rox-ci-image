@@ -115,6 +115,7 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/rox.Dockerfile
+      - check-image
 
   test-cci-export:
     <<: *defaults
