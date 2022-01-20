@@ -244,7 +244,9 @@ workflows:
         requires:
         - bats/run
     - build-and-push-rox:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
         filters:
           tags:
             only: /.*/
