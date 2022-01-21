@@ -24,14 +24,6 @@ RUN set -ex \
 # Upgrade for latest security patches
 RUN apt upgrade
 
-# Maven versions in Ubuntu and up to 3.8.4 from maven.org have a number of fixable CVEs
-RUN set -ex \
-    # Avoids CVE-2018-10237
-    && rm /usr/share/java/guava*.jar \
-    # Avoids CVE-2021-37714
-    && rm /usr/share/java/wagon-http-shaded*.jar \
-    && mvn -v
-
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
   && chmod +x ./jq \
