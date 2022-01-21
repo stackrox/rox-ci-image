@@ -57,6 +57,11 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
-COPY ./static-contents/ /
+COPY ./static-contents/bin/bash-wrapper /bin/
+
+RUN \
+	mv /bin/bash /bin/real-bash && \
+	mv /bin/bash-wrapper /bin/bash && \
+    chmod 755 /bin/bash
 
 USER circleci
