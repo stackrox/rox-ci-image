@@ -69,6 +69,16 @@ RUN set -ex \
  && command -v gcloud \
  && gcloud components install beta
 
+# kubectl
+RUN set -ex \
+ && wget --no-verbose -O kubectl "https://storage.googleapis.com/kubernetes-release/release/v1.19.0/bin/linux/amd64/kubectl" \
+ && install ./kubectl /usr/local/bin \
+ && rm kubectl \
+ && mkdir -p /home/circleci/.kube \
+ && touch /home/circleci/.kube/config \
+ && chown -R circleci /home/circleci/.kube/ \
+ && command -v kubectl
+
 COPY ./static-contents/bin/bash-wrapper /bin/
 
 RUN \
