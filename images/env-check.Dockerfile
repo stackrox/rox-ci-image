@@ -53,3 +53,11 @@ RUN set -ex \
   && npm install \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
+
+# Configure CircleCI user
+RUN set -ex \
+ && groupadd --gid 3434 circleci \
+ && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
+ && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
+
+USER circleci
