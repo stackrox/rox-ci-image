@@ -36,9 +36,12 @@ RUN set -ex \
       yarn=1.19.2-1 \
  && rm -rf /var/lib/apt/lists/*
 
+# Upgrade for latest security patches
+RUN apt upgrade
+
 # Install bats
 RUN set -ex \
-  && npm install -g bats@1.2.0 tap-junit \
+  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
   && bats -v
 
 # Install Circle CI tools

@@ -5,7 +5,6 @@ FROM ubuntu:20.04
 # CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-
 # Install all the packages
 RUN set -ex \
  && apt-get update \
@@ -21,6 +20,9 @@ RUN set -ex \
       wget \
       zip \
  && rm -rf /var/lib/apt/lists/*
+
+# Upgrade for latest security patches
+RUN apt upgrade
 
 # Install jq
 RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
