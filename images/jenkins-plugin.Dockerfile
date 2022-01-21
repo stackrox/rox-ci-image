@@ -16,6 +16,7 @@ RUN set -ex \
       maven \
       unzip \
       openssh-client \
+      python3 \
       sudo \
       wget \
       zip \
@@ -48,6 +49,25 @@ RUN set -ex \
  && rm -rf /tmp/docker /tmp/docker.tgz \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
+
+# Symlink python to python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+# Install gcloud
+# gcloud prefers to run out of a user's home directory.
+ARG GCLOUD_VERSION=311.0.0
+ARG GCLOUD_SHA256=ec6353b28c5cf2f8737b9604dd45274baccb15fc0aa05157a2a8eb77f4ad37ca
+ENV PATH=/home/circleci/google-cloud-sdk/bin:$PATH
+RUN set -ex \
+ && wget --no-verbose -O /tmp/gcloud.tgz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz \
+ && echo "${GCLOUD_SHA256} */tmp/gcloud.tgz" | sha256sum -c - \
+ && mkdir -p /home/circleci/google-cloud-sdk \
+ && tar -xz -C /home/circleci -f /tmp/gcloud.tgz \
+ && /home/circleci/google-cloud-sdk/install.sh \
+ && chown -R circleci /home/circleci/google-cloud-sdk \
+ && rm -rf /tmp/gcloud.tgz \
+ && command -v gcloud \
+ && gcloud components install beta
 
 COPY ./static-contents/bin/bash-wrapper /bin/
 
