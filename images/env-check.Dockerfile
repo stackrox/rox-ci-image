@@ -32,6 +32,7 @@ RUN set -ex \
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
+      git \
       nodejs \
       yarn=1.19.2-1 \
  && rm -rf /var/lib/apt/lists/*
