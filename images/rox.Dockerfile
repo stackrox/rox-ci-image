@@ -81,6 +81,9 @@ RUN set -ex \
       bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
+# Upgrade for latest security patches
+RUN apt upgrade
+
 # Install bats
 RUN set -ex \
   && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
@@ -174,7 +177,7 @@ RUN set -ex \
  && command -v helm
 
 # Install gradle
-ARG GRADLE_VERSION=5.4.1
+ARG GRADLE_VERSION=7.3.3
 ENV PATH=$PATH:/opt/gradle/bin
 RUN set -ex \
  && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
@@ -194,7 +197,7 @@ RUN set -ex \
 
 # Install anchore cli
 RUN set -ex \
- && pip3 install anchorecli==0.7.2 \
+ && pip3 install anchorecli==0.9.3 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
 # Install yq v4.16.2
