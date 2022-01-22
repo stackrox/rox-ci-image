@@ -13,6 +13,7 @@ RUN set -ex \
       ca-certificates \
       git \
       openjdk-8-jdk-headless \
+      make \
       maven \
       unzip \
       openssh-client \
