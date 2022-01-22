@@ -83,8 +83,8 @@ RUN set -ex \
 COPY ./static-contents/bin/bash-wrapper /bin/
 
 RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash && \
-    chmod 755 /bin/bash
+  mv /bin/bash /bin/real-bash && \
+  mv /bin/bash-wrapper /bin/bash && \
+  chmod 755 /bin/bash
 
 USER circleci
