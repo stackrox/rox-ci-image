@@ -16,11 +16,6 @@ RUN set -ex \
  && sudo apt-get upgrade \
  && sudo rm -rf /var/lib/apt/lists/*
 
-# Install bats
-RUN set -ex \
-  && sudo npm install -g bats \
-  && bats -v
-
 # Install Circle CI tools
 COPY circleci-tools /opt/circleci-tools
 ENV PATH=/opt/circleci-tools:$PATH
