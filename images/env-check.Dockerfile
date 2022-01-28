@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM cimg/node:lts
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
@@ -10,42 +10,20 @@ ARG DEBIAN_FRONTEND=noninteractive
 # CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Configure all necessary apt repositories
 RUN set -ex \
- && apt-get update \
- && apt-get install --no-install-recommends -y \
-      apt-transport-https \
-      ca-certificates \
-      gnupg2 \
-      wget \
- && wget --no-verbose -O - https://deb.nodesource.com/setup_lts.x | bash - \
- && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
- && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
- && apt-get remove -y \
-      apt-transport-https \
-      gnupg2 \
-      wget \
- && apt-get autoremove -y \
- && rm -rf /var/lib/apt/lists/*
-
-# Install all the packages
-RUN set -ex \
- && apt-get update \
- && apt-get install --no-install-recommends -y \
-      nodejs \
-      yarn=1.19.2-1 \
- && rm -rf /var/lib/apt/lists/*
-
-# Install bats
-RUN set -ex \
-  && npm install -g bats@1.2.0 tap-junit \
-  && bats -v
+ && sudo apt-get update \
+ # Upgrade for latest security patches
+ && sudo apt-get upgrade \
+ && sudo rm -rf /var/lib/apt/lists/*
 
 # Install Circle CI tools
 COPY circleci-tools /opt/circleci-tools
 ENV PATH=/opt/circleci-tools:$PATH
 RUN set -ex \
+  && sudo chown -R circleci /opt/circleci-tools \
   && cd /opt/circleci-tools \
   && npm install \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
+
+USER circleci

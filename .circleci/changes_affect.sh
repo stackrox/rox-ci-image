@@ -41,6 +41,10 @@ affects_stackrox() {
   [[ " $* " =~  images/rox.Dockerfile  ]]
 }
 
+affects_jenkins-plugin() {
+  [[ " $* " =~  images/jenkins-plugin.Dockerfile  ]]
+}
+
 main() {
   files="$(all_changed_files)"
   if affects_all "${files}"; then
@@ -50,6 +54,7 @@ main() {
     rox|stackrox) affects_stackrox "${files}";;
     collector) affects_collector "${files}";;
     scanner) affects_scanner "${files}";;
+    jenkins-plugin) affects_jenkins-plugin "${files}";;
     *) false;;
   esac
 }

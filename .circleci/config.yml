@@ -135,6 +135,8 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
           image-flavor: "env-check"
+      - check-image:
+          image-flavor: "env-check"
 
   unit-test-env-check:
     machine:
@@ -204,6 +206,15 @@ jobs:
       - check-image:
           image-flavor: "collector"
 
+  build-and-push-jenkins-plugin:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/jenkins-plugin.Dockerfile
+          image-flavor: "jenkins-plugin"
+      - check-image:
+          image-flavor: "jenkins-plugin"
+
   create-or-update-stackrox-repo-pr:
     <<: *defaults
     steps:
@@ -220,12 +231,11 @@ jobs:
       - open-test-pr:
           repo: collector
           image-flavor: "collector"
-
-  build-and-push-jenkins-plugin:
+  create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
     steps:
-      - build-and-push-image:
-          dockerfile-path: images/jenkins-plugin.Dockerfile
+      - open-test-pr:
+          repo: jenkins-plugin
           image-flavor: "jenkins-plugin"
 
 workflows:
@@ -253,7 +263,9 @@ workflows:
         requires:
         - test-cci-export
     - build-and-push-env-check:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
         filters:
           tags:
             only: /.*/
@@ -271,6 +283,15 @@ workflows:
         - unit-test-env-check
         - build-and-push-rox
     - build-and-push-collector:
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - bats/run
+    - build-and-push-jenkins-plugin:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
@@ -297,10 +318,9 @@ workflows:
             ignore: master
         requires:
         - build-and-push-rox
-    - build-and-push-jenkins-plugin:
-        context: quay-rhacs-eng-readwrite
+    - create-or-update-jenkins-plugin-repo-pr:
         filters:
-          tags:
-            only: /.*/
+          branches:
+            ignore: master
         requires:
-        - bats/run
+        - build-and-push-jenkins-plugin
