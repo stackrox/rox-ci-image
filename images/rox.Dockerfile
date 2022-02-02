@@ -223,12 +223,6 @@ RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
 
-COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
-COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
-
 RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
-
-ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
-ENV CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
 
 USER circleci
