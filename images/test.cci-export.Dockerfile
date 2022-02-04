@@ -58,6 +58,7 @@ FROM image_under_test as tester
 USER circleci
 WORKDIR /home/circleci/test
 COPY --chown=circleci:circleci test/ .
+ENV CI=true
 ENV CIRCLECI=true
 
 CMD ["bats", "--print-output-on-failure", "--verbose-run", "/home/circleci/test/bats/"]
