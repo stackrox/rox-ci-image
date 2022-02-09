@@ -111,9 +111,6 @@ commands:
       - run:
           name: Get roxctl
           command: |
-            test -n "$ROX_API_TOKEN"  || echo "ROX_API_TOKEN is empty"
-            test -n "$STACKROX_CENTRAL_HOST" || echo "STACKROX_CENTRAL_HOST is empty"
-
             curl -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
             chmod +x ./roxctl
       - run:
@@ -277,23 +274,19 @@ jobs:
       - open-test-pr:
           repo: stackrox
           image-flavor: "stackrox"
-      - check-image:
-          image-flavor: "stackrox"
+
   create-or-update-scanner-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: scanner
           image-flavor: "scanner"
-      - check-image:
-          image-flavor: "scanner"
+
   create-or-update-collector-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: collector
-          image-flavor: "collector"
-      - check-image:
           image-flavor: "collector"
 
   create-or-update-jenkins-plugin-repo-pr:
