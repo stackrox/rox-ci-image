@@ -346,7 +346,6 @@ workflows:
             only: /.*/
         requires:
         - bats/run
-        - build-and-push-base
     - unit-test-env-check:
         context: quay-rhacs-eng-readonly
         requires:
