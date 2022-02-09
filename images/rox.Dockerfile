@@ -56,13 +56,6 @@ RUN wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-
   && mv ./jq /usr/bin \
   && command -v jq
 
-# TODO: moved to base
-# # Configure CircleCI user
-# RUN set -ex \
-#  && groupadd --gid 3434 circleci \
-#  && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
-#  && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
-
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6
 RUN set -ex \

@@ -21,13 +21,14 @@ RUN set -ex \
 COPY circleci-tools /opt/circleci-tools
 ENV PATH=/opt/circleci-tools:$PATH
 
+USER root
 RUN chown -R circleci /opt/circleci-tools
 
 WORKDIR /opt/circleci-tools
-
+USER circleci
 RUN set -ex \
   && npm install \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
 
-USER circleci
+WORKDIR /home/circleci
