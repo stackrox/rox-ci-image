@@ -10,8 +10,6 @@ RUN set -ex \
       kubectl \
       openjdk-8-jdk-headless \
       maven \
- # Upgrade for latest security patches
- && apt-get upgrade -y \
  && sudo rm -rf /var/lib/apt/lists/*
 
 USER circleci
