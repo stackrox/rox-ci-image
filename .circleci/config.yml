@@ -88,7 +88,7 @@ commands:
           command: |
             # Login may be required for pulling the base image for building (if used)
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-
+            BASE_TAG="$(.circleci/get_tag.sh base)"
             BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
@@ -170,11 +170,8 @@ jobs:
         name: Test cci-export inside Docker
         command: |
           docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
-          export TAG="$(git describe --tags --abbrev=10)"
-          export BASE_TAG="snapshot-base-$TAG"
-          if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-            export BASE_TAG="base-$TAG"
-          fi
+          BASE_TAG="$(.circleci/get_tag.sh base)"
+
           docker build \
             --build-arg BASE_TAG="$BASE_TAG" \
             -f images/test.cci-export.Dockerfile \
