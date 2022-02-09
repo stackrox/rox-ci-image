@@ -185,7 +185,7 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
           image-flavor: "env-check"
-          use-base: true
+          use-base: false
       - check-image:
           image-flavor: "env-check"
 
