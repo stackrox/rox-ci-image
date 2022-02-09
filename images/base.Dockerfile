@@ -23,6 +23,12 @@ RUN set -ex \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
+# Upgrade for latest security patches
+RUN set -ex \
+  && apt-get update \
+  && apt-get upgrade \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN set -ex \
   && apt-get update \
   && apt-get install --no-install-recommends -y \
