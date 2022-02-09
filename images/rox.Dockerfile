@@ -1,11 +1,8 @@
-FROM ubuntu:20.04 as rocksdb
+ARG BASE_TAG
+ARG ROCKSDB_TAG="rocksdb-v6.7.3"
+FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
 
-ENV ROCKSDB_VERSION="v6.7.3" PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
-
-RUN apt-get update && apt-get install -y make git g++ gcc libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
-RUN cd /tmp && git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && cd rocksdb && make static_lib
-
-FROM ubuntu:20.04
+FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
@@ -17,45 +14,18 @@ ARG DEBIAN_FRONTEND=noninteractive
 # CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Configure all necessary apt repositories
-RUN set -ex \
- && apt-get update \
- && apt-get install --no-install-recommends -y \
-      apt-transport-https \
-      ca-certificates \
-      gnupg2 \
-      wget \
-      # Required in scanner
-      rpm \
-      lsb-core \
- && wget --no-verbose -O - https://deb.nodesource.com/setup_lts.x | bash - \
- && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
- && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
- && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
- && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
- && apt-get remove -y \
-      apt-transport-https \
-      gnupg2 \
-      lsb-core \
- && apt-get autoremove -y \
- && rm -rf /var/lib/apt/lists/*
-
 # Install all the packages
+# hadolint ignore=DL3008 # too many packages to pin the versions - we accept the risk
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
       build-essential \
       curl \
-      git \
       lsof \
       openjdk-8-jdk-headless \
-      # Note that the nodejs version is determined by which of the scripts from deb.nodesource.com
-      # we execute in the previous job. See https://github.com/nodesource/distributions/blob/master/README.md#deb
-      nodejs \
       unzip \
-      # used in scanner
+      `# used in scanner` \
       postgresql-client-12 \
-      yarn=1.19.2-1 \
       python3-pip \
       python3-setuptools \
       python3-venv \
@@ -74,32 +44,24 @@ RUN set -ex \
       xauth \
       xvfb \
       xxd \
-      sudo \
       `# For envsubst:` \
       gettext \
       zip \
       bind9-host \
  && rm -rf /var/lib/apt/lists/*
 
-# Upgrade for latest security patches
-RUN apt upgrade
-
-# Install bats
-RUN set -ex \
-  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
-  && bats -v
-
 # Install jq
-RUN curl -L --output jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
+RUN wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
   && chmod +x ./jq \
-  && sudo mv ./jq /usr/bin \
+  && mv ./jq /usr/bin \
   && command -v jq
 
-# Configure CircleCI user
-RUN set -ex \
- && groupadd --gid 3434 circleci \
- && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
- && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
+# TODO: moved to base
+# # Configure CircleCI user
+# RUN set -ex \
+#  && groupadd --gid 3434 circleci \
+#  && useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci \
+#  && echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci
 
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6
@@ -189,9 +151,9 @@ RUN set -ex \
 
 # Install aws cli
 RUN set -ex \
- && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" -o "awscliv2.zip" \
+ && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" \
  && unzip awscliv2.zip \
- && sudo ./aws/install \
+ && ./aws/install \
  && rm awscliv2.zip \
  && aws --version
 
@@ -202,31 +164,16 @@ RUN set -ex \
 
 # Install yq v4.16.2
 RUN set -ex \
-  && wget https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64 \
+  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
   && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
-# We are copying the contents in static-contents into / in the image, following the directory structure.
-# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
-# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
-# the contents of static-contents/bin, which is NOT what we want.
-# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
-COPY ./static-contents/ /static-tmp
-RUN set -e \
-  && for file in $(find /static-tmp -type f); do \
-    dir="$(dirname "${file}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${file}" "${new_dir}"; \
-  done \
-  && rm -r /static-tmp
-
-RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash
-
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
 
-RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev
+# hadolint ignore=DL3015,DL3008 # we need to install recommended packages
+RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev && rm -rf /var/lib/apt/lists/*
 
 ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
 ENV CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"

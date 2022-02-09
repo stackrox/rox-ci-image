@@ -1,0 +1,3 @@
+ignored:
+- DL3008 # We estimate the risk of not pinning the versions to low and accept it.
+         # By not pinning, we reduce toil by delegating resolving of pkgs compatibility to apt.

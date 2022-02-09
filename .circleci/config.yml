@@ -7,6 +7,11 @@ version: 2.1
 orbs:
   bats: circleci/bats@1.0.0
 
+parameters:
+  rocksdb_version:
+    type: string
+    default: "v6.7.3"
+
 commands:
   open-test-pr:
     parameters:
@@ -70,26 +75,50 @@ commands:
       dockerfile-path:
         description: Path to the Dockerfile
         type: string
+      use-base:
+        description: Whether to build a container image based on the base image
+        type: boolean
+        default: true
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
-          name: Build image
+          name: Build & push image
           command: |
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
-            docker build images/ -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:$TAG"
-
-      - run:
-          name: Push image
-          command: |
+            # Login may be required for pulling the base image for building (if used)
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+            export GIT_TAG="$(git describe --tags --abbrev=10)"
+            export TAG="<< parameters.tag-prefix >>${GIT_TAG}"
+            export SNAPSHOT_PREFIX="snapshot-"
+            export tag_to_push="snapshot-$TAG"
+            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
+              export SNAPSHOT_PREFIX=""
+              export tag_to_push="$TAG"
+            fi
+            export BASE_TAG="${SNAPSHOT_PREFIX}base-${GIT_TAG}"
 
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
-            for i in {1..5}
-            do
-              docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
+            BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
+
+            docker build \
+              ${BUILD_ARGS[@]} \
+              -f << parameters.dockerfile-path >> \
+              -t "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" \
+              -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
+              images/
+
+            for i in {1..5}; do
+              docker push "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" | cat
             done
+
+            echo "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" > "/tmp/<< parameters.tag-prefix >>pushed_image"
+            echo "${SNAPSHOT_PREFIX}${TAG}" > "/tmp/pushed_tag"
+
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - "<< parameters.tag-prefix >>pushed_image"
+            - pushed_tag
 
   check-image:
     parameters:
@@ -110,11 +139,44 @@ commands:
             ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${TAG}"
 
 jobs:
+  build-and-push-base:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/base.Dockerfile
+          tag-prefix: "base-"
+          use-base: false
+
+  # We separate  building of rocksdb to save CI time (~15 minutes).
+  # See rocksdb.Dockerfile for more information.
+  build-and-push-rocksdb:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: "Ensure a container with rocksdb in version << pipeline.parameters.rocksdb_version >> is available"
+          command: |
+            docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.rocksdb_version >>"
+            if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+              echo "Image '$IMAGE' already exists - no need to build"
+            else
+              echo "Image '$IMAGE' not found - building and pushing it..."
+              docker build \
+                --build-arg ROCKSDB_VERSION="<< pipeline.parameters.rocksdb_version >>" \
+                -f images/rocksdb.Dockerfile \
+                -t "$IMAGE" \
+                images/
+              docker push "$IMAGE" | cat
+            fi
+
   build-and-push-rox:
     <<: *defaults
     steps:
       - build-and-push-image:
           dockerfile-path: images/rox.Dockerfile
+          use-base: true
       - check-image
 
   test-cci-export:
@@ -126,7 +188,17 @@ jobs:
     - run:
         name: Test cci-export inside Docker
         command: |
-          docker build images/ -f images/test.cci-export.Dockerfile -t test.cci-export
+          docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
+          export TAG="$(git describe --tags --abbrev=10)"
+          export BASE_TAG="snapshot-base-$TAG"
+          if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
+            export BASE_TAG="base-$TAG"
+          fi
+          docker build \
+            --build-arg BASE_TAG="$BASE_TAG" \
+            -f images/test.cci-export.Dockerfile \
+            -t test.cci-export \
+            images/
           docker run --rm test.cci-export
 
   build-and-push-env-check:
@@ -135,6 +207,8 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
           image-flavor: "env-check"
+          tag-prefix: "env-check-"
+          use-base: true
       - check-image:
           image-flavor: "env-check"
 
@@ -202,6 +276,30 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
+          tag-prefix: "collector-"
+          use-base: false
+
+  create-or-update-stackrox-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: stackrox
+          image-flavor: "stackrox"
+      - check-image:
+          image-flavor: "stackrox"
+  create-or-update-scanner-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: scanner
+          image-flavor: "scanner"
+      - check-image:
+          image-flavor: "scanner"
+  create-or-update-collector-repo-pr:
+    <<: *defaults
+    steps:
+      - open-test-pr:
+          repo: collector
           image-flavor: "collector"
       - check-image:
           image-flavor: "collector"
@@ -215,22 +313,6 @@ jobs:
       - check-image:
           image-flavor: "jenkins-plugin"
 
-  create-or-update-stackrox-repo-pr:
-    <<: *defaults
-    steps:
-      - open-test-pr:
-          repo: stackrox
-  create-or-update-scanner-repo-pr:
-    <<: *defaults
-    steps:
-      - open-test-pr:
-          repo: scanner
-  create-or-update-collector-repo-pr:
-    <<: *defaults
-    steps:
-      - open-test-pr:
-          repo: collector
-          image-flavor: "collector"
   create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
     steps:
@@ -248,11 +330,23 @@ workflows:
           tags:
             only: /.*/
     - test-cci-export:
+        context: quay-rhacs-eng-readonly
         filters:
           tags:
             only: /.*/
         requires:
+        - build-and-push-base
         - bats/run
+    - build-and-push-rocksdb:
+        context: quay-rhacs-eng-readwrite
+        filters:
+          tags:
+            only: /.*/
+    - build-and-push-base:
+        context: quay-rhacs-eng-readwrite
+        filters:
+          tags:
+            only: /.*/
     - build-and-push-rox:
         context:
           - quay-rhacs-eng-readwrite
@@ -261,6 +355,7 @@ workflows:
           tags:
             only: /.*/
         requires:
+        - build-and-push-rocksdb
         - test-cci-export
     - build-and-push-env-check:
         context:
@@ -271,6 +366,7 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+        - build-and-push-base
     - unit-test-env-check:
         context: quay-rhacs-eng-readonly
         requires:

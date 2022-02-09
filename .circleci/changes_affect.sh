@@ -34,11 +34,13 @@ affects_collector() {
 }
 
 affects_scanner() {
-  [[ " $* " =~  images/rox.Dockerfile  ]]
+  [[ " $* " =~  images/rox.Dockerfile  ]] \
+    || [[ " $* " =~  images/base.Dockerfile ]]
 }
 
 affects_stackrox() {
-  [[ " $* " =~  images/rox.Dockerfile  ]]
+  [[ " $* " =~  images/rox.Dockerfile  ]] \
+    || [[ " $* " =~  images/base.Dockerfile ]]
 }
 
 affects_jenkins-plugin() {
