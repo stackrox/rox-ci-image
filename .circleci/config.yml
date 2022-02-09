@@ -111,6 +111,9 @@ commands:
       - run:
           name: Get roxctl
           command: |
+            test -n "$ROX_API_TOKEN"  || echo "ROX_API_TOKEN is empty"
+            test -n "$STACKROX_CENTRAL_HOST" || echo "STACKROX_CENTRAL_HOST is empty"
+
             curl -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
             chmod +x ./roxctl
       - run:
