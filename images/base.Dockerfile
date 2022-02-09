@@ -26,7 +26,7 @@ RUN set -ex \
 # Upgrade for latest security patches
 RUN set -ex \
   && apt-get update \
-  && apt-get upgrade \
+  && apt-get upgrade -y \
   && rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
