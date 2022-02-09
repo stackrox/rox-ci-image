@@ -1,4 +1,4 @@
-FROM cimg/node:16.14
+FROM cimg/node:lts
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
@@ -28,6 +28,7 @@ WORKDIR /opt/circleci-tools
 USER circleci
 RUN set -ex \
   && npm install \
+  && npm audit fix \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
 
