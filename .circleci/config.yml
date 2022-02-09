@@ -264,7 +264,7 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/jenkins-plugin.Dockerfile
           image-flavor: "jenkins-plugin"
-          use-base: false
+          use-base: true
       - check-image:
           image-flavor: "jenkins-plugin"
 
