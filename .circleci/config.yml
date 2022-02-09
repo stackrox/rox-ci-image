@@ -88,37 +88,18 @@ commands:
           command: |
             # Login may be required for pulling the base image for building (if used)
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            export GIT_TAG="$(git describe --tags --abbrev=10)"
-            export TAG="<< parameters.tag-prefix >>${GIT_TAG}"
-            export SNAPSHOT_PREFIX="snapshot-"
-            export tag_to_push="snapshot-$TAG"
-            if [[ $CIRCLE_BRANCH = master || -n $CIRCLE_TAG ]]; then
-              export SNAPSHOT_PREFIX=""
-              export tag_to_push="$TAG"
-            fi
-            export BASE_TAG="${SNAPSHOT_PREFIX}base-${GIT_TAG}"
 
             BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
-
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
               ${BUILD_ARGS[@]} \
               -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" \
               -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
               images/
 
             for i in {1..5}; do
-              docker push "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" | cat
+              docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
-
-            echo "quay.io/rhacs-eng/apollo-ci:${SNAPSHOT_PREFIX}${TAG}" > "/tmp/<< parameters.tag-prefix >>pushed_image"
-            echo "${SNAPSHOT_PREFIX}${TAG}" > "/tmp/pushed_tag"
-
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-            - "<< parameters.tag-prefix >>pushed_image"
-            - pushed_tag
 
   check-image:
     parameters:
@@ -144,7 +125,7 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/base.Dockerfile
-          tag-prefix: "base-"
+          image-flavor: "base"
           use-base: false
 
   # We separate  building of rocksdb to save CI time (~15 minutes).
@@ -207,7 +188,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
           image-flavor: "env-check"
-          tag-prefix: "env-check-"
           use-base: true
       - check-image:
           image-flavor: "env-check"
@@ -276,8 +256,19 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
-          tag-prefix: "collector-"
+          image-flavor: "collector"
           use-base: false
+      - check-image:
+          image-flavor: "collector"
+
+  build-and-push-jenkins-plugin:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/jenkins-plugin.Dockerfile
+          image-flavor: "jenkins-plugin"
+      - check-image:
+          image-flavor: "jenkins-plugin"
 
   create-or-update-stackrox-repo-pr:
     <<: *defaults
@@ -303,15 +294,6 @@ jobs:
           image-flavor: "collector"
       - check-image:
           image-flavor: "collector"
-
-  build-and-push-jenkins-plugin:
-    <<: *defaults
-    steps:
-      - build-and-push-image:
-          dockerfile-path: images/jenkins-plugin.Dockerfile
-          image-flavor: "jenkins-plugin"
-      - check-image:
-          image-flavor: "jenkins-plugin"
 
   create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
