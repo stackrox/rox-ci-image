@@ -11,9 +11,10 @@ RUN set -ex \
       gnupg2 \
       wget \
       lsb-core \
-  && wget --no-verbose -O - https://deb.nodesource.com/setup_lts.x | bash - \
-  && wget --no-verbose -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+  && wget --quiet -O - https://deb.nodesource.com/setup_lts.x | bash - \
+  && wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
   && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+  && wget --quiet -O - https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && apt-get remove -y \
