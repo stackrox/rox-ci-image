@@ -371,6 +371,7 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+        - build-and-push-base
     - create-or-update-collector-repo-pr:
         filters:
           branches:
