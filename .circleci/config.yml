@@ -273,14 +273,12 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
-          image-flavor: "stackrox"
 
   create-or-update-scanner-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: scanner
-          image-flavor: "scanner"
 
   create-or-update-collector-repo-pr:
     <<: *defaults
