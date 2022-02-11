@@ -56,14 +56,14 @@ if [[ "${status_code}" -eq 201 ]]; then
     -d"{
       \"assignees\": [\"${CIRCLE_USERNAME}\"]
     }"
+fi
 
-  if [[ "${#labels[@]}" -gt 0 ]]; then
-    curl -sS --fail \
-      -X POST \
-      -H "Authorization: token ${GITHUB_TOKEN}" \
-      "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" \
-      -d"{
-        \"labels\": [\"${labels[*]}\"]
-      }" || echo "Failed setting labels: ${labels[*]}"
-  fi
+if [[ "${#labels[@]}" -gt 0 ]]; then
+  curl -sS --fail \
+    -X POST \
+    -H "Authorization: token ${GITHUB_TOKEN}" \
+    "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" \
+    -d"{
+      \"labels\": [\"${labels[*]}\"]
+    }" || echo "Failed setting labels: ${labels[*]}"
 fi
