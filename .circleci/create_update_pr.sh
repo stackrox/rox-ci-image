@@ -59,15 +59,17 @@ if [[ "${status_code}" -eq 201 ]]; then
     }"
 fi
 
-labels_list="$(printf ",%s" "${labels[@]}")"
-echo "Setting PR labels: $labels_list"
+labels_list="$(printf ", \"%s\"" "${labels[@]}")"
+# strip leading comma
+labels_list="${labels_list#,}"
+echo "Setting PR labels: '$labels_list'"
 
 if [[ "${#labels[@]}" -gt 0 ]]; then
   curl -sS --fail \
     -X POST \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" \
-    -d"{
-      \"labels\": [\"$labels_list\"]
-    }" || echo "Failed setting labels: ${labels[*]}"
+    -d "{
+      \"labels\": [\"${labels_list#,}\"]
+    }"
 fi
