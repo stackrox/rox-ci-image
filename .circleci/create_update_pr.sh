@@ -41,12 +41,12 @@ status_code="$(curl -sS \
 
 echo "Got status code: ${status_code}"
 echo "Got PR response: $(cat "${pr_response_file}")"
+pr_number="$(jq <"$pr_response_file" -r '.number')"
+
 # 422 is returned if the PR exists already.
 [[ "${status_code}" -eq 201 || "${status_code}" -eq 422 ]]
 if [[ "${status_code}" -eq 201 ]]; then
-  pr_number="$(jq <"$pr_response_file" -r '.number')"
-  [[ -n "${pr_number}" ]] || die "Unable to find PR number"
-
+  [[ -n "${pr_number}" ]] || die "Missing pr_number"
   payload="$(printf '{"assignees": ["%s"]}' "$CIRCLE_USERNAME")"
   curl -sS --fail \
     -X POST \
@@ -61,6 +61,8 @@ quoted_labels="${quoted_labels#,}" # strip leading comma
 echo "Setting PR labels: $quoted_labels"
 
 if [[ "${#labels[@]}" -gt 0 ]]; then
+  [[ -n "${pr_number}" ]] || die "Missing pr_number"
+
   payload="$(printf '{"labels": [%s]}' "${quoted_labels}")"
   echo "Sending curl payload: $payload"
   curl -sS -v --fail \
