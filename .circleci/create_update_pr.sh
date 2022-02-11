@@ -29,8 +29,7 @@ message="Hello,
 This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}.
 $pr_message"
 
-set -x
-payload="$(printf '"{"title": "%s", "body": "%s", "head": "%s", "base": "master"}"' "$pr_title" "$(jq -sR <<<"$message")" "$branch_name")"
+payload="$(printf '{"title": "%s", "body": %s, "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$message")" "$branch_name")"
 status_code="$(curl -sS \
   -w '%{http_code}' \
   -o "$pr_response_file" \
@@ -48,7 +47,7 @@ if [[ "${status_code}" -eq 201 ]]; then
   pr_number="$(jq <"$pr_response_file" -r '.number')"
   [[ -n "${pr_number}" ]] || die "Unable to find PR number"
 
-  payload="$(printf '"{"assignees": ["%s"]}"' "$CIRCLE_USERNAME")"
+  payload="$(printf '{"assignees": ["%s"]}' "$CIRCLE_USERNAME")"
   curl -sS --fail \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
@@ -62,7 +61,7 @@ quoted_labels="${quoted_labels#,}" # strip leading comma
 echo "Setting PR labels: $quoted_labels"
 
 if [[ "${#labels[@]}" -gt 0 ]]; then
-  payload="$(printf '"{"labels": [%s]}"' "${quoted_labels}")"
+  payload="$(printf '{"labels": [%s]}' "${quoted_labels}")"
   echo "Sending curl payload: $payload"
   curl -sS -v --fail \
     -X PUT \
