@@ -29,18 +29,15 @@ message="Hello,
 This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}.
 $pr_message"
 
+payload="$(printf '{"title": "%s", "body": "%s", "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$message")" "$branch_name")"
 status_code="$(curl -sS \
   -w '%{http_code}' \
   -o "$pr_response_file" \
   -X POST \
+  -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: token ${GITHUB_TOKEN}" \
   "https://api.github.com/repos/stackrox/${repo_name}/pulls" \
-  -d"{
-  \"title\": \"$pr_title\",
-  \"body\": $(jq -sR <<<"$message"),
-  \"head\": \"${branch_name}\",
-  \"base\": \"master\"
-}")"
+  -d "$payload")"
 
 echo "Got status code: ${status_code}"
 echo "Got PR response: $(cat "${pr_response_file}")"
@@ -50,26 +47,26 @@ if [[ "${status_code}" -eq 201 ]]; then
   pr_number="$(jq <"$pr_response_file" -r '.number')"
   [[ -n "${pr_number}" ]] || die "Unable to find PR number"
 
+  payload="$(printf '{"assignees": ["%s"]}' "$CIRCLE_USERNAME")"
   curl -sS --fail \
     -X POST \
+    -H "Accept: application/vnd.github.v3+json" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/assignees" \
-    -d"{
-      \"assignees\": [\"${CIRCLE_USERNAME}\"]
-    }"
+    -d "$payload"
 fi
 
-labels_list="$(printf ", \"%s\"" "${labels[@]}")"
-# strip leading comma
-labels_list="${labels_list#,}"
-echo "Setting PR labels: '$labels_list'"
+quoted_labels="$(printf ", \"%s\"" "${labels[@]}")"
+quoted_labels="${quoted_labels#,}" # strip leading comma
+echo "Setting PR labels: $quoted_labels"
 
 if [[ "${#labels[@]}" -gt 0 ]]; then
-  curl -sS --fail \
-    -X POST \
+  payload="$(printf '{"labels": [%s]}' "${quoted_labels}")"
+  echo "Sending curl payload: $payload"
+  curl -sS -v --fail \
+    -X PUT \
+    -H "Accept: application/vnd.github.v3+json" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
     "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" \
-    -d "{
-      \"labels\": [\"${labels_list#,}\"]
-    }"
+    -d "$payload"
 fi
