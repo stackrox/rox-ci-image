@@ -64,7 +64,12 @@ commands:
             git push origin "${branch_name}"
             popd
 
-            .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
+            .circleci/create_update_pr.sh \
+              "${branch_name}" \
+              "<< parameters.repo >>" \
+              "Update apollo-ci image" \
+              "Bump version of apollo-ci image used in CircleCI" \
+              "ci-upgrade-tests"
 
   build-and-push-image:
     parameters:
