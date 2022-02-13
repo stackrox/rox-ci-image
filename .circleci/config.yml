@@ -140,15 +140,15 @@ jobs:
   # We separate  building of rocksdb to save CI time (~15 minutes).
   # See rocksdb.Dockerfile for more information.
   build-and-push-rocksdb:
-    <<: *defaults
+    machine:
+      image: ubuntu-2004:202201-01
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: "Ensure a container with rocksdb in version << pipeline.parameters.rocksdb_version >> is available"
           command: |
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.rocksdb_version >>"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:ubi-rocksdb-<< pipeline.parameters.rocksdb_version >>"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build"
             else
