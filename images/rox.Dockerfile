@@ -1,13 +1,9 @@
 ARG BASE_TAG
-ARG ROCKSDB_TAG="rocksdb-v6.7.3"
+ARG ROCKSDB_TAG="ubi-rocksdb-v6.7.3"
+
 FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
 
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
-
-# Avoid interaction with apt-get commands.
-# This pops up when doing apt-get install lsb-core,
-# which asks for user input for timezone data.
-ARG DEBIAN_FRONTEND=noninteractive
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
@@ -15,42 +11,24 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install all the packages
-# hadolint ignore=DL3008 # too many packages to pin the versions - we accept the risk
+# hadolint ignore=DL3008 # require latest versions for security fixes
 RUN set -ex \
- && apt-get update \
- && apt-get install --no-install-recommends -y \
-      build-essential \
-      curl \
+ && dnf update -y \
+ && dnf install -y \
       lsof \
-      openjdk-8-jdk-headless \
+      java-1.8.0-openjdk-headless \
+      make \
+      cmake \
+      gcc \
+      gcc-c++ \
       unzip \
-      `# used in scanner` \
-      postgresql-client-12 \
-      python3-pip \
-      python3-setuptools \
-      python3-venv \
-      `# OpenShift deployment dependencies:` \
-      openssh-client \
-      `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
-      libgtk2.0-0 \
-      libgtk-3-0 \
-      libgbm-dev \
-      libnotify-dev \
-      libgconf-2-4 \
-      libnss3 \
-      libxss1 \
-      libasound2 \
-      libxtst6 \
-      xauth \
-      xvfb \
-      xxd \
-      ` # Required in scanner` \
-      rpm \
-      `# For envsubst:` \
-      gettext \
       zip \
-      bind9-host \
- && rm -rf /var/lib/apt/lists/*
+      xz
+
+# `# used in scanner` \
+# postgresql \
+# `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
+# xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
 
 # Install jq
 RUN wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
@@ -157,6 +135,29 @@ RUN set -ex \
  && pip3 install anchorecli==0.9.3 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
+# Install expect and its Tcl dependency
+ARG TCL_VERSION=8.6.12
+ARG TCL_SHA256=26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6
+RUN set -ex && \
+    wget --no-verbose -O tcl.tgz https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download && \
+    echo "${TCL_SHA256} tcl.tgz" | sha256sum -c - && \
+    tar -xzf tcl.tgz && \
+    cd tcl${TCL_VERSION}/unix && \
+    ./configure && \
+    make && \
+    make install
+
+ARG EXPECT_VERSION=5.45.4
+ARG EXPECT_SHA256=49a7da83b0bdd9f46d04a04deec19c7767bb9a323e40c4781f89caf760b92c34
+RUN set -ex && \
+    wget --no-verbose -O expect.tgz https://sourceforge.net/projects/expect/files/Expect/${EXPECT_VERSION}/expect${EXPECT_VERSION}.tar.gz/download && \
+    echo "${EXPECT_SHA256} expect.tgz" | sha256sum -c - && \
+    tar -xzf expect.tgz && \
+    cd expect${EXPECT_VERSION} && \
+    ./configure && \
+    make && \
+    make install
+
 # Install yq v4.16.2
 RUN set -ex \
   && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
@@ -164,11 +165,21 @@ RUN set -ex \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
+RUN dnf -y install \
+      zlib-devel \
+      bzip2-devel \
+      lz4-devel
+
+COPY --from=rocksdb /tmp/snappy /tmp/snappy
+RUN cd /tmp/snappy/build && make install && cd / && rm -rf /tmp/snappy
+
+COPY --from=rocksdb /tmp/zstd /tmp/zstd
+RUN set -ex && \
+    cd /tmp/zstd && \
+    make install
+
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
-
-# hadolint ignore=DL3015,DL3008 # we need to install recommended packages
-RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev && rm -rf /var/lib/apt/lists/*
 
 ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
 ENV CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"

@@ -1,46 +1,26 @@
-FROM ubuntu:20.04 as base
-ARG DEBIAN_FRONTEND=noninteractive
+FROM registry.access.redhat.com/ubi8/ubi
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Configure necessary apt repositories and temporarily install packages required for this job
+# Configure rpm repositories required for this image
 RUN set -ex \
-  && apt-get update \
-  && apt-get install --no-install-recommends -y \
-      apt-transport-https \
-      ca-certificates \
-      gnupg2 \
+  && dnf update -y \
+  && dnf install -y \
       wget \
-      lsb-core \
-  && wget --quiet -O - https://deb.nodesource.com/setup_lts.x | bash - \
-  && wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-  && wget --quiet -O - https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
-  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-  && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
-  && apt-get remove -y \
-      apt-transport-https \
-      gnupg2 \
-      lsb-core \
-  && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+  && wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - \
+  && wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 # Upgrade for latest security patches
 RUN set -ex \
-  && apt-get update \
-  && apt-get upgrade -y \
-  && rm -rf /var/lib/apt/lists/*
+  && dnf update -y \
+  && dnf upgrade -y
 
 RUN set -ex \
-  && apt-get update \
-  && apt-get install --no-install-recommends -y \
+  && dnf install -y \
       git \
+      git-core \
       sudo \
-      `# Note that the nodejs version is determined by which of the scripts from deb.nodesource.com` \
-      `# we execute in the previous job. See https://github.com/nodesource/distributions/blob/master/README.md#deb` \
       nodejs \
-      yarn=1.19.2-1 \
-  && rm -rf /var/lib/apt/lists/*
-
+      yarn
 
 # Install bats
 RUN set -ex \
