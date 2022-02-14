@@ -63,7 +63,7 @@ commands:
             if git diff-index --quiet HEAD; then
               echo "There is nothing new to commit - apparently the CI job has been restarted without any new changes in the code"
             else
-              git commit -am "Bump base image tag to ${TAG##:}"
+              git commit --allow-empty -am "Bump base image tag to ${TAG##:}"
               git push origin "${branch_name}"
             fi
             popd
