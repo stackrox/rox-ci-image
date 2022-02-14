@@ -44,6 +44,8 @@ RUN set -ex \
       xauth \
       xvfb \
       xxd \
+      ` # Required in scanner` \
+      rpm \
       `# For envsubst:` \
       gettext \
       zip \
