@@ -60,8 +60,12 @@ commands:
             # If the image parameter was originally quoted, we need to close the quote
             sed -i "s@\"\(.*\)/apollo-ci:${TAG} # TODO@\"\1/apollo-ci:${TAG}\" # TODO@g" .circleci/config.yml
 
-            git commit -am "Bump base image tag to ${TAG##:}"
-            git push origin "${branch_name}"
+            if git diff-index --quiet HEAD; then
+              echo "There is nothing new to commit - apparently the CI job has been restarted without any new changes in the code"
+            else
+              git commit -am "Bump base image tag to ${TAG##:}"
+              git push origin "${branch_name}"
+            fi
             popd
 
             .circleci/create_update_pr.sh \
