@@ -269,7 +269,7 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/jenkins-plugin.Dockerfile
           image-flavor: "jenkins-plugin"
-          use-base: true
+          use-base: false
       - check-image:
           image-flavor: "jenkins-plugin"
 
@@ -374,7 +374,6 @@ workflows:
             only: /.*/
         requires:
         - bats/run
-        - build-and-push-base
     - create-or-update-collector-repo-pr:
         filters:
           branches:
