@@ -1,6 +1,10 @@
 FROM quay.io/centos/centos:stream8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+RUN dnf -y update && \
+    dnf -y install epel-release dnf-plugins-core && \
+    dnf config-manager --enable powertools
+
 # Configure rpm repositories required for this image
 RUN set -ex \
   && dnf update -y \
@@ -11,6 +15,7 @@ RUN set -ex \
 
 # Upgrade for latest security patches
 RUN set -ex \
+  && dnf update -y \
   && dnf upgrade -y
 
 RUN set -ex \
