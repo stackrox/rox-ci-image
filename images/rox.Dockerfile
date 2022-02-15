@@ -15,7 +15,7 @@ RUN set -ex \
  && dnf update -y \
  && dnf install -y \
       lsof \
-      java-1.8.0-openjdk-headless \
+      java-1.8.0-openjdk-devel \
       make \
       cmake \
       gcc \
