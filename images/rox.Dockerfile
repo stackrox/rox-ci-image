@@ -132,29 +132,6 @@ RUN set -ex \
  && pip3 install anchorecli==0.9.3 \
  && LC_ALL=C.UTF-8 anchore-cli --version
 
-# Install expect and its Tcl dependency
-ARG TCL_VERSION=8.6.12
-ARG TCL_SHA256=26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6
-RUN set -ex && \
-    wget --no-verbose -O tcl.tgz https://sourceforge.net/projects/tcl/files/Tcl/${TCL_VERSION}/tcl${TCL_VERSION}-src.tar.gz/download && \
-    echo "${TCL_SHA256} tcl.tgz" | sha256sum -c - && \
-    tar -xzf tcl.tgz && \
-    cd tcl${TCL_VERSION}/unix && \
-    ./configure && \
-    make && \
-    make install
-
-ARG EXPECT_VERSION=5.45.4
-ARG EXPECT_SHA256=49a7da83b0bdd9f46d04a04deec19c7767bb9a323e40c4781f89caf760b92c34
-RUN set -ex && \
-    wget --no-verbose -O expect.tgz https://sourceforge.net/projects/expect/files/Expect/${EXPECT_VERSION}/expect${EXPECT_VERSION}.tar.gz/download && \
-    echo "${EXPECT_SHA256} expect.tgz" | sha256sum -c - && \
-    tar -xzf expect.tgz && \
-    cd expect${EXPECT_VERSION} && \
-    ./configure && \
-    make && \
-    make install
-
 # Install yq v4.16.2
 RUN set -ex \
   && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
