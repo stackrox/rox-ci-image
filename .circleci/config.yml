@@ -11,6 +11,9 @@ parameters:
   rocksdb_version:
     type: string
     default: "v6.7.3"
+  patch:
+    type: string
+    default: "1"
 
 commands:
   open-test-pr:
@@ -145,10 +148,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Ensure a container with rocksdb in version << pipeline.parameters.rocksdb_version >> is available"
+          name: "Ensure a container with rocksdb version << pipeline.parameters.rocksdb_version >>-<< pipeline.parameters.patch >> is available"
           command: |
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            IMAGE="quay.io/rhacs-eng/apollo-ci:ubi-rocksdb-<< pipeline.parameters.rocksdb_version >>"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.rocksdb_version >>-<< pipeline.parameters.patch >>"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build"
             else

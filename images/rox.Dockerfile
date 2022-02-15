@@ -1,10 +1,10 @@
 ARG BASE_TAG
-ARG ROCKSDB_TAG="centos-rocksdb-v6.7.3"
+ARG ROCKSDB_TAG="rocksdb-v6.7.3-1"
 
-# FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
-# FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
-FROM centos-rocksdb-dev as rocksdb
-FROM centos-base-dev as base
+FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
+FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
+# FROM centos-rocksdb-dev as rocksdb
+# FROM centos-base-dev as base
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
