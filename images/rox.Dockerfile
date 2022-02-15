@@ -1,5 +1,5 @@
 ARG BASE_TAG
-ARG ROCKSDB_TAG="rocksdb-v6.7.3-1"
+ARG ROCKSDB_TAG="rocksdb-v6.7.3-2"
 
 FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base

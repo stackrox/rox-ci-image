@@ -13,7 +13,7 @@ parameters:
     default: "v6.7.3"
   patch:
     type: string
-    default: "1"
+    default: "2"
 
 commands:
   open-test-pr:
