@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/ubi
+FROM quay.io/centos/centos:stream8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Configure rpm repositories required for this image
@@ -11,7 +11,6 @@ RUN set -ex \
 
 # Upgrade for latest security patches
 RUN set -ex \
-  && dnf update -y \
   && dnf upgrade -y
 
 RUN set -ex \

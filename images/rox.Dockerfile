@@ -1,9 +1,10 @@
 ARG BASE_TAG
-ARG ROCKSDB_TAG="ubi-rocksdb-v6.7.3"
+ARG ROCKSDB_TAG="centos-rocksdb-v6.7.3"
 
-FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
-
-FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
+# FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as rocksdb
+# FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
+FROM centos-rocksdb-dev as rocksdb
+FROM centos-base-dev as base
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
@@ -23,12 +24,10 @@ RUN set -ex \
       gcc-c++ \
       unzip \
       zip \
-      xz
-
-# `# used in scanner` \
-# postgresql \
-# `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
-# xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
+      xz \
+      postgresql \
+      # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
+      xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
 
 # Install jq
 RUN wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
@@ -168,15 +167,9 @@ RUN set -ex \
 RUN dnf -y install \
       zlib-devel \
       bzip2-devel \
-      lz4-devel
-
-COPY --from=rocksdb /tmp/snappy /tmp/snappy
-RUN cd /tmp/snappy/build && make install && cd / && rm -rf /tmp/snappy
-
-COPY --from=rocksdb /tmp/zstd /tmp/zstd
-RUN set -ex && \
-    cd /tmp/zstd && \
-    make install
+      lz4-devel \
+      snappy-devel \
+      libzstd-devel
 
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
