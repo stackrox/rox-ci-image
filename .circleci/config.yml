@@ -93,8 +93,7 @@ commands:
         default: true
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.7
+      - setup_remote_docker
       - run:
           name: Build & push image
           command: |
@@ -143,10 +142,10 @@ jobs:
   # We separate  building of rocksdb to save CI time (~15 minutes).
   # See rocksdb.Dockerfile for more information.
   build-and-push-rocksdb:
-    machine:
-      image: ubuntu-2004:202201-01
+    <<: *defaults
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: "Ensure a container with rocksdb version << pipeline.parameters.rocksdb_version >>-<< pipeline.parameters.patch >> is available"
           command: |
