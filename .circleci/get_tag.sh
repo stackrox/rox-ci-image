@@ -8,6 +8,12 @@ if [[ $# -ne 1 ]]; then
 fi
 
 image_flavor="$1"
+
+if [[ "$image_flavor" == "rocksdb" ]]; then
+    echo "rocksdb-$(sha256sum images/rocksdb.Dockerfile | cut -f1 -d' ')"
+    exit 0
+fi
+
 if [[ "$image_flavor" != "" ]]; then
     image_flavor="${image_flavor}-"
 fi

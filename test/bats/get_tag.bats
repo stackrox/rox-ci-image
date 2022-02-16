@@ -51,3 +51,10 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == "something-$describe" ]]
 }
+
+@test 'uses SHA for rocksdb' {
+  local sha_tag="rocksdb-$(sha256sum images/rocksdb.Dockerfile | cut -f1 -d' ')"
+  run .circleci/get_tag.sh rocksdb
+  [ "$status" -eq 0 ]
+  [[ "$output" == "$sha_tag" ]]
+}
