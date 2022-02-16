@@ -27,8 +27,7 @@ RUN chown -R circleci /opt/circleci-tools
 WORKDIR /opt/circleci-tools
 USER circleci
 RUN set -ex \
-  && npm install \
-  && npm audit fix \
+  && npm ci \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
 
