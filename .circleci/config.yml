@@ -98,11 +98,13 @@ commands:
             # Login may be required for pulling the base image for building (if used)
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
             BASE_TAG="$(.circleci/get_tag.sh base)"
+
             BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
+            BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
+
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
               ${BUILD_ARGS[@]} \
-              --build-arg BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >> \
               -f << parameters.dockerfile-path >> \
               -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
               images/
@@ -156,6 +158,7 @@ jobs:
             else
               echo "Image '$IMAGE' not found - building and pushing it..."
               docker build \
+                --build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>" \
                 -f images/rocksdb.Dockerfile \
                 -t "$IMAGE" \
                 images/
