@@ -1,11 +1,6 @@
-# We separate rocksdb Dockerfile and build task to save CI time (~15 minutes).
-# The rocksdb image is uses in "rox.Dockerfile" but it changes only when ROCKSDB_VERSION is changed,
-# so we tag the image as "rocksdb-<ROCKSDB_VERSION>" and built it only
-# if "quay.io/rhacs-eng/apollo-ci:rocksdb-<ROCKSDB_VERSION>" does not exist yet.
 FROM quay.io/centos/centos:stream8
 
-ARG ROCKSDB_VERSION
-ENV ROCKSDB_VERSION $ROCKSDB_VERSION
+ENV ROCKSDB_VERSION "v6.7.3"
 
 RUN dnf -y update && \
     dnf -y install epel-release dnf-plugins-core && \
