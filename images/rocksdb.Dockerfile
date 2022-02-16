@@ -24,9 +24,7 @@ RUN apt-get update \
   libbz2-dev \
   liblz4-dev \
   libzstd-dev \
-  ca-certificates \
-  && rm -rf /var/lib/apt/lists/* \
-  && update-ca-certificates
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
 RUN git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git
