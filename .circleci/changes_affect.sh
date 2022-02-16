@@ -24,13 +24,12 @@ all_changed_files() {
   echo "${all_changed_files[*]}"
 }
 
-
 affects_all() {
-  [[ " $* " =~  images/static-contents ]]
+  [[ " $* " =~ images/static-contents/bin ]]
 }
 
 affects_collector() {
-  [[ " $* " =~  images/collector.Dockerfile  ]]
+  [[ " $* " =~ images/collector.Dockerfile ]]
 }
 
 affects_scanner() {
@@ -41,12 +40,15 @@ affects_scanner() {
 
 affects_stackrox() {
   [[ " $* " =~  images/rox.Dockerfile  ]] \
-    || [[ " $* " =~  images/base.Dockerfile ]] \
-    || [[ " $* " =~  images/rocksdb.Dockerfile ]]
+    || [[ " $* " =~ images/base.Dockerfile ]] \
+    || [[ " $* " =~ images/rocksdb.Dockerfile ]] \
+    || [[ " $* " =~ images/stackrox-build.Dockerfile ]] \
+    || [[ " $* " =~ images/rocksdb-for-stackrox.Dockerfile ]] \
+    || [[ " $* " =~ images/static-contents/etc ]]
 }
 
 affects_jenkins-plugin() {
-  [[ " $* " =~  images/jenkins-plugin.Dockerfile  ]]
+  [[ " $* " =~ images/jenkins-plugin.Dockerfile ]]
 }
 
 main() {

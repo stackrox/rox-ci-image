@@ -2,19 +2,22 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
+if [[ -z "${1:-}" ]]; then
     echo "Usage: $0 <image flavor>"
     exit 1
 fi
 
 image_flavor="$1"
-if [[ "$image_flavor" != "" ]]; then
-    image_flavor="${image_flavor}-"
+
+if [[ "$image_flavor" == "rocksdb" ]]; then
+    echo "rocksdb-$(git hash-object images/rocksdb-for-stackrox.Dockerfile)"
+    exit 0
 fi
 
-snapshot=""
-if [[ "${CIRCLE_BRANCH:-}" != "master" && -z "${CIRCLE_TAG:-}" ]]; then
-    snapshot="snapshot-"
+if [[ "$image_flavor" == "rox" ]]; then
+    image_prefix=""
+else
+    image_prefix="${image_flavor}-"
 fi
 
-echo "${snapshot}${image_flavor}$(git describe --tags --abbrev=10)"
+echo "${image_prefix}$(git describe --tags --abbrev=10)"
