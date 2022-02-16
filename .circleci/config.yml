@@ -150,6 +150,10 @@ jobs:
       - run:
           name: "Ensure that rocksdb container is up-to-date"
           command: |
+            # Ensure that 'shasum images/rocksdb.Dockerfile' changes when 'base_ubuntu_tag' is changed
+            echo '' >> images/rocksdb.Dockerfile
+            echo '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' >> images/rocksdb.Dockerfile
+
             dockerfile_sha=( $(shasum images/rocksdb.Dockerfile) )
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
             IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha[0]}"
