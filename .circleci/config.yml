@@ -142,9 +142,9 @@ jobs:
       - run:
           name: "Ensure that rocksdb container is up-to-date"
           command: |
-            dockerfile_sha="($(shasum images/rocksdb.Dockerfile))"
+            dockerfile_sha=( $(shasum images/rocksdb.Dockerfile) )
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha}"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha[0]}"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build"
             else
