@@ -15,7 +15,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Install all the packages
-# hadolint ignore=DL3008 # too many packages to pin the versions - we accept the risk
 RUN set -ex \
  && apt-get update \
  && apt-get install --no-install-recommends -y \
