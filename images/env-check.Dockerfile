@@ -21,7 +21,6 @@ RUN set -ex \
 COPY circleci-tools /opt/circleci-tools
 ENV PATH=/opt/circleci-tools:$PATH
 
-USER root
 RUN chown -R circleci /opt/circleci-tools
 
 WORKDIR /opt/circleci-tools
