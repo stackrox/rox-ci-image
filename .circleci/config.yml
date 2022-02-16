@@ -103,7 +103,7 @@ commands:
             BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
 
             rocksdb_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
-            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$rocksdb_sha")
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-${rocksdb_sha}")
 
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
