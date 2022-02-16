@@ -2,7 +2,8 @@
 # The rocksdb image is used in "rox.Dockerfile" but it changes only when contents of this file changes (in particular ROCKSDB_VERSION)
 # so we tag the image as "rocksdb-<sha-of-this-file>" and built it only
 # if "quay.io/rhacs-eng/apollo-ci:rocksdb-<sha-of-this-file>" does not exist yet.
-FROM ubuntu:20.04
+ARG BASE_UBUNTU_TAG
+FROM ubuntu:${BASE_UBUNTU_TAG}
 
 ARG ROCKSDB_VERSION=v6.7.3
 ENV PORTABLE=1 \

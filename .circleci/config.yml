@@ -7,6 +7,11 @@ version: 2.1
 orbs:
   bats: circleci/bats@1.0.0
 
+parameters:
+  base_ubuntu_tag:
+    type: string
+    default: "20.04"
+
 commands:
   open-test-pr:
     parameters:
@@ -97,6 +102,7 @@ commands:
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
               ${BUILD_ARGS[@]} \
+              --build-arg BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >> \
               -f << parameters.dockerfile-path >> \
               -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
               images/

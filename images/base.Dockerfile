@@ -1,4 +1,5 @@
-FROM ubuntu:20.04 as base
+ARG BASE_UBUNTU_TAG
+FROM ubuntu:${BASE_UBUNTU_TAG} as base
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
