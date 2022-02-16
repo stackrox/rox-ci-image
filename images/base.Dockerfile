@@ -1,5 +1,13 @@
 FROM ubuntu:20.04 as base
+
+# Avoid interaction with apt-get commands.
+# This pops up when doing apt-get install lsb-core,
+# which asks for user input for timezone data.
 ARG DEBIAN_FRONTEND=noninteractive
+
+# This line makes sure that piped commands in RUN instructions exit early.
+# This should not affect use in CircleCI because Circle doesn't use
+# CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Configure necessary apt repositories and temporarily install packages required for this job

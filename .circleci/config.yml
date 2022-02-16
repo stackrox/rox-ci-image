@@ -7,11 +7,6 @@ version: 2.1
 orbs:
   bats: circleci/bats@1.0.0
 
-parameters:
-  rocksdb_version:
-    type: string
-    default: "v6.7.3"
-
 commands:
   open-test-pr:
     parameters:
@@ -145,16 +140,16 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: "Ensure a container with rocksdb in version << pipeline.parameters.rocksdb_version >> is available"
+          name: "Ensure that rocksdb container is up-to-date"
           command: |
+            dockerfile_sha="($(shasum images/rocksdb.Dockerfile))"
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.rocksdb_version >>"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha}"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build"
             else
               echo "Image '$IMAGE' not found - building and pushing it..."
               docker build \
-                --build-arg ROCKSDB_VERSION="<< pipeline.parameters.rocksdb_version >>" \
                 -f images/rocksdb.Dockerfile \
                 -t "$IMAGE" \
                 images/

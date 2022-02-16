@@ -166,7 +166,7 @@ RUN set -ex \
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
 
-# hadolint ignore=DL3015,DL3008 # we need to install recommended packages
+# hadolint ignore=DL3015 # we need to install recommended packages
 RUN apt-get update && apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev && rm -rf /var/lib/apt/lists/*
 
 ENV CGO_CFLAGS="-I/tmp/rocksdb/include"
