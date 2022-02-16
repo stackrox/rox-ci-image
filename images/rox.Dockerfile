@@ -23,16 +23,11 @@ RUN set -ex \
       unzip \
       zip \
       xz \
+      jq \
       expect \
       postgresql \
       # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
       xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
-
-# Install jq
-RUN wget --no-verbose -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 \
-  && chmod +x ./jq \
-  && mv ./jq /usr/bin \
-  && command -v jq
 
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6
@@ -118,6 +113,7 @@ RUN set -ex \
  && unzip -q gradle-${GRADLE_VERSION}-bin.zip \
  && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
  && rm gradle-${GRADLE_VERSION}-bin.zip \
+ && rmdir gradle-${GRADLE_VERSION} \
  && command -v gradle
 
 # Install aws cli
@@ -126,6 +122,7 @@ RUN set -ex \
  && unzip awscliv2.zip \
  && ./aws/install \
  && rm awscliv2.zip \
+ && rm -rf aws \
  && aws --version
 
 # Install anchore cli
@@ -140,12 +137,14 @@ RUN set -ex \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
-RUN dnf -y install \
+RUN set -ex \
+ && dnf -y install \
       zlib-devel \
       bzip2-devel \
       lz4-devel \
       snappy-devel \
-      libzstd-devel
+      libzstd-devel \
+ && dnf clean all
 
 COPY --from=rocksdb /tmp/rocksdb/librocksdb.a /tmp/rocksdb/librocksdb.a
 COPY --from=rocksdb /tmp/rocksdb/include /tmp/rocksdb/include
