@@ -102,6 +102,9 @@ commands:
             BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
             BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
 
+            rocksdb_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$rocksdb_sha")
+
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
               ${BUILD_ARGS[@]} \
@@ -151,10 +154,7 @@ jobs:
           name: "Ensure that rocksdb container is up-to-date"
           command: |
             # Ensure that 'shasum images/rocksdb.Dockerfile' changes when 'base_ubuntu_tag' is changed
-            echo '' >> images/rocksdb.Dockerfile
-            echo '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' >> images/rocksdb.Dockerfile
-
-            dockerfile_sha=( $(shasum images/rocksdb.Dockerfile) )
+            dockerfile_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
             IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha[0]}"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
