@@ -91,15 +91,17 @@ commands:
       - run:
           name: Build & push image
           command: |
-            # Login may be required for pulling the base image for building (if used)
+            # Login may be required for pulling the base image for building (if used) and to omit the rate limit
+            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            BASE_TAG="$(.circleci/get_tag.sh base)"
 
+            BASE_TAG="$(.circleci/get_tag.sh base)"
             BUILD_ARGS=(--build-arg "BASE_TAG=$BASE_TAG")
             BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
 
-            rocksdb_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
-            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-${rocksdb_sha}")
+            # rocksdb_sha is an array from which we later only care about 0-th element
+            rocksdb_sha=($(shasum images/rocksdb.Dockerfile))
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${rocksdb_sha}")
 
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
@@ -148,10 +150,12 @@ jobs:
       - run:
           name: "Ensure that rocksdb container is up-to-date"
           command: |
-            # Ensure that 'shasum images/rocksdb.Dockerfile' changes when 'base_ubuntu_tag' is changed
-            dockerfile_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
+            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-${dockerfile_sha[0]}"
+
+            # dockerfile_sha is an array from which we later only care about 0-th element
+            dockerfile_sha=($(shasum images/rocksdb.Dockerfile))
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${dockerfile_sha[0]}"
             if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build"
             else
@@ -320,12 +324,16 @@ workflows:
         - build-and-push-base
         - bats/run
     - build-and-push-rocksdb:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
     - build-and-push-base:
-        context: quay-rhacs-eng-readwrite
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
