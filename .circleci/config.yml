@@ -84,10 +84,6 @@ commands:
       dockerfile-path:
         description: Path to the Dockerfile
         type: string
-      use-base:
-        description: Whether to build a container image based on the base image
-        type: boolean
-        default: true
     steps:
       - checkout
       - setup_remote_docker:
@@ -99,7 +95,7 @@ commands:
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
             BASE_TAG="$(.circleci/get_tag.sh base)"
 
-            BUILD_ARGS=(<<# parameters.use-base >>--build-arg "BASE_TAG=$BASE_TAG"<</ parameters.use-base >>)
+            BUILD_ARGS=(--build-arg "BASE_TAG=$BASE_TAG")
             BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
 
             rocksdb_sha="$(.circleci/get_marked_shasum.sh '# BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>' 'images/rocksdb.Dockerfile')"
@@ -141,7 +137,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/base.Dockerfile
           image-flavor: "base"
-          use-base: false
 
   # We separate  building of rocksdb to save CI time (~15 minutes).
   # See rocksdb.Dockerfile for more information.
@@ -174,7 +169,6 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/rox.Dockerfile
-          use-base: true
       - check-image
 
   test-cci-export:
@@ -202,7 +196,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/env-check.Dockerfile
           image-flavor: "env-check"
-          use-base: false
       - check-image:
           image-flavor: "env-check"
 
@@ -271,7 +264,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/collector.Dockerfile
           image-flavor: "collector"
-          use-base: false
       - check-image:
           image-flavor: "collector"
 
@@ -281,7 +273,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/jenkins-plugin.Dockerfile
           image-flavor: "jenkins-plugin"
-          use-base: false
       - check-image:
           image-flavor: "jenkins-plugin"
 
