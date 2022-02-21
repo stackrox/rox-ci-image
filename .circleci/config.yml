@@ -315,14 +315,6 @@ workflows:
         filters:
           tags:
             only: /.*/
-    - test-cci-export:
-        context: quay-rhacs-eng-readonly
-        filters:
-          tags:
-            only: /.*/
-        requires:
-        - build-and-push-base
-        - bats/run
     - build-and-push-rocksdb:
         context:
           - quay-rhacs-eng-readwrite
@@ -337,6 +329,14 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - test-cci-export:
+        context: quay-rhacs-eng-readonly
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - build-and-push-base
+        - bats/run
     - build-and-push-rox:
         context:
           - quay-rhacs-eng-readwrite
@@ -345,6 +345,7 @@ workflows:
           tags:
             only: /.*/
         requires:
+        - build-and-push-base
         - build-and-push-rocksdb
         - test-cci-export
     - build-and-push-env-check:
