@@ -64,9 +64,9 @@ RUN set -ex \
 # the contents of static-contents/bin, which is NOT what we want.
 # The following method of copying to /static-tmp and then explicitly copying file by file works around that.
 COPY ./static-contents/ /static-tmp
-RUN set -e \
+RUN set -ex \
   && find /static-tmp -type f -print0 | \
-    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "{}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "{}" "${new_dir}";' -- {} \; \
+    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
 
 RUN \
