@@ -23,7 +23,8 @@ RUN set -ex \
       lsof \
       openjdk-8-jdk-headless \
       unzip \
-      `# used in scanner` \
+      `# Used in scanner` \
+      rpm \
       postgresql-client-12 \
       python3-pip \
       python3-setuptools \
@@ -43,8 +44,6 @@ RUN set -ex \
       xauth \
       xvfb \
       xxd \
-      ` # Required in scanner` \
-      rpm \
       `# For envsubst:` \
       gettext \
       zip \

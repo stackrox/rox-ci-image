@@ -23,20 +23,17 @@ RUN set -ex \
   && wget --quiet -O - https://deb.nodesource.com/setup_lts.x | bash - \
   && wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
   && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-  && wget --quiet -O - https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
   && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
+  && apt-get update \
+  `# Upgrade for latest security patches` \
+  && apt-get upgrade -y \
+  `# Remove packges that were required only for apt-key add` \
   && apt-get remove -y \
       apt-transport-https \
       gnupg2 \
       lsb-core \
   && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
-
-# Upgrade for latest security patches
-RUN set -ex \
-  && apt-get update \
-  && apt-get upgrade -y \
   && rm -rf /var/lib/apt/lists/*
 
 RUN set -ex \
@@ -47,7 +44,7 @@ RUN set -ex \
       `# Note that the nodejs version is determined by which of the scripts from deb.nodesource.com` \
       `# we execute in the previous job. See https://github.com/nodesource/distributions/blob/master/README.md#deb` \
       nodejs \
-      yarn=1.19.2-1 \
+      yarn=1.22.17-1 \
   && rm -rf /var/lib/apt/lists/*
 
 
@@ -68,8 +65,8 @@ RUN set -ex \
 # The following method of copying to /static-tmp and then explicitly copying file by file works around that.
 COPY ./static-contents/ /static-tmp
 RUN set -e \
-  && find /static-tmp -type f \
-    -exec bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \; \
+  && find /static-tmp -type f -print0 | \
+    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "{}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "{}" "${new_dir}";' -- {} \; \
   && rm -r /static-tmp
 
 RUN \
