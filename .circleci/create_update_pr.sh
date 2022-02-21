@@ -30,7 +30,7 @@ labels=("${@}")
 [[ -n "$pr_title" ]] || usage
 [[ -n "$pr_description_body" ]] || usage
 
-create_pr_http_status() {
+create_pr_and_get_http_status() {
   local pr_response_file="$1"
   local pr_description_body="$2"
   local pr_description="$pr_description_header.
@@ -48,7 +48,7 @@ create_pr_http_status() {
 }
 
 pr_response_file="$(mktemp)"
-status_code="$(create_pr_http_status "$pr_response_file" "$pr_description_body")"
+status_code="$(create_pr_and_get_http_status "$pr_response_file" "$pr_description_body")"
 
 echo "Got status code: ${status_code}"
 echo "Got PR response: $(cat "${pr_response_file}")"
