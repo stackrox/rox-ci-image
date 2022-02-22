@@ -52,8 +52,18 @@ commands:
               git pull --quiet --set-upstream origin "${branch_name}"
             else
               git checkout -b "${branch_name}"
+              # The first commit is created to allow opening a PR and setting all required labels before we trigger the CI
+              git commit --allow-empty -am "Noop commit [ci skip]"
               git push --set-upstream origin "${branch_name}"
             fi
+
+            # Open or update a PR and configure labels, assignees
+            .circleci/create_update_pr.sh \
+              "${branch_name}" \
+              "<< parameters.repo >>" \
+              "Update apollo-ci image" \
+              "Bump version of apollo-ci image used in CircleCI" \
+              "ci-upgrade-tests"
 
             sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${TAG} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
 
@@ -67,13 +77,6 @@ commands:
               git push origin "${branch_name}"
             fi
             popd
-
-            .circleci/create_update_pr.sh \
-              "${branch_name}" \
-              "<< parameters.repo >>" \
-              "Update apollo-ci image" \
-              "Bump version of apollo-ci image used in CircleCI" \
-              "ci-upgrade-tests"
 
   build-and-push-image:
     parameters:
