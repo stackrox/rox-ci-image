@@ -57,6 +57,8 @@ commands:
               git push --set-upstream origin "${branch_name}"
             fi
 
+            popd
+
             # Open or update a PR and configure labels, assignees
             .circleci/create_update_pr.sh \
               "${branch_name}" \
@@ -64,6 +66,8 @@ commands:
               "Update apollo-ci image" \
               "Bump version of apollo-ci image used in CircleCI" \
               "ci-upgrade-tests"
+
+            pushd "/tmp/<< parameters.repo >>"
 
             sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${TAG} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
 
@@ -76,7 +80,6 @@ commands:
               git commit --allow-empty -am "Bump base image tag to ${TAG##:}"
               git push origin "${branch_name}"
             fi
-            popd
 
   build-and-push-image:
     parameters:
