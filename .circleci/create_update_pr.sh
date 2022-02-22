@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -eEuo pipefail
+
+usage() {
+  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> <pr-labels...>"
+  exit 2
+}
 
 main() {
   [[ -n "${GITHUB_TOKEN}" ]] || { echo >&2 "No GitHub token found"; exit 2; }
@@ -126,11 +131,6 @@ create_pr_and_get_http_status() {
 die() {
   echo >&2 "$1"
   exit 1
-}
-
-usage() {
-  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> <pr-labels...>"
-  exit 2
 }
 
 main "$@"
