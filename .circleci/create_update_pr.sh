@@ -26,7 +26,7 @@ main() {
   [[ -n "$pr_description_body" ]] || usage
 
   echo "Fetching known labels..."
-  readarray -t known_labels < <(get_existing_labels "$repo_name")
+  readarray -t known_labels < <(get_repo_labels "$repo_name")
   known_labels_str="$(printf "'%s', " "${known_labels[@]}")"
   echo "Got ${#known_labels[@]} known labels: ${known_labels_str#,}"
 
@@ -45,8 +45,25 @@ main() {
 
   echo "Assigning PR to: '${CIRCLE_USERNAME}'"
   set_assignee "$repo_name" "$pr_number" "$CIRCLE_USERNAME"
-  echo "Attempting to lable PR with: '${labels[*]}'"
-  assign_known_label "$pr_number" "${labels[@]}"
+
+  readarray -t current_pr_labels < <(get_pr_labels "$repo_name" "$pr_number")
+
+  [[ "${#labels}" -gt 0 ]] || return 0
+  local labels_to_add=()
+  for label in "${labels[@]}"; do
+    if array_contains "$label" "${known_labels[@]}" && ! array_contains "$label" "${current_pr_labels[@]}"; then
+      labels_to_add+=( "$label" )
+    else
+      echo "Skipping label '$label'"
+    fi
+  done
+  assign_label "$pr_number" "${labels_to_add[@]}"
+}
+
+array_contains() {
+  local needle="$1"; shift
+  local haystack=("${@}")
+	printf '%s\0' "${haystack[@]}" | grep --fixed-strings -q "$needle"
 }
 
 github_curl() {
@@ -55,8 +72,8 @@ github_curl() {
     -H "Authorization: token ${GITHUB_TOKEN}" "${@}"
 }
 
-# get_existing_labels returns list of existing labels for a given repo
-get_existing_labels() {
+# get_repo_labels returns list of existing labels for a given repo
+get_repo_labels() {
   local repo_name="$1"
   github_curl "https://api.github.com/repos/stackrox/${repo_name}/labels?per_page=100" | jq -r '.[].name'
 }
@@ -74,21 +91,20 @@ get_pr_number(){
   fi
 }
 
-assign_known_label() {
-  local pr_number="$1"
+get_pr_labels() {
+  local repo_name="$1"
+  local pr_number="$2"
   (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
-  shift;
-  local labels=("$@")
-  [[ "${#labels}" -gt 0 ]] || return 0
-  local labels_to_add=()
+  github_curl "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" | jq -r ".[].name"
+}
 
-  for label in "${labels[@]}"; do
-    if printf '%s\0' "${known_labels[@]}" | grep --fixed-strings -q "$label"; then
-      labels_to_add+=( "$label" )
-    else
-      echo "Skipping label '$label' - label unknown to the repo"
-    fi
-  done
+assign_label() {
+  local pr_number="$1"
+  shift;
+  local labels_to_add=("$@")
+  [[ ${#labels_to_add[@]} == 0 ]] && { echo "No new labels to add"; return 0; }
+  (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
+  echo "Assigning labels: '${labels_to_add[*]}'"
 
   local quoted_labels
   quoted_labels="$(printf ", \"%s\"" "${labels_to_add[@]}")"
