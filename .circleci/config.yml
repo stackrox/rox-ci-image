@@ -111,7 +111,7 @@ commands:
 
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
             docker build \
-              ${BUILD_ARGS[@]} \
+              "${BUILD_ARGS[@]}" \
               -f << parameters.dockerfile-path >> \
               -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
               images/
