@@ -9,7 +9,6 @@ usage() {
 
 main() {
   [[ -n "${GITHUB_TOKEN}" ]] || die "No GitHub token found"
-  pr_description_header="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}."
 
   branch_name="$1"
   repo_name="$2"
@@ -30,7 +29,7 @@ main() {
   known_labels_str="$(printf "'%s', " "${known_labels[@]}")"
   echo "Got ${#known_labels[@]} known labels: ${known_labels_str#,}"
 
-  status_code="$(create_pr_and_get_http_status "$pr_description_body")"
+  status_code="$(create_pr_and_get_http_status "$repo_name" "$branch_name" "$pr_title" "$pr_description_body")"
   echo "Attempting to open a PR resulted in status code: ${status_code}"
 
   # 201 is returned on PR creation - the reply body contains PR number
@@ -57,7 +56,7 @@ main() {
       echo "Skipping label '$label'"
     fi
   done
-  assign_label "$pr_number" "${labels_to_add[@]}"
+  assign_label "$repo_name" "$branch_name" "$pr_number" "${labels_to_add[@]}"
 }
 
 array_contains() {
@@ -99,7 +98,9 @@ get_pr_labels() {
 }
 
 assign_label() {
-  local pr_number="$1"
+  local repo_name="$1"
+  local branch_name="$2"
+  local pr_number="$3"
   shift;
   local labels_to_add=("$@")
   [[ ${#labels_to_add[@]} == 0 ]] && { echo "No new labels to add"; return 0; }
@@ -131,8 +132,11 @@ set_assignee() {
 }
 
 create_pr_and_get_http_status() {
-  local pr_description_body="$1"
-  local pr_description="$pr_description_header.
+  local repo_name="$1"
+  local branch_name="$2"
+  local pr_title="$3"
+  local pr_description_body="$4"
+  local pr_description="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}.
   $pr_description_body"
   local payload
   payload="$(printf '{"title": "%s", "body": %s, "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$pr_description")" "$branch_name")"
