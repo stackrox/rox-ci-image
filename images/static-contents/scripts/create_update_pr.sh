@@ -92,7 +92,7 @@ assign_label() {
   local repo_name="$1"
   local branch_name="$2"
   local pr_number="$3"
-  shift;
+  shift; shift; shift;
   local labels_to_add=("$@")
   [[ ${#labels_to_add[@]} == 0 ]] && { echo "No new labels to add"; return 0; }
   (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
