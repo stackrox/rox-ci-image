@@ -96,7 +96,7 @@ assign_label() {
   local labels_to_add=("$@")
   [[ ${#labels_to_add[@]} == 0 ]] && { echo "No new labels to add"; return 0; }
   (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
-  echo "Assigning labels: '${labels_to_add[*]}'"
+  printf "Assigning labels: %s\n" "$(printf "'%s', " "${labels_to_add[@]}")"
 
   local quoted_labels
   quoted_labels="$(printf ", \"%s\"" "${labels_to_add[@]}")"
