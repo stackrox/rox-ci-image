@@ -8,7 +8,7 @@ usage() {
 }
 
 main() {
-  [[ -n "${GITHUB_TOKEN}" ]] || { echo >&2 "No GitHub token found"; exit 2; }
+  [[ -n "${GITHUB_TOKEN}" ]] || die "No GitHub token found"
   pr_description_header="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}."
 
   branch_name="$1"
@@ -75,14 +75,14 @@ github_curl() {
 # get_repo_labels returns list of existing labels for a given repo
 get_repo_labels() {
   local repo_name="$1"
-  github_curl "https://api.github.com/repos/stackrox/${repo_name}/labels?per_page=100" | jq -r '.[].name'
+  github_curl --fail "https://api.github.com/repos/stackrox/${repo_name}/labels?per_page=100" | jq -r '.[].name'
 }
 
 get_pr_number(){
   local repo_name="$1"
   local branch_name="$2"
   local result
-  result="$(github_curl -X GET "https://api.github.com/repos/stackrox/${repo_name}/pulls?head=stackrox:${branch_name}" | jq -r '.[0].number')"
+  result="$(github_curl --fail "https://api.github.com/repos/stackrox/${repo_name}/pulls?head=stackrox:${branch_name}" | jq -r '.[0].number')"
   if [ "$result" != "null" ]; then
     echo "$result";
   else
@@ -95,7 +95,7 @@ get_pr_labels() {
   local repo_name="$1"
   local pr_number="$2"
   (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
-  github_curl "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" | jq -r ".[].name"
+  github_curl --fail "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" | jq -r ".[].name"
 }
 
 assign_label() {
@@ -111,7 +111,7 @@ assign_label() {
   local payload
   payload="$(printf '{"labels": [%s]}' "${quoted_labels#,}")"
 
-  github_curl \
+  github_curl --fail \
     -X PUT \
     -o /dev/null \
     "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" \
@@ -123,7 +123,7 @@ set_assignee() {
   local pr_number="$2"
   local username="$3"
   payload="$(printf '{"assignees": ["%s"]}' "$username")"
-  github_curl \
+  github_curl --fail \
     -X POST \
     -o /dev/null \
     "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/assignees" \
@@ -136,10 +136,11 @@ create_pr_and_get_http_status() {
   $pr_description_body"
   local payload
   payload="$(printf '{"title": "%s", "body": %s, "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$pr_description")" "$branch_name")"
+  # warning: no --fail here - we accept code 422 as not-error
   github_curl \
+    -X POST \
     -w '%{http_code}' \
     -o /dev/null \
-    -X POST \
     "https://api.github.com/repos/stackrox/${repo_name}/pulls" \
     -d "$payload"
 }
