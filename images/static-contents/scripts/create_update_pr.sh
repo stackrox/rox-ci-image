@@ -3,7 +3,7 @@
 set -eEuo pipefail
 
 usage() {
-  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> <pr-labels...>"
+  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> [pr-labels...]"
   exit 2
 }
 
