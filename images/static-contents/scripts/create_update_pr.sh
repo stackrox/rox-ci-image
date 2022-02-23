@@ -45,12 +45,10 @@ main() {
   echo "Assigning PR to: '${CIRCLE_USERNAME}'"
   set_assignee "$repo_name" "$pr_number" "$CIRCLE_USERNAME"
 
-  readarray -t current_pr_labels < <(get_pr_labels "$repo_name" "$pr_number")
-
   [[ "${#labels}" -gt 0 ]] || return 0
   local labels_to_add=()
   for label in "${labels[@]}"; do
-    if array_contains "$label" "${known_labels[@]}" && ! array_contains "$label" "${current_pr_labels[@]}"; then
+    if array_contains "$label" "${known_labels[@]}"; then
       labels_to_add+=( "$label" )
     else
       echo "Skipping label '$label'"
@@ -88,13 +86,6 @@ get_pr_number(){
     >&2 echo "Unable to find PR number for repo:branch '${repo_name}:${branch_name}'"
     return 1;
   fi
-}
-
-get_pr_labels() {
-  local repo_name="$1"
-  local pr_number="$2"
-  (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
-  github_curl --fail "https://api.github.com/repos/stackrox/${repo_name}/issues/${pr_number}/labels" | jq -r ".[].name"
 }
 
 assign_label() {
