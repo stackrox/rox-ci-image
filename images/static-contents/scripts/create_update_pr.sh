@@ -40,7 +40,7 @@ main() {
 
   pr_number="$(get_pr_number "$repo_name" "$branch_name")"
   echo "Fetched PR number: '${pr_number}'"
-   (( pr_number > 0 )) || die "Missing pr_number"
+  (( pr_number > 0 )) || die "Missing pr_number"
 
   echo "Assigning PR to: '${CIRCLE_USERNAME}'"
   set_assignee "$repo_name" "$pr_number" "$CIRCLE_USERNAME"
