@@ -208,8 +208,6 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/centos8-rocksdb.Dockerfile
           image-flavor: "centos8-rocksdb"
-      - check-image:
-          image-flavor: "centos8-rocksdb"
 
   build-and-push-stackrox-build:
     <<: *defaults
