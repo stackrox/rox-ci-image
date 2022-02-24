@@ -119,11 +119,23 @@ commands:
             rocksdb_sha="$(git hash-object images/rocksdb.Dockerfile)"
             BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${rocksdb_sha}")
 
+            centos8_rocksdb_sha="$(git hash-object images/centos8-rocksdb.Dockerfile)"
+            BUILD_ARGS+=(--build-arg "CENTOS8_ROCKSDB_TAG=centos8-rocksdb-${centos8_rocksdb_sha}")
+
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}""
+
+            if [[ "<< parameters.image-flavor >>" == "centos8-rocksdb" ]] && \
+                   DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+              echo "Image '$IMAGE' already exists - no need to build it"
+              circleci step halt
+              exit 0
+            fi
+
             docker build \
               "${BUILD_ARGS[@]}" \
               -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
+              -t "${IMAGE}" \
               images/
 
             for i in {1..5}; do
@@ -190,14 +202,14 @@ jobs:
       - check-image:
           image-flavor: "rox"
 
-  build-and-push-rocksdb:
+  build-and-push-centos8-rocksdb:
     <<: *defaults
     steps:
       - build-and-push-image:
-          dockerfile-path: images/rocksdb-for-stackrox.Dockerfile
-          image-flavor: "rocksdb"
+          dockerfile-path: images/centos8-rocksdb.Dockerfile
+          image-flavor: "centos8-rocksdb"
       - check-image:
-          image-flavor: "rocksdb"
+          image-flavor: "centos8-rocksdb"
 
   build-and-push-stackrox-build:
     <<: *defaults
@@ -354,6 +366,13 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - build-and-push-centos8-rocksdb:
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
     - build-and-push-base:
         context:
           - quay-rhacs-eng-readwrite
@@ -381,15 +400,6 @@ workflows:
         - build-and-push-base
         - build-and-push-rocksdb
         - test-cci-export
-    - build-and-push-rocksdb:
-        context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-        filters:
-          tags:
-            only: /.*/
-        requires:
-        - bats/run
     - build-and-push-stackrox-build:
         context:
           - quay-rhacs-eng-readwrite
@@ -398,7 +408,7 @@ workflows:
           tags:
             only: /.*/
         requires:
-        - build-and-push-rocksdb
+        - build-and-push-centos8-rocksdb
     - build-and-push-env-check:
         context:
           - quay-rhacs-eng-readwrite
@@ -452,6 +462,7 @@ workflows:
             ignore: master
         requires:
         - build-and-push-rox
+        - build-and-push-stackrox-build
     - create-or-update-scanner-repo-pr:
         filters:
           branches:

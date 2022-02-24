@@ -1,5 +1,5 @@
-ARG ROCKSDB_TAG
-FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as builder
+ARG CENTOS8_ROCKSDB_TAG
+FROM quay.io/rhacs-eng/apollo-ci:${CENTOS8_ROCKSDB_TAG} as builder
 
 FROM quay.io/centos/centos:stream8
 
