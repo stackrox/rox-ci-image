@@ -10,20 +10,24 @@ ARG DEBIAN_FRONTEND=noninteractive
 # CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+USER root
 RUN set -ex \
- && sudo apt-get update \
+ && apt-get update \
  # Upgrade for latest security patches
- && sudo apt-get upgrade \
- && sudo rm -rf /var/lib/apt/lists/*
+ && apt-get upgrade \
+ && rm -rf /var/lib/apt/lists/*
 
 # Install Circle CI tools
 COPY circleci-tools /opt/circleci-tools
 ENV PATH=/opt/circleci-tools:$PATH
+
+RUN chown -R circleci /opt/circleci-tools
+
+WORKDIR /opt/circleci-tools
+USER circleci
 RUN set -ex \
-  && sudo chown -R circleci /opt/circleci-tools \
-  && cd /opt/circleci-tools \
-  && npm install \
+  && npm ci \
   && command -v pull-workflow-output.js \
   && command -v check-for-sensitive-env-values.js
 
-USER circleci
+WORKDIR /home/circleci

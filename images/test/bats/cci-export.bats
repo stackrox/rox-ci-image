@@ -1,7 +1,9 @@
 #!/usr/bin/env bats
 
 # To run the test locally do:
-# docker build -t apollo-cci:test -f images/test.cci-export.Dockerfile images && docker run -it apollo-cci:test
+# docker build -t quay.io/rhacs-eng/apollo-ci:test-base -f images/base.Dockerfile images \
+#  && docker build --build-arg "BASE_TAG=test-base" -t apollo-cci:test -f images/test.cci-export.Dockerfile images \
+#  && docker run -it apollo-cci:test
 
 bats_helpers_root="/usr/lib/node_modules"
 load "${bats_helpers_root}/bats-support/load.bash"

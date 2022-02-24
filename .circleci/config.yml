@@ -7,6 +7,11 @@ version: 2.1
 orbs:
   bats: circleci/bats@1.0.0
 
+parameters:
+  base_ubuntu_tag:
+    type: string
+    default: "20.04"
+
 commands:
   open-test-pr:
     parameters:
@@ -47,19 +52,34 @@ commands:
               git pull --quiet --set-upstream origin "${branch_name}"
             else
               git checkout -b "${branch_name}"
+              # The first commit is created to allow opening a PR and setting all required labels before we trigger the CI
+              git commit --allow-empty -am "Noop commit [ci skip]"
               git push --set-upstream origin "${branch_name}"
             fi
+
+            popd
+
+            # Open or update a PR and configure labels, assignees
+            .circleci/create_update_pr.sh \
+              "${branch_name}" \
+              "<< parameters.repo >>" \
+              "Update apollo-ci image" \
+              "Bump version of apollo-ci image used in CircleCI" \
+              "ci-upgrade-tests"
+
+            pushd "/tmp/<< parameters.repo >>"
 
             sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${TAG} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
 
             # If the image parameter was originally quoted, we need to close the quote
             sed -i "s@\"\(.*\)/apollo-ci:${TAG} # TODO@\"\1/apollo-ci:${TAG}\" # TODO@g" .circleci/config.yml
 
-            git commit -am "Bump base image tag to ${TAG##:}"
-            git push origin "${branch_name}"
-            popd
-
-            .circleci/create_update_pr.sh "${branch_name}" << parameters.repo >>
+            if git diff-index --quiet HEAD; then
+              echo "There is nothing new to commit - apparently the CI job has been restarted without any new changes in the code"
+            else
+              git commit --allow-empty -am "Bump base image tag to ${TAG##:}"
+              git push origin "${branch_name}"
+            fi
 
   build-and-push-image:
     parameters:
@@ -72,22 +92,30 @@ commands:
         type: string
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
-          name: Build image
+          name: Build & push image
           command: |
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
-            docker build images/ -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:$TAG"
-
-      - run:
-          name: Push image
-          command: |
+            # Login may be required for pulling the base image for building (if used) and to omit the rate limit
+            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
+            BASE_TAG="$(.circleci/get_tag.sh base)"
+            BUILD_ARGS=(--build-arg "BASE_TAG=$BASE_TAG")
+            BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
+
+            rocksdb_sha="$(git hash-object images/rocksdb.Dockerfile)"
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${rocksdb_sha}")
+
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
-            for i in {1..5}
-            do
+            docker build \
+              "${BUILD_ARGS[@]}" \
+              -f << parameters.dockerfile-path >> \
+              -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
+              images/
+
+            for i in {1..5}; do
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
 
@@ -110,6 +138,39 @@ commands:
             ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${TAG}"
 
 jobs:
+  build-and-push-base:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/base.Dockerfile
+          image-flavor: "base"
+
+  # We separate  building of rocksdb to save CI time (~15 minutes).
+  # See rocksdb.Dockerfile for more information.
+  build-and-push-rocksdb:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: "Ensure that rocksdb container is up-to-date"
+          command: |
+            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
+            docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+
+            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-$(git hash-object images/rocksdb.Dockerfile)"
+            if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+              echo "Image '$IMAGE' already exists - no need to build"
+            else
+              echo "Image '$IMAGE' not found - building and pushing it..."
+              docker build \
+                --build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>" \
+                -f images/rocksdb.Dockerfile \
+                -t "$IMAGE" \
+                images/
+              docker push "$IMAGE" | cat
+            fi
+
   build-and-push-rox:
     <<: *defaults
     steps:
@@ -126,7 +187,14 @@ jobs:
     - run:
         name: Test cci-export inside Docker
         command: |
-          docker build images/ -f images/test.cci-export.Dockerfile -t test.cci-export
+          docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
+          BASE_TAG="$(.circleci/get_tag.sh base)"
+
+          docker build \
+            --build-arg BASE_TAG="$BASE_TAG" \
+            -f images/test.cci-export.Dockerfile \
+            -t test.cci-export \
+            images/
           docker run --rm test.cci-export
 
   build-and-push-env-check:
@@ -220,17 +288,20 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
+
   create-or-update-scanner-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: scanner
+
   create-or-update-collector-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: collector
           image-flavor: "collector"
+
   create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
     steps:
@@ -247,25 +318,45 @@ workflows:
         filters:
           tags:
             only: /.*/
+    - build-and-push-rocksdb:
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
+    - build-and-push-base:
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
     - test-cci-export:
+        context: quay-rhacs-eng-readonly
         filters:
           tags:
             only: /.*/
         requires:
+        - build-and-push-base
         - bats/run
     - build-and-push-rox:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
         requires:
+        - build-and-push-base
+        - build-and-push-rocksdb
         - test-cci-export
     - build-and-push-env-check:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
@@ -286,6 +377,7 @@ workflows:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
@@ -295,6 +387,7 @@ workflows:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
