@@ -31,7 +31,7 @@ setup() {
 }
 
 @test 'uses HASH for rocksdb' {
-  local hash="rocksdb-$(git hash-object images/rocksdb-for-stackrox.Dockerfile)"
+  local hash="rocksdb-$(git hash-object images/centos8-rocksdb.Dockerfile)"
   run .circleci/get_tag.sh rocksdb
   [ "$status" -eq 0 ]
   [[ "$output" == "$hash" ]]

@@ -13,5 +13,5 @@ stackrox-build-image:
 
 .PHONY: rocksdb-image
 rocksdb-image:
-	docker build images/ -f images/rocksdb-for-stackrox.Dockerfile \
+	docker build images/ -f images/centos8-rocksdb.Dockerfile \
 	    -t stackrox/apollo-ci:$(ROCKSDB_TAG)

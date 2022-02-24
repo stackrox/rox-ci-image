@@ -42,8 +42,8 @@ affects_stackrox() {
   [[ " $* " =~  images/rox.Dockerfile  ]] \
     || [[ " $* " =~ images/base.Dockerfile ]] \
     || [[ " $* " =~ images/rocksdb.Dockerfile ]] \
+    || [[ " $* " =~ images/centos8-rocksdb.Dockerfile ]] \
     || [[ " $* " =~ images/stackrox-build.Dockerfile ]] \
-    || [[ " $* " =~ images/rocksdb-for-stackrox.Dockerfile ]] \
     || [[ " $* " =~ images/static-contents/etc ]]
 }
 

@@ -10,7 +10,7 @@ fi
 image_flavor="$1"
 
 if [[ "$image_flavor" == "rocksdb" ]]; then
-    echo "rocksdb-$(git hash-object images/rocksdb-for-stackrox.Dockerfile)"
+    echo "rocksdb-$(git hash-object images/centos8-rocksdb.Dockerfile)"
     exit 0
 fi
 
