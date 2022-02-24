@@ -123,7 +123,7 @@ commands:
             BUILD_ARGS+=(--build-arg "CENTOS8_ROCKSDB_TAG=centos8-rocksdb-${centos8_rocksdb_sha}")
 
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
-            IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}""
+            IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
             if [[ "<< parameters.image-flavor >>" == "centos8-rocksdb" ]] && \
                    DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
