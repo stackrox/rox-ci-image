@@ -402,6 +402,7 @@ workflows:
         context:
           - quay-rhacs-eng-readwrite
           - stackrox-ci-instance
+          - docker-io-pull
         filters:
           tags:
             only: /.*/
