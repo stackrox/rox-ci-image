@@ -1,7 +1,5 @@
 FROM quay.io/centos/centos:stream8
 
-ENV ROCKSDB_VERSION="v6.7.3"
-
 RUN yum update -y && \
     yum install -y epel-release dnf-plugins-core && \
     yum config-manager --set-enabled powertools && \
@@ -20,9 +18,13 @@ RUN yum update -y && \
 # This compiles RocksDB without BMI and AVX2 instructions
 ENV PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
 
+ENV ROCKSDB_VERSION="v6.7.3"
+ARG ROCKSDB_HASH="b0eb4d70d41287860da5ff18b750a796b35e56e"
 RUN cd /tmp && \
     git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && \
     cd rocksdb && \
+    hash=$(git ls-files -s | git hash-object --stdin) && \
+    [[ "${hash}" == "${ROCKSDB_HASH}" ]] && \
     make static_lib
 
 RUN cd /tmp/rocksdb && \
