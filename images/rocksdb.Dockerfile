@@ -28,7 +28,7 @@ RUN apt-get update \
   && update-ca-certificates
 
 ARG ROCKSDB_VERSION=v6.7.3
-ARG ROCKSDB_HASH="b0eb4d70d41287860da5ff18b750a796b35e56e"
+ARG ROCKSDB_HASH="9b0eb4d70d41287860da5ff18b750a796b35e56e"
 WORKDIR /tmp
 RUN git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git
 WORKDIR /tmp/rocksdb
