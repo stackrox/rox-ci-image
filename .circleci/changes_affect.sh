@@ -40,11 +40,11 @@ affects_scanner() {
 
 affects_stackrox() {
   [[ " $* " =~  images/rox.Dockerfile  ]] \
-    || [[ " $* " =~  images/base.Dockerfile  ]] \
-    || [[ " $* " =~  images/rocksdb.Dockerfile  ]] \
-    || [[ " $* " =~  images/centos8-rocksdb.Dockerfile  ]] \
-    || [[ " $* " =~  images/stackrox-build.Dockerfile  ]] \
-    || [[ " $* " =~  images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo  ]]
+    || [[ " $* " =~  images/base.Dockerfile ]] \
+    || [[ " $* " =~  images/rocksdb.Dockerfile ]] \
+    || [[ " $* " =~  images/centos8-rocksdb.Dockerfile ]] \
+    || [[ " $* " =~  images/stackrox-build.Dockerfile ]] \
+    || [[ " $* " =~  images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo ]]
 }
 
 affects_jenkins-plugin() {
