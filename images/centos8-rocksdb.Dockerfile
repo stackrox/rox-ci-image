@@ -24,7 +24,7 @@ RUN cd /tmp && \
     git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && \
     cd rocksdb && \
     hash=$(git ls-files -s | git hash-object --stdin) && \
-    [[ "${hash}" == "${ROCKSDB_HASH}" ]] && \
+    if [[ "${hash}" != "${ROCKSDB_HASH}" ]]; then echo "Rocks DB version skew detected"; exit 1; fi && \
     make static_lib
 
 RUN cd /tmp/rocksdb && \
