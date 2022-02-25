@@ -33,5 +33,5 @@ WORKDIR /tmp
 RUN git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git
 WORKDIR /tmp/rocksdb
 RUN hash=$(git ls-files -s | git hash-object --stdin) && \
-    if [[ "${hash}" != "${ROCKSDB_HASH}" ]]; then echo "$(tput setaf 1)ERROR: Rocks DB version skew detected.$(tput sgr 0)"; exit 1; fi && \
+    if [[ "${hash}" != "${ROCKSDB_HASH}" ]]; then echo "ERROR: Rocks DB version skew detected."; exit 1; fi && \
     make static_lib
