@@ -25,30 +25,30 @@ all_changed_files() {
 }
 
 affects_all() {
-  [[ " $* " =~ \simages/static-contents/bin/bash-wrapper\s ]]
+  [[ " $* " =~ [[:space:]]images/static-contents/bin/bash-wrapper[[:space:]] ]]
 }
 
 affects_collector() {
-  [[ " $* " =~ \simages/collector.Dockerfile\s ]]
+  [[ " $* " =~ [[:space:]]images/collector.Dockerfile[[:space:]] ]]
 }
 
 affects_scanner() {
-  [[ " $* " =~ \simages/rox.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/base.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/rocksdb.Dockerfile\s ]]
+  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]]
 }
 
 affects_stackrox() {
-  [[ " $* " =~ \simages/rox.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/base.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/rocksdb.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/centos8-rocksdb.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/stackrox-build.Dockerfile\s ]] \
-    || [[ " $* " =~ \simages/static-contents/etc/yum.repos.d/google-cloud-sdk.repo\s ]]
+  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/centos8-rocksdb.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/stackrox-build.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]]
 }
 
 affects_jenkins-plugin() {
-  [[ " $* " =~ \simages/jenkins-plugin.Dockerfile\s ]]
+  [[ " $* " =~ [[:space:]]images/jenkins-plugin.Dockerfile[[:space:]] ]]
 }
 
 main() {
