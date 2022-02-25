@@ -5,7 +5,6 @@
 ARG BASE_UBUNTU_TAG
 FROM ubuntu:${BASE_UBUNTU_TAG}
 
-ARG ROCKSDB_VERSION=v6.7.3
 ENV PORTABLE=1 \
   TRY_SSE_ETC=0 \
   TRY_SSE42="-msse4.2" \
@@ -28,7 +27,11 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* \
   && update-ca-certificates
 
+ARG ROCKSDB_VERSION=v6.7.3
+ARG ROCKSDB_HASH="b0eb4d70d41287860da5ff18b750a796b35e56e"
 WORKDIR /tmp
 RUN git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git
 WORKDIR /tmp/rocksdb
-RUN make static_lib
+RUN hash=$(git ls-files -s | git hash-object --stdin) && \
+    if [[ "${hash}" != "${ROCKSDB_HASH}" ]]; then echo "$(tput setaf 1)ERROR: Rocks DB version skew detected.$(tput sgr 0)"; exit 1; fi && \
+    make static_lib
