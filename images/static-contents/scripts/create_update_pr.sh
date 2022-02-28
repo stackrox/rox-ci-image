@@ -8,16 +8,31 @@ usage() {
 }
 
 # This script opens or updates a new PR according to the following requirements:
-# 1. The PR should be assigned to a person who triggered the CI flow
-# 2. The PR should have labels applied before the CI workflow for new PRs is triggered
-#    If the PR does not exist yet, we do the following:
-#    - (1) push empty commit (with [ci skip] in the message) to the branch,
-#    - (2) apply PR labels, and
-#    - (3) push code changes.
-#   If the PR already exists, we only execute step (3).
-#   This allows us to trigger the first CI run first after the PR-labels are applied.
-#   The reason for this implementation is the Github API that does not allow to open a PR and assign a label with a single API call
+#   - The PR should be assigned to a person who triggered the CI flow
+#   - The PR should have labels applied (new lables will not be created, only existing applied)
+#
+# It is used in two typical scenarios:
+#   1. Open PR with lables and ensure that the first CI run for that PR respects the labels
+#   2. Open PR without labels (or with labels but do not care about CI picking them)
+#
+# Scenario 1 (PR with CI-releavnt lables) requires to follow the following procedure:
+#    A. If the PR does not exist yet, we do the following:
+#      - (Before): push empty commit (optionally with [ci skip] in the message) to the branch:
+#                  'git commit -am --allow-empty "Commit message [ci skip]" && git push origin'
+#      - (Script): Run script with labels,
+#      - (After): Push code changes
+#    B. If the PR exists already:
+#      - (Before): -
+#      - (Script): (optional) Run script (labels do not matter)
+#      - (After): Push code changes
+#   The reason for this procedure is the Github API that does not allow to open a PR and assign a label with a single API call
 #   and we want to make sure that the first CI run already takes the labels into consideration
+#
+# Scenario 2 (PR with no CI lables) requires to follow the following procedure:
+#      - (Before): Push code changes to remote branch
+#      - (Script): Run script
+#      - (After): -
+
 main() {
   [[ -n "${GITHUB_TOKEN}" ]] || die "No GitHub token found"
 
