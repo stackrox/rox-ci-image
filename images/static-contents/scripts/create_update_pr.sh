@@ -19,18 +19,18 @@ usage() {
 #    A. If the PR does not exist yet, we do the following:
 #      - (Before): push empty commit (optionally with [ci skip] in the message) to the branch:
 #                  'git commit -am --allow-empty "Commit message [ci skip]" && git push origin'
-#      - (Script): Run script with labels,
-#      - (After): Push code changes
+#      - (Script): Run this script with labels
+#      - (After): Push actual code changes
 #    B. If the PR exists already:
 #      - (Before): -
-#      - (Script): (optional) Run script (labels do not matter)
+#      - (Script): (optional) Run this script (labels do not matter)
 #      - (After): Push code changes
 #   This procedure was proposed because the Github API does not allow to open a PR and assign a label with a single API call.
 #   However, we want to make sure that the first CI run already takes the PR labels into consideration.
 #
 # Scenario 2 (PR with no CI lables) requires to follow the following procedure:
 #      - (Before): Push code changes to remote branch
-#      - (Script): Run script
+#      - (Script): Run this script
 #      - (After): -
 
 main() {
