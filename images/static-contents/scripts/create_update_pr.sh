@@ -25,8 +25,8 @@ usage() {
 #      - (Before): -
 #      - (Script): (optional) Run script (labels do not matter)
 #      - (After): Push code changes
-#   The reason for this procedure is the Github API that does not allow to open a PR and assign a label with a single API call
-#   and we want to make sure that the first CI run already takes the labels into consideration
+#   This procedure was proposed because the Github API does not allow to open a PR and assign a label with a single API call.
+#   However, we want to make sure that the first CI run already takes the PR labels into consideration.
 #
 # Scenario 2 (PR with no CI lables) requires to follow the following procedure:
 #      - (Before): Push code changes to remote branch
