@@ -24,33 +24,36 @@ all_changed_files() {
   echo "${all_changed_files[*]}"
 }
 
-
 affects_all() {
-  [[ " $* " =~  images/static-contents ]]
+  [[ " $* " =~ [[:space:]]images/static-contents/bin/bash-wrapper[[:space:]] ]]
 }
 
 affects_collector() {
-  [[ " $* " =~  images/collector.Dockerfile  ]]
+  [[ " $* " =~ [[:space:]]images/collector.Dockerfile[[:space:]] ]]
 }
 
 affects_scanner() {
-  [[ " $* " =~  images/rox.Dockerfile  ]] \
-    || [[ " $* " =~  images/base.Dockerfile ]] \
-    || [[ " $* " =~  images/rocksdb.Dockerfile ]]
+  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]]
 }
 
 affects_stackrox() {
-  [[ " $* " =~  images/rox.Dockerfile  ]] \
-    || [[ " $* " =~  images/base.Dockerfile ]] \
-    || [[ " $* " =~  images/rocksdb.Dockerfile ]]
+  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/centos8-rocksdb.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/stackrox-build.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]]
 }
 
 affects_jenkins-plugin() {
-  [[ " $* " =~  images/jenkins-plugin.Dockerfile  ]]
+  [[ " $* " =~ [[:space:]]images/jenkins-plugin.Dockerfile[[:space:]] ]]
 }
 
 main() {
   files="$(all_changed_files)"
+  echo "Changed files: >>>${files}<<<"
   if affects_all "${files}"; then
     return 0
   fi

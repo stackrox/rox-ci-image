@@ -13,41 +13,33 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
-@test 'appends git describe' {
-  run .circleci/get_tag.sh something
-  [ "$status" -eq 0 ]
-  [[ "$output" =~ $describe$ ]]
-}
-
-@test 'adds image flavor' {
-  run .circleci/get_tag.sh something
-  [ "$status" -eq 0 ]
-  [[ "$output" == "snapshot-something-$describe" ]]
-}
-
-@test 'only adds image flavor when not ""' {
+@test "expects an image flavor value" {
   run .circleci/get_tag.sh ""
-  [ "$status" -eq 0 ]
-  [[ "$output" == "snapshot-$describe" ]]
+  [ "$status" -eq 1 ]
 }
 
-@test 'prepends snapshot on PRs' {
-  export CIRCLE_BRANCH=a-pr
-  run .circleci/get_tag.sh something
-  [ "$status" -eq 0 ]
-  [[ "$output" == "snapshot-something-$describe" ]]
-}
-
-@test 'does not prepend snapshot on master' {
-  export CIRCLE_BRANCH=master
+@test 'appends git describe to flavor' {
   run .circleci/get_tag.sh something
   [ "$status" -eq 0 ]
   [[ "$output" == "something-$describe" ]]
 }
 
-@test 'does not prepend snapshot on tags' {
-  export CIRCLE_TAG=1.2.3
-  run .circleci/get_tag.sh something
+@test 'omits flavor for rox' {
+  run .circleci/get_tag.sh rox
   [ "$status" -eq 0 ]
-  [[ "$output" == "something-$describe" ]]
+  [[ "$output" == "$describe" ]]
+}
+
+@test 'uses HASH for rocksdb' {
+  local hash="rocksdb-$(git hash-object images/rocksdb.Dockerfile)"
+  run .circleci/get_tag.sh rocksdb
+  [ "$status" -eq 0 ]
+  [[ "$output" == "$hash" ]]
+}
+
+@test 'uses HASH for centos8 rocksdb' {
+  local hash="centos8-rocksdb-$(git hash-object images/centos8-rocksdb.Dockerfile)"
+  run .circleci/get_tag.sh centos8-rocksdb
+  [ "$status" -eq 0 ]
+  [[ "$output" == "$hash" ]]
 }

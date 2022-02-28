@@ -5,7 +5,6 @@
 ARG BASE_UBUNTU_TAG
 FROM ubuntu:${BASE_UBUNTU_TAG}
 
-ARG ROCKSDB_VERSION=v6.7.3
 ENV PORTABLE=1 \
   TRY_SSE_ETC=0 \
   TRY_SSE42="-msse4.2" \
@@ -28,7 +27,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* \
   && update-ca-certificates
 
+ARG ROCKSDB_VERSION=v6.7.3
 WORKDIR /tmp
 RUN git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git
 WORKDIR /tmp/rocksdb
-RUN make static_lib
+RUN mkdir -p /build && \
+    git ls-files -s | git hash-object --stdin >/build/ROCKSDB_HASH && \
+    make static_lib

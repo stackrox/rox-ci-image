@@ -18,11 +18,9 @@ commands:
       repo:
         description: Name of the repo where the PR should be opened.
         type: string
-        default: ""
-      image-flavor:
-        description: The flavor of the apollo-ci image that the target repo uses.
+      image-flavors:
+        description: The flavors of the apollo-ci image that the target repo uses. A comma separated list.
         type: string
-        default: ""
     steps:
       - checkout
       - add_ssh_keys:
@@ -33,14 +31,12 @@ commands:
           command: |
             git clone git@github.com:stackrox/<< parameters.repo >>.git /tmp/<< parameters.repo >>
       - run:
-          name: Create commit in << parameters.repo >> that updates the base image if necessary
+          name: Create a commit in << parameters.repo >> that updates dependent images if necessary
           command: |
             if ! .circleci/changes_affect.sh << parameters.repo >>; then
               echo "No need to open/update a PR against << parameters.repo >> - current changes are not affecting this repo."
               exit 0;
             fi
-
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
 
             pushd "/tmp/<< parameters.repo >>"
 
@@ -57,6 +53,36 @@ commands:
               git push --set-upstream origin "${branch_name}"
             fi
 
+            todo="# TODO(do not merge): After upstream PR is merged, cut a tag and update this"
+
+            IFS=',' read -r -a flavors \<<<"<< parameters.image-flavors >>"
+            for flavor in "${flavors[@]}"; do
+              echo "Doing image substitutions for $flavor"
+              prefix="$flavor-"
+              if [[ "$flavor" == "rox" ]]; then
+                prefix=""
+              fi
+              popd
+              tag="$(.circleci/get_tag.sh "$flavor")"
+              pushd "/tmp/<< parameters.repo >>"
+
+              sed -r -i "s@(.*)/apollo-ci:${prefix}[0-9].*@\1/apollo-ci:${tag} ${todo}@g" .circleci/config.yml
+
+              # If the image parameter was originally quoted, we need to close the quote
+              sed -r -i "s@\"(.*)/apollo-ci:${tag} # TODO@\"\1/apollo-ci:${tag}\" # TODO@g" .circleci/config.yml
+
+              if [[ "$flavor" == "stackrox-build" ]] && [[ "<< parameters.repo >>" == "stackrox" ]]; then
+                echo "${tag} ${todo}" > BUILD_IMAGE_VERSION
+              fi
+
+              if git diff-index --quiet HEAD; then
+                echo "There are no changes to commit in the dependent repo"
+              else
+                git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
+              fi
+            done
+
+            git push origin "${branch_name}"
             popd
 
             # Open or update a PR and configure labels, assignees
@@ -67,26 +93,11 @@ commands:
               "Bump version of apollo-ci image used in CircleCI" \
               "ci-upgrade-tests"
 
-            pushd "/tmp/<< parameters.repo >>"
-
-            sed -i "s@\(.*\)/apollo-ci:.*@\1/apollo-ci:${TAG} # TODO(do not merge): After upstream PR is merged, cut a tag and update this@g" .circleci/config.yml
-
-            # If the image parameter was originally quoted, we need to close the quote
-            sed -i "s@\"\(.*\)/apollo-ci:${TAG} # TODO@\"\1/apollo-ci:${TAG}\" # TODO@g" .circleci/config.yml
-
-            if git diff-index --quiet HEAD; then
-              echo "There is nothing new to commit - apparently the CI job has been restarted without any new changes in the code"
-            else
-              git commit --allow-empty -am "Bump base image tag to ${TAG##:}"
-              git push origin "${branch_name}"
-            fi
-
   build-and-push-image:
     parameters:
       image-flavor:
         description: A flavor used to tag the apollo-ci image.
         type: string
-        default: ""
       dockerfile-path:
         description: Path to the Dockerfile
         type: string
@@ -108,11 +119,23 @@ commands:
             rocksdb_sha="$(git hash-object images/rocksdb.Dockerfile)"
             BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${rocksdb_sha}")
 
+            centos8_rocksdb_sha="$(git hash-object images/centos8-rocksdb.Dockerfile)"
+            BUILD_ARGS+=(--build-arg "CENTOS8_ROCKSDB_TAG=centos8-rocksdb-${centos8_rocksdb_sha}")
+
             TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
+            IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
+
+            if [[ "<< parameters.image-flavor >>" == "centos8-rocksdb" ]] && \
+                   DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+              echo "Image '$IMAGE' already exists - no need to build it"
+              circleci step halt
+              exit 0
+            fi
+
             docker build \
               "${BUILD_ARGS[@]}" \
               -f << parameters.dockerfile-path >> \
-              -t "quay.io/rhacs-eng/apollo-ci:${TAG}" \
+              -t "${IMAGE}" \
               images/
 
             for i in {1..5}; do
@@ -124,7 +147,6 @@ commands:
       image-flavor:
         description: The flavor of apollo-ci image to check.
         type: string
-        default: ""
     steps:
       - run:
           name: Get roxctl
@@ -151,7 +173,8 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.7
       - run:
           name: "Ensure that rocksdb container is up-to-date"
           command: |
@@ -176,7 +199,25 @@ jobs:
     steps:
       - build-and-push-image:
           dockerfile-path: images/rox.Dockerfile
-      - check-image
+          image-flavor: "rox"
+      - check-image:
+          image-flavor: "rox"
+
+  build-and-push-centos8-rocksdb:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/centos8-rocksdb.Dockerfile
+          image-flavor: "centos8-rocksdb"
+
+  build-and-push-stackrox-build:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/stackrox-build.Dockerfile
+          image-flavor: "stackrox-build"
+      - check-image:
+          image-flavor: "stackrox-build"
 
   test-cci-export:
     <<: *defaults
@@ -288,26 +329,25 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
-
+          image-flavors: "stackrox-build,rox"
   create-or-update-scanner-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: scanner
-
+          image-flavors: "rox"
   create-or-update-collector-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: collector
-          image-flavor: "collector"
-
+          image-flavors: "collector"
   create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: jenkins-plugin
-          image-flavor: "jenkins-plugin"
+          image-flavors: "jenkins-plugin"
 
 workflows:
   version: 2
@@ -319,6 +359,13 @@ workflows:
           tags:
             only: /.*/
     - build-and-push-rocksdb:
+        context:
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
+    - build-and-push-centos8-rocksdb:
         context:
           - quay-rhacs-eng-readwrite
           - docker-io-pull
@@ -352,6 +399,16 @@ workflows:
         - build-and-push-base
         - build-and-push-rocksdb
         - test-cci-export
+    - build-and-push-stackrox-build:
+        context:
+          - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - build-and-push-centos8-rocksdb
     - build-and-push-env-check:
         context:
           - quay-rhacs-eng-readwrite
@@ -405,6 +462,7 @@ workflows:
             ignore: master
         requires:
         - build-and-push-rox
+        - build-and-push-stackrox-build
     - create-or-update-scanner-repo-pr:
         filters:
           branches:
