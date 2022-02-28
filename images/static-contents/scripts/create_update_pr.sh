@@ -7,9 +7,9 @@ usage() {
   exit 2
 }
 
-# This script opens or updates a new PR according to the following requirements:
-#   - The PR should be assigned to a person who triggered the CI flow
-#   - The PR should have labels applied (new lables will not be created, only existing applied)
+# This script updates existing or opens a new PR according to the following requirements:
+#   - This script will assign the PR to a person who triggered the CI flow
+#   - This script will apply labels to the PR (new lables will not be created, only existing applied)
 #
 # It is used in two typical scenarios:
 #   1. Open PR with lables and ensure that the first CI run for that PR respects the labels
