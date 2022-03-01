@@ -20,6 +20,7 @@ RUN set -ex \
  && apt-get install --no-install-recommends -y \
       build-essential \
       curl \
+      expect \
       lsof \
       openjdk-8-jdk-headless \
       unzip \
