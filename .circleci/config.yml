@@ -64,22 +64,6 @@ commands:
               fi
               popd
               tag="$(.circleci/get_tag.sh "$flavor")"
-              pushd "/tmp/<< parameters.repo >>"
-
-              git config user.email "roxbot@stackrox.com"
-              git config user.name "RoxBot"
-              branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
-              if git fetch --quiet origin "${branch_name}"; then
-                git checkout "${branch_name}"
-                git pull --quiet --set-upstream origin "${branch_name}"
-              else
-                git checkout -b "${branch_name}"
-                # The first commit is created to allow opening a PR and setting all required labels before we trigger the CI
-                git commit --allow-empty -am "Noop commit [ci skip]"
-                git push --set-upstream origin "${branch_name}"
-              fi
-
-              popd
 
               # Open or update a PR and configure labels, assignees - this must happen before pushing code changes to the branch
               .circleci/create_update_pr.sh \
