@@ -88,6 +88,8 @@ commands:
               if git diff-index --quiet HEAD; then
                 echo "There are no changes to commit in the dependent repo"
               else
+                echo "Current diff:"
+                git diff-index HEAD
                 git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
                 git push origin "${branch_name}"
               fi
