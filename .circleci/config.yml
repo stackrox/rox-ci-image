@@ -88,9 +88,10 @@ commands:
               if git diff-files --quiet; then
                 echo "There are no changes to commit in the dependent repo"
               else
-                echo "Current diff:"
-                git diff-files -p
-                git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
+                printf "Committing diff:\n%s\n---End of diff" "$(git diff-files -p)"
+                # It may happen that the diff is empty and we still land in this if-branch (not sure why),
+                # thus adding `--allow-empty` to not fail the commiting in such cases
+                git commit --allow-empty -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
                 git push origin "${branch_name}"
               fi
             done
