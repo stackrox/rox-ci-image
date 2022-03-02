@@ -85,11 +85,13 @@ commands:
                 git add BUILD_IMAGE_VERSION
               fi
 
+              # Refresh index to avoid errors like 'nothing to commit, working tree clean' when running 'git commit -am'
+              git update-index --refresh
               if git diff-index --quiet HEAD; then
                 echo "There are no changes to commit in the dependent repo"
               else
                 echo "Current diff:"
-                git diff-index HEAD
+                git diff-files -p
                 git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
                 git push origin "${branch_name}"
               fi
