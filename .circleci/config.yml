@@ -85,12 +85,11 @@ commands:
                 git add BUILD_IMAGE_VERSION
               fi
 
-              if git diff-index --quiet HEAD; then
+              if git diff-files --quiet; then
                 echo "There are no changes to commit in the dependent repo"
               else
                 echo "Current diff:"
                 git diff-files -p
-                git add --all
                 git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
                 git push origin "${branch_name}"
               fi
