@@ -14,6 +14,7 @@ export const SKIP_KEYS = [
     "HOME",
     "IMAGE",
     "INFLUXDB_USER",
+    "LANG",
     "LOGNAME",
     "MOTD_SHOWN",
     "NO_PROXY",
