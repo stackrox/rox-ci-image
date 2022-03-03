@@ -64,6 +64,15 @@ commands:
               fi
               popd
               tag="$(.circleci/get_tag.sh "$flavor")"
+
+              # Open or update a PR and configure labels, assignees - this must happen before pushing code changes to the branch
+              .circleci/create_update_pr.sh \
+                "${branch_name}" \
+                "<< parameters.repo >>" \
+                "Update apollo-ci image" \
+                "Bump version of apollo-ci image used in CircleCI" \
+                "ci-upgrade-tests"
+
               pushd "/tmp/<< parameters.repo >>"
 
               sed -r -i "s@(.*)/apollo-ci:${prefix}[0-9].*@\1/apollo-ci:${tag} ${todo}@g" .circleci/config.yml
@@ -73,25 +82,19 @@ commands:
 
               if [[ "$flavor" == "stackrox-build" ]] && [[ "<< parameters.repo >>" == "stackrox" ]]; then
                 echo "${tag} ${todo}" > BUILD_IMAGE_VERSION
+                git add BUILD_IMAGE_VERSION
               fi
 
-              if git diff-index --quiet HEAD; then
+              if git diff-files --quiet; then
                 echo "There are no changes to commit in the dependent repo"
               else
-                git commit -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
+                printf "Committing diff:\n%s\n---End of diff" "$(git diff-files -p)"
+                # It may happen that the diff is empty and we still land in this if-branch (not sure why),
+                # thus adding `--allow-empty` to not fail the commiting in such cases
+                git commit --allow-empty -am "Bump apollo-ci:$flavor image tag to ${tag##:}"
+                git push origin "${branch_name}"
               fi
             done
-
-            git push origin "${branch_name}"
-            popd
-
-            # Open or update a PR and configure labels, assignees
-            .circleci/create_update_pr.sh \
-              "${branch_name}" \
-              "<< parameters.repo >>" \
-              "Update apollo-ci image" \
-              "Bump version of apollo-ci image used in CircleCI" \
-              "ci-upgrade-tests"
 
   build-and-push-image:
     parameters:
