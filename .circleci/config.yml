@@ -7,11 +7,6 @@ version: 2.1
 orbs:
   bats: circleci/bats@1.0.0
 
-parameters:
-  base_ubuntu_tag:
-    type: string
-    default: "20.04"
-
 commands:
   open-test-pr:
     parameters:
@@ -59,9 +54,6 @@ commands:
             for flavor in "${flavors[@]}"; do
               echo "Doing image substitutions for $flavor"
               prefix="$flavor-"
-              if [[ "$flavor" == "rox" ]]; then
-                prefix=""
-              fi
               popd
               tag="$(.circleci/get_tag.sh "$flavor")"
 
@@ -104,6 +96,10 @@ commands:
       dockerfile-path:
         description: Path to the Dockerfile
         type: string
+      builds-on:
+        description: The image flavor to build upon. Passed to the dockerfile as BASE_ARG.
+        type: string
+        default: ""
     steps:
       - checkout
       - setup_remote_docker:
@@ -115,20 +111,21 @@ commands:
             docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-            BASE_TAG="$(.circleci/get_tag.sh base)"
-            BUILD_ARGS=(--build-arg "BASE_TAG=$BASE_TAG")
-            BUILD_ARGS+=(--build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>")
+            BUILD_ARGS=()
+            if [[ -n "<< parameters.builds-on >>" ]]; then
+              BASE_TAG="$(.circleci/get_tag.sh "<< parameters.builds-on >>")"
+              BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
+            fi
 
-            rocksdb_sha="$(git hash-object images/rocksdb.Dockerfile)"
-            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-${rocksdb_sha}")
+            CENTOS_TAG="$(cat CENTOS_TAG)"
+            BUILD_ARGS+=(--build-arg "CENTOS_TAG=${CENTOS_TAG}")
 
-            centos8_rocksdb_sha="$(git hash-object images/centos8-rocksdb.Dockerfile)"
-            BUILD_ARGS+=(--build-arg "CENTOS8_ROCKSDB_TAG=centos8-rocksdb-${centos8_rocksdb_sha}")
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(.circleci/get_tag.sh rocksdb "${CENTOS_TAG}")")
 
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>")"
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>" "${CENTOS_TAG}")"
             IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
-            if [[ "<< parameters.image-flavor >>" == "centos8-rocksdb" ]] && \
+            if [[ "<< parameters.image-flavor >>" == "rocksdb" ]] && \
                    DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
               echo "Image '$IMAGE' already exists - no need to build it"
               circleci step halt
@@ -163,55 +160,12 @@ commands:
             ./roxctl image check --endpoint "$STACKROX_CENTRAL_HOST:443" --image "quay.io/rhacs-eng/apollo-ci:${TAG}"
 
 jobs:
-  build-and-push-base:
-    <<: *defaults
-    steps:
-      - build-and-push-image:
-          dockerfile-path: images/base.Dockerfile
-          image-flavor: "base"
-
-  # We separate  building of rocksdb to save CI time (~15 minutes).
-  # See rocksdb.Dockerfile for more information.
   build-and-push-rocksdb:
     <<: *defaults
     steps:
-      - checkout
-      - setup_remote_docker:
-          version: 20.10.7
-      - run:
-          name: "Ensure that rocksdb container is up-to-date"
-          command: |
-            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
-            docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-
-            IMAGE="quay.io/rhacs-eng/apollo-ci:rocksdb-<< pipeline.parameters.base_ubuntu_tag >>-$(git hash-object images/rocksdb.Dockerfile)"
-            if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
-              echo "Image '$IMAGE' already exists - no need to build"
-            else
-              echo "Image '$IMAGE' not found - building and pushing it..."
-              docker build \
-                --build-arg "BASE_UBUNTU_TAG=<< pipeline.parameters.base_ubuntu_tag >>" \
-                -f images/rocksdb.Dockerfile \
-                -t "$IMAGE" \
-                images/
-              docker push "$IMAGE" | cat
-            fi
-
-  build-and-push-rox:
-    <<: *defaults
-    steps:
       - build-and-push-image:
-          dockerfile-path: images/rox.Dockerfile
-          image-flavor: "rox"
-      - check-image:
-          image-flavor: "rox"
-
-  build-and-push-centos8-rocksdb:
-    <<: *defaults
-    steps:
-      - build-and-push-image:
-          dockerfile-path: images/centos8-rocksdb.Dockerfile
-          image-flavor: "centos8-rocksdb"
+          dockerfile-path: images/rocksdb.Dockerfile
+          image-flavor: "rocksdb"
 
   build-and-push-stackrox-build:
     <<: *defaults
@@ -221,6 +175,26 @@ jobs:
           image-flavor: "stackrox-build"
       - check-image:
           image-flavor: "stackrox-build"
+
+  build-and-push-stackrox-test:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/stackrox-test.Dockerfile
+          image-flavor: "stackrox-test"
+          builds-on: "stackrox-build"
+      - check-image:
+          image-flavor: "stackrox-test"
+
+  build-and-push-stackrox-test-cci:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/circleci.Dockerfile
+          image-flavor: "stackrox-test-cci"
+          builds-on: "stackrox-test"
+      - check-image:
+          image-flavor: "stackrox-test-cci"
 
   test-cci-export:
     <<: *defaults
@@ -232,7 +206,7 @@ jobs:
         name: Test cci-export inside Docker
         command: |
           docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
-          BASE_TAG="$(.circleci/get_tag.sh base)"
+          BASE_TAG="$(.circleci/get_tag.sh stackrox-test-cci)"
 
           docker build \
             --build-arg BASE_TAG="$BASE_TAG" \
@@ -332,19 +306,22 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
-          image-flavors: "stackrox-build,rox"
+          image-flavors: "stackrox-build,stackrox-test-cci"
+
   create-or-update-scanner-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: scanner
-          image-flavors: "rox"
+          image-flavors: "stackrox-test-cci"
+
   create-or-update-collector-repo-pr:
     <<: *defaults
     steps:
       - open-test-pr:
           repo: collector
           image-flavors: "collector"
+
   create-or-update-jenkins-plugin-repo-pr:
     <<: *defaults
     steps:
@@ -362,61 +339,50 @@ workflows:
           tags:
             only: /.*/
     - build-and-push-rocksdb:
-        context:
+        context: &buildPushContext
           - quay-rhacs-eng-readwrite
           - docker-io-pull
         filters:
           tags:
             only: /.*/
-    - build-and-push-centos8-rocksdb:
-        context:
+        requires:
+        - bats/run
+    - build-and-push-stackrox-build:
+        context: &buildPushCheckContext
           - quay-rhacs-eng-readwrite
+          - stackrox-ci-instance
           - docker-io-pull
         filters:
           tags:
             only: /.*/
-    - build-and-push-base:
+        requires:
+        - build-and-push-rocksdb
+    - build-and-push-stackrox-test:
         context:
-          - quay-rhacs-eng-readwrite
-          - docker-io-pull
+          *buildPushCheckContext
         filters:
           tags:
             only: /.*/
+        requires:
+        - build-and-push-stackrox-build
+    - build-and-push-stackrox-test-cci:
+        context:
+          *buildPushCheckContext
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - build-and-push-stackrox-test
     - test-cci-export:
         context: quay-rhacs-eng-readonly
         filters:
           tags:
             only: /.*/
         requires:
-        - build-and-push-base
-        - bats/run
-    - build-and-push-rox:
-        context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-          - docker-io-pull
-        filters:
-          tags:
-            only: /.*/
-        requires:
-        - build-and-push-base
-        - build-and-push-rocksdb
-        - test-cci-export
-    - build-and-push-stackrox-build:
-        context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-          - docker-io-pull
-        filters:
-          tags:
-            only: /.*/
-        requires:
-        - build-and-push-centos8-rocksdb
+        - build-and-push-stackrox-test-cci
     - build-and-push-env-check:
         context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-          - docker-io-pull
+          *buildPushCheckContext
         filters:
           tags:
             only: /.*/
@@ -432,12 +398,10 @@ workflows:
           - quay-rhacs-eng-readwrite
         requires:
         - unit-test-env-check
-        - build-and-push-rox
+        - build-and-push-stackrox-test-cci
     - build-and-push-collector:
         context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-          - docker-io-pull
+          *buildPushCheckContext
         filters:
           tags:
             only: /.*/
@@ -445,9 +409,7 @@ workflows:
         - bats/run
     - build-and-push-jenkins-plugin:
         context:
-          - quay-rhacs-eng-readwrite
-          - stackrox-ci-instance
-          - docker-io-pull
+          *buildPushCheckContext
         filters:
           tags:
             only: /.*/
@@ -464,14 +426,14 @@ workflows:
           branches:
             ignore: master
         requires:
-        - build-and-push-rox
         - build-and-push-stackrox-build
+        - build-and-push-stackrox-test-cci
     - create-or-update-scanner-repo-pr:
         filters:
           branches:
             ignore: master
         requires:
-        - build-and-push-rox
+        - build-and-push-stackrox-test-cci
     - create-or-update-jenkins-plugin-repo-pr:
         filters:
           branches:

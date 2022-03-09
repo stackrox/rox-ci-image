@@ -33,17 +33,14 @@ affects_collector() {
 }
 
 affects_scanner() {
-  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]]
+  affects_stackrox "$*"
 }
 
 affects_stackrox() {
-  [[ " $* " =~ [[:space:]]images/rox.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/base.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/centos8-rocksdb.Dockerfile[[:space:]] ]] \
+  [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/stackrox-build.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/stackrox-test.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/circleci.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]]
 }
 

@@ -1,20 +1,36 @@
-ARG CENTOS8_ROCKSDB_TAG
-FROM quay.io/rhacs-eng/apollo-ci:${CENTOS8_ROCKSDB_TAG} as builder
+# Provides the tooling required to run StackRox dockerized build targets.
 
-FROM quay.io/centos/centos:stream8
+ARG CENTOS_TAG
+ARG ROCKSDB_TAG
+FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as builder
+
+FROM quay.io/centos/centos:${CENTOS_TAG} as base
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN yum update -y && \
-    yum install -y epel-release dnf-plugins-core && \
+    yum install -y \
+        dnf-plugins-core \
+        epel-release \
+        wget \
+        && \
     yum config-manager --set-enabled powertools && \
+    yum update -y && \
+    wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
+    wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
+    yum update -y && \
     yum -y groupinstall "Development Tools" && \
     yum install -y \
         bzip2-devel \
+        git-core \
         libzstd-devel \
         lz4-devel \
+        nodejs \
         snappy-devel \
-        wget \
+        yarn \
         zlib-devel \
         && \
+    yum upgrade -y && \
     yum clean all && \
     rm -rf /var/cache/yum
 
@@ -30,13 +46,6 @@ RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
     chmod -R 777 "$GOPATH"
 
-RUN wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
-    wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
-    yum update -y && \
-    yum install -y nodejs yarn && \
-    yum clean all && \
-    rm -rf /var/cache/yum
-
 COPY --from=builder /tmp/rocksdb/librocksdb.a /lib/rocksdb/librocksdb.a
 COPY --from=builder /tmp/rocksdb/include /lib/rocksdb/include
 COPY --from=builder /tmp/rocksdb/ldb /usr/local/bin/ldb
@@ -44,6 +53,5 @@ COPY --from=builder /tmp/rocksdb/ldb /usr/local/bin/ldb
 ENV CGO_CFLAGS="-I/lib/rocksdb/include"
 ENV CGO_LDFLAGS="-L/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
 ENV CGO_ENABLED=1
-ENV GOCACHE="/linux-gocache"
 
 WORKDIR /go/src/github.com/stackrox/rox

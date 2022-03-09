@@ -1,7 +1,6 @@
 ARG BASE_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG}
 
-USER circleci
 WORKDIR /home/circleci/test
 COPY --chown=circleci:circleci test/ .
 ENV CI=true
