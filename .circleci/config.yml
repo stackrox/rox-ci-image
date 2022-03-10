@@ -134,6 +134,7 @@ commands:
 
             docker build \
               "${BUILD_ARGS[@]}" \
+              -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
               -f << parameters.dockerfile-path >> \
               -t "${IMAGE}" \
               images/
