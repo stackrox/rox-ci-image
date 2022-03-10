@@ -20,6 +20,12 @@ RUN set -ex \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
 
+# Create a temporary bin directory for software installed at runtime
+RUN mkdir /tmp/scratch_bin && \
+    chmod 0777 /tmp/scratch_bin
+ENV SCRATCH_BIN /tmp/scratch_bin
+ENV PATH /tmp/scratch_bin:$PATH
+
 # Install all the packages
 RUN yum update -y && \
     yum install -y \

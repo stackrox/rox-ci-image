@@ -111,7 +111,7 @@ commands:
             docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-            BUILD_ARGS=()
+            BUILD_ARGS=(--build-arg GITHUB_TOKEN="${GITHUB_TOKEN}")
             if [[ -n "<< parameters.builds-on >>" ]]; then
               BASE_TAG="$(.circleci/get_tag.sh "<< parameters.builds-on >>")"
               BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
