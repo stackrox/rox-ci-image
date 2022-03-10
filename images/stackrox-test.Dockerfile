@@ -19,9 +19,16 @@ RUN set -ex \
   && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
+
 # Circle CI will override this to pass an environment for bash. Other
 # environments need this as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
+
+# Create a temporary bin directory for software installed at runtime
+RUN mkdir /tmp/scratch_bin && \
+    chmod 0777 /tmp/scratch_bin
+ENV SCRATCH_BIN /tmp/scratch_bin
+ENV PATH /tmp/scratch_bin:$PATH
 
 # Install all the packages
 RUN yum update -y && \
