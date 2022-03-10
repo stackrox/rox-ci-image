@@ -50,7 +50,7 @@ ARG FETCH_VERSION=0.3.5
 ARG FETCH_SHA256=8d4d99e903b30dbd24290e9a056a982ea2326a05ded24c63be64df16e7e0d9f0
 RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
     echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
-    install fetch_linux_amd64 /usr/bin
+    install fetch /usr/bin
 
 ARG OSSLS_VERSION=0.10.1
 ARG OSSLS_SHA256=afdec2fa63b27ced4aeb3297399d45b0f06861e6ebc8cb2431b9653b7f113320 && \
