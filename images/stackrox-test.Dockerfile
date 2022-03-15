@@ -34,7 +34,7 @@ RUN yum update -y && \
         jq \
         kubectl \
         lsof \
-        postgresql \
+        postgresql:12 \
         unzip \
         xz \
         zip \
