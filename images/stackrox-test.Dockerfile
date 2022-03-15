@@ -44,6 +44,8 @@ RUN yum update -y && \
     yum clean all && \
     rm -rf /var/cache/yum
 
+RUN echo "hi"
+
 # Install bats
 RUN set -ex \
   && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
