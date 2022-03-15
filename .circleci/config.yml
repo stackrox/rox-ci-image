@@ -13,6 +13,9 @@ commands:
       repo:
         description: Name of the repo where the PR should be opened.
         type: string
+      labels:
+        description: Space separated list of PR labels to add.
+        type: string
       image-flavors:
         description: The flavors of the apollo-ci image that the target repo uses. A comma separated list.
         type: string
@@ -63,7 +66,7 @@ commands:
                 "<< parameters.repo >>" \
                 "Update apollo-ci image" \
                 "Bump version of apollo-ci image used in CircleCI" \
-                "ci-upgrade-tests"
+                "<< parameters.labels >>"
 
               pushd "/tmp/<< parameters.repo >>"
 
@@ -306,6 +309,7 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
+          labels: "ci-upgrade-tests"
           image-flavors: "stackrox-build,stackrox-test-cci"
 
   create-or-update-scanner-repo-pr:
@@ -313,6 +317,7 @@ jobs:
     steps:
       - open-test-pr:
           repo: scanner
+          labels: "generate-dumps-on-pr"
           image-flavors: "stackrox-test-cci"
 
   create-or-update-collector-repo-pr:
