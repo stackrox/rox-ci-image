@@ -34,7 +34,6 @@ RUN yum update -y && \
         jq \
         kubectl \
         lsof \
-        postgresql:12 \
         unzip \
         xz \
         zip \
@@ -43,6 +42,9 @@ RUN yum update -y && \
         && \
     yum clean all && \
     rm -rf /var/cache/yum
+
+# Install postgresql
+RUN yum module install -y postgresql:12
 
 # Install bats
 RUN set -ex \
