@@ -16,6 +16,7 @@ commands:
       labels:
         description: Space separated list of PR labels to add.
         type: string
+        default: ""
       image-flavors:
         description: The flavors of the apollo-ci image that the target repo uses. A comma separated list.
         type: string
