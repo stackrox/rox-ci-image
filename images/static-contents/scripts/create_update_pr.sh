@@ -15,7 +15,7 @@ usage() {
 #   1. Open PR with labels and ensure that the first CI run for that PR respects the labels
 #   2. Open PR without labels (or with labels but do not care about CI picking them)
 #
-# Scenario 1 (PR with CI-releavnt labels) requires to follow the following procedure:
+# Scenario 1 (PR with CI-relevant labels) requires to follow the following procedure:
 #    A. If the PR does not exist yet, we do the following:
 #      - (Before): push empty commit (optionally with [ci skip] in the message) to the branch:
 #                  'git commit -am --allow-empty "Commit message [ci skip]" && git push origin'
