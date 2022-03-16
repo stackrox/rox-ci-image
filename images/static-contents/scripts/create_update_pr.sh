@@ -71,7 +71,7 @@ main() {
   echo "Assigning PR to: '${CIRCLE_USERNAME}'"
   set_assignee "$repo_name" "$pr_number" "$CIRCLE_USERNAME"
 
-  [[ "${#labels}" -gt 0 ]] || return 0
+  [[ "${#labels[@]}" -gt 0 ]] || return 0 # no labels to set
   local labels_to_add=()
   for label in "${labels[@]}"; do
     if array_contains "$label" "${known_labels[@]}"; then
