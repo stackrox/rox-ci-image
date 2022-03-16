@@ -74,7 +74,7 @@ main() {
   [[ "${#labels[@]}" -gt 0 ]] || return 0 # no labels to set
   local labels_to_add=()
   for label in "${labels[@]}"; do
-    if array_contains "$label" "${known_labels[@]}"; then
+    if [[ -n "$label" ]] && array_contains "$label" "${known_labels[@]}"; then
       labels_to_add+=( "$label" )
     else
       echo "Skipping label '$label'"
