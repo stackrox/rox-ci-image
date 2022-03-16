@@ -29,7 +29,8 @@ affects_all() {
 }
 
 affects_collector() {
-  [[ " $* " =~ [[:space:]]images/collector.Dockerfile[[:space:]] ]]
+  [[ " $* " =~ [[:space:]]images/collector.Dockerfile[[:space:]] ]] \
+  || [[ " $* " =~ [[:space:]]images/static-contents/scripts/create_update_pr.sh[[:space:]] ]]
 }
 
 affects_scanner() {
@@ -41,7 +42,8 @@ affects_stackrox() {
     || [[ " $* " =~ [[:space:]]images/stackrox-build.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/stackrox-test.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/circleci.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]]
+    || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/static-contents/scripts/create_update_pr.sh[[:space:]] ]]
 }
 
 affects_jenkins-plugin() {
