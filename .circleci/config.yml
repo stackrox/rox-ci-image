@@ -114,6 +114,7 @@ commands:
             # Login may be required for pulling the base image for building (if used) and to omit the rate limit
             docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+            docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
 
             BUILD_ARGS=(--build-arg GITHUB_TOKEN="${GITHUB_TOKEN}")
             if [[ -n "<< parameters.builds-on >>" ]]; then
@@ -145,6 +146,12 @@ commands:
             for i in {1..5}; do
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
+
+            if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
+              for i in {1..5}; do
+                docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
+              done
+            fi
 
   check-image:
     parameters:
@@ -356,6 +363,7 @@ workflows:
     - build-and-push-stackrox-build:
         context: &buildPushCheckContext
           - quay-rhacs-eng-readwrite
+          - quay-stackrox-io-readwrite
           - stackrox-ci-instance
           - docker-io-pull
         filters:
