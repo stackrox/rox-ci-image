@@ -162,7 +162,7 @@ commands:
       - run:
           name: Get roxctl
           command: |
-            curl -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
+            curl --retry 3 -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
             chmod +x ./roxctl
       - run:
           name: Scan images for policy deviations and vulnerabilities
