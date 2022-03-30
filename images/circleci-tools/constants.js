@@ -22,6 +22,7 @@ export const SKIP_KEYS = [
     "SHELL",
     "SKIP_KEYS",
     "SKIP_KEYS_RE",
+    "SUDO_USER",
     "TAG",
     "USER",
 ];

@@ -146,6 +146,13 @@ commands:
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
 
+            if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
+              for i in {1..5}; do
+                docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+                docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
+              done
+            fi
+
   check-image:
     parameters:
       image-flavor:
@@ -155,7 +162,7 @@ commands:
       - run:
           name: Get roxctl
           command: |
-            curl -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
+            curl --retry 3 -k -H "Authorization: Bearer $ROX_API_TOKEN" https://$STACKROX_CENTRAL_HOST:443/api/cli/download/roxctl-linux -o roxctl
             chmod +x ./roxctl
       - run:
           name: Scan images for policy deviations and vulnerabilities
@@ -356,6 +363,7 @@ workflows:
     - build-and-push-stackrox-build:
         context: &buildPushCheckContext
           - quay-rhacs-eng-readwrite
+          - quay-stackrox-io-readwrite
           - stackrox-ci-instance
           - docker-io-pull
         filters:
