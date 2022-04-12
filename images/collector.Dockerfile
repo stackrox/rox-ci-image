@@ -9,7 +9,15 @@ RUN apt-get update && \
     cmake \
     python3-distutils \
     clang-format \
-    patch
+    patch && \
+# Install additional formatters/linters
+    go install mvdan.cc/sh/v3/cmd/shfmt@v3.4.1 && \
+    wget -qO- "https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz" | tar -xJv && \
+    cp "shellcheck-stable/shellcheck" /usr/bin/ && \
+# Install hub-comment
+    wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 && \
+    install hub-comment_linux_amd64 /usr/bin/hub-comment
+
 
 ENV ROX_CI_IMAGE=collector-ci-image
 
