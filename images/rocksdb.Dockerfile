@@ -19,7 +19,7 @@ RUN yum update -y && \
     rm -rf /var/cache/yum
 
 # This compiles RocksDB without BMI and AVX2 instructions
-ENV PORTABLE=1
+ENV PORTABLE=1 CXXFLAGS="-fPIC"
 
 ARG ROCKSDB_VERSION="v6.7.3"
 RUN mkdir -p /build && \
