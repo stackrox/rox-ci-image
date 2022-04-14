@@ -142,16 +142,26 @@ commands:
               -t "${IMAGE}" \
               images/
 
+            outcome=0
+
             for i in {1..5}; do
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
+              if [[ "$i" == "5" ]]; then
+                  outcome=1
+              fi
             done
 
             if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
               for i in {1..5}; do
                 docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
                 docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
+                if [[ "$i" == "5" ]]; then
+                    outcome=1
+                fi
               done
             fi
+
+            exit "${outcome}"
 
   check-image:
     parameters:
