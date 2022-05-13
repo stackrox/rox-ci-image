@@ -303,6 +303,15 @@ jobs:
       - check-image:
           image-flavor: "collector"
 
+  build-and-push-scanner-build:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/scanner-build.Dockerfile
+          image-flavor: "scanner-build"
+      - check-image:
+          image-flavor: "scanner-build"
+
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
@@ -421,6 +430,15 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+    - build-and-push-scanner-build:
+        context: &buildPushCheckContext
+          - quay-rhacs-eng-readwrite
+          - quay-stackrox-io-readwrite
+          - stackrox-ci-instance
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
     - build-and-push-jenkins-plugin:
         context:
           *buildPushCheckContext
