@@ -467,6 +467,7 @@ workflows:
           branches:
             ignore: master
         requires:
+        - build-and-push-scanner-build
         - build-and-push-stackrox-test-cci
     - create-or-update-jenkins-plugin-repo-pr:
         filters:
