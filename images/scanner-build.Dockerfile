@@ -6,7 +6,7 @@ FROM quay.io/centos/centos:${CENTOS_TAG}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf update -y && \
-    dnf install -y dnf-plugins-core epel-release && \
+    dnf install -y dnf-plugins-core epel-release wget && \
     dnf -y groupinstall "Development Tools" && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
