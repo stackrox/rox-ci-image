@@ -146,7 +146,7 @@ commands:
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
 
-            if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
+            if [[ "<< parameters.image-flavor >>" == "stackrox-build" || "<< parameters.image-flavor >>" == "scanner-build" ]]; then
               for i in {1..5}; do
                 docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
                 docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
