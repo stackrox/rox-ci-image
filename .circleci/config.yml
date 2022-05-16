@@ -76,8 +76,8 @@ commands:
               # If the image parameter was originally quoted, we need to close the quote
               sed -r -i "s@\"(.*)/apollo-ci:${tag} # TODO@\"\1/apollo-ci:${tag}\" # TODO@g" .circleci/config.yml
 
-              if [[ "$flavor" == "stackrox-build" ]] && [[ "<< parameters.repo >>" == "stackrox" ||
-                    "$flavor" == "scanner-build" ]] && [[ "<< parameters.repo >>" == "scanner" ]]; then
+              if [[ ("$flavor" == "stackrox-build" && "<< parameters.repo >>" == "stackrox") ||
+                    ("$flavor" == "scanner-build" && "<< parameters.repo >>" == "scanner") ]]; then
                 echo "${tag} ${todo}" > BUILD_IMAGE_VERSION
                 git add BUILD_IMAGE_VERSION
               fi
