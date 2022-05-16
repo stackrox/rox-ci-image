@@ -76,7 +76,8 @@ commands:
               # If the image parameter was originally quoted, we need to close the quote
               sed -r -i "s@\"(.*)/apollo-ci:${tag} # TODO@\"\1/apollo-ci:${tag}\" # TODO@g" .circleci/config.yml
 
-              if [[ "$flavor" == "stackrox-build" ]] && [[ "<< parameters.repo >>" == "stackrox" ]]; then
+              if [[ ("$flavor" == "stackrox-build" && "<< parameters.repo >>" == "stackrox") ||
+                    ("$flavor" == "scanner-build" && "<< parameters.repo >>" == "scanner") ]]; then
                 echo "${tag} ${todo}" > BUILD_IMAGE_VERSION
                 git add BUILD_IMAGE_VERSION
               fi
@@ -146,9 +147,10 @@ commands:
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
 
-            if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
+            if [[ "<< parameters.image-flavor >>" == "stackrox-build" || "<< parameters.image-flavor >>" == "scanner-build" ]]; then
               for i in {1..5}; do
                 docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+                docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
                 docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
               done
             fi
@@ -303,6 +305,15 @@ jobs:
       - check-image:
           image-flavor: "collector"
 
+  build-and-push-scanner-build:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/scanner-build.Dockerfile
+          image-flavor: "scanner-build"
+      - check-image:
+          image-flavor: "scanner-build"
+
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
@@ -421,6 +432,15 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+    - build-and-push-scanner-build:
+        context: &buildPushCheckContext
+          - quay-rhacs-eng-readwrite
+          - quay-stackrox-io-readwrite
+          - stackrox-ci-instance
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
     - build-and-push-jenkins-plugin:
         context:
           *buildPushCheckContext
@@ -447,6 +467,7 @@ workflows:
           branches:
             ignore: master
         requires:
+        - build-and-push-scanner-build
         - build-and-push-stackrox-test-cci
     - create-or-update-jenkins-plugin-repo-pr:
         filters:
