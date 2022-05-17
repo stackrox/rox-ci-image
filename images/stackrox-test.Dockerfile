@@ -47,7 +47,7 @@ RUN yum update -y && \
 
 # Install bats
 RUN set -ex \
-  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit@5.0.1 \
+  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
   && bats -v
 
 # Install docker binary
