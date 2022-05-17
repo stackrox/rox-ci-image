@@ -103,11 +103,6 @@ RUN set -ex \
  && rm -rf aws \
  && aws --version
 
-# Install anchore cli
-RUN set -ex \
- && pip3 install anchorecli==0.9.3 \
- && LC_ALL=C.UTF-8 anchore-cli --version
-
 # Install yq v4.16.2
 RUN set -ex \
   && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
