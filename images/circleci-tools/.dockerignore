@@ -1,7 +1,0 @@
-circleci-tools/.vscode
-circleci-tools/node_modules
-circleci-tools/test
-circleci-tools/.editorconfig
-circleci-tools/.env
-circleci-tools/.eslintrc.json
-circleci-tools/.gitignore
