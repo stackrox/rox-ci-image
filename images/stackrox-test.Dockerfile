@@ -83,7 +83,7 @@ RUN set -ex \
  && command -v helm
 
 # Install gradle
-ARG GRADLE_VERSION=7.4.2
+ARG GRADLE_VERSION=7.3.3
 ENV PATH=$PATH:/opt/gradle/bin
 RUN set -ex \
  && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
