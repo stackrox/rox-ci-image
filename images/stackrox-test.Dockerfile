@@ -34,6 +34,7 @@ RUN yum update -y && \
         jq \
         kubectl \
         lsof \
+        openssl \
         @postgresql:12 \
         procps \
         unzip \
