@@ -4,7 +4,6 @@ export const V2_API_BASE = "https://circleci.com/api/v2";
 
 export const SKIP_KEYS = [
     "rvm_prefix",
-    "ANCHORE_USERNAME",
     "CI",
     "CIRCLECI",
     "DBUS_SESSION_BUS_ADDRESS",
