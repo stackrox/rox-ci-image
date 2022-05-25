@@ -35,6 +35,7 @@ RUN yum update -y && \
         kubectl \
         lsof \
         openssl \
+        @postgresql:12 \
         procps \
         unzip \
         xz \
@@ -87,7 +88,7 @@ RUN set -ex \
 
 # Install gradle
 ARG GRADLE_VERSION=7.3.3
-ENV PATH=$PATH:/opt/gradle/bin:/usr/pgsql-14/bin
+ENV PATH=$PATH:/opt/gradle/bin
 RUN set -ex \
  && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
  && mkdir /opt/gradle \
