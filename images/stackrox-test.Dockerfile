@@ -35,14 +35,16 @@ RUN yum update -y && \
         kubectl \
         lsof \
         openssl \
-        @postgresql:12 \
         procps \
         unzip \
         xz \
         zip \
+        lz4 \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
         xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
+    yum --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
+    yum --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 && \
     yum clean all && \
     rm -rf /var/cache/yum
 
@@ -85,7 +87,7 @@ RUN set -ex \
 
 # Install gradle
 ARG GRADLE_VERSION=7.3.3
-ENV PATH=$PATH:/opt/gradle/bin
+ENV PATH=$PATH:/opt/gradle/bin:/usr/pgsql-14/bin
 RUN set -ex \
  && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
  && mkdir /opt/gradle \
