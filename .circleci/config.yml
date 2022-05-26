@@ -141,7 +141,7 @@ commands:
             fi
             TRY_SSE42="-msse4.2"
             TRY_PCLMUL="-mpclmul"
-            if [[ "<< parameters.portable-build >>" == "true ]]; then
+            if [[ "<< parameters.portable-build >>" == "true" ]]; then
               TRY_SSE42=""
               TRY_PCL_MUL=""
               TAG="${TAG}-portable"
