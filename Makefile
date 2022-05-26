@@ -15,6 +15,19 @@ rocksdb-image:
 	    -t stackrox/apollo-ci:$(ROCKSDB_TAG) \
 	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG) \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg TRY_SSE42="-msse4.2" \
+		--build-arg TRY_PCLMUL="-mpclmul" \
+		-f images/rocksdb.Dockerfile \
+		images/
+
+.PHONY: rocksdb-image-m1
+rocksdb-image-m1:
+	$(DOCKER) build \
+	    -t stackrox/apollo-ci:$(ROCKSDB_TAG)-m1 \
+	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG)-m1 \
+		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg TRY_SSE42="" \
+        --build-arg TRY_PCLMUL="" \
 		-f images/rocksdb.Dockerfile \
 		images/
 
@@ -26,6 +39,16 @@ stackrox-build-image:
 	    -t stackrox/apollo-ci:$(STACKROX_BUILD_TAG) \
 	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
+		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		-f images/stackrox-build.Dockerfile \
+		images/
+
+.PHONY: stackrox-build-image-m1
+stackrox-build-image-m1:
+	$(DOCKER) build \
+	    -t stackrox/apollo-ci:$(STACKROX_BUILD_TAG)-m1 \
+	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG)-m1 \
+		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG)-m1 \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
 		-f images/stackrox-build.Dockerfile \
 		images/

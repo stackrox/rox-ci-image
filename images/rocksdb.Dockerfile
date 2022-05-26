@@ -1,4 +1,6 @@
 ARG CENTOS_TAG
+ARG TRY_SSE42
+ARG TRY_PCLMUL
 FROM quay.io/centos/centos:${CENTOS_TAG}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -19,7 +21,7 @@ RUN yum update -y && \
     rm -rf /var/cache/yum
 
 # This compiles RocksDB without BMI and AVX2 instructions
-ENV PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
+ENV PORTABLE=1 CXXFLAGS="-fPIC" TRY_SSE_ETC=0 TRY_SSE42="${TRY_SSE42}" TRY_PCLMUL="${TRY_PCLMUL}"
 
 ARG ROCKSDB_VERSION="v6.7.3"
 RUN mkdir -p /build && \

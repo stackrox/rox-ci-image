@@ -104,6 +104,10 @@ commands:
         description: The image flavor to build upon. Passed to the dockerfile as BASE_ARG.
         type: string
         default: ""
+      m1-build:
+        description: Specifies that the build is for M1 Macs
+        type: boolean
+        default: false
     steps:
       - checkout
       - setup_remote_docker:
@@ -134,6 +138,16 @@ commands:
               echo "Image '$IMAGE' already exists - no need to build it"
               circleci step halt
               exit 0
+            else
+              TRY_SSE42="-msse4.2"
+              TRY_PCLMUL="-mpclmul"
+              if [[ "<< parameters.m1-build >>" == "true ]]; then
+                TRY_SSE42=""
+                TRY_PCL_MUL=""
+                TAG="${TAG}-m1"
+              fi
+              BUILD_ARGS+=(--build-arg "TRY_SSE42=${TRY_SSE42}")
+              BUILD_ARGS+=(--build-arg "TRY_PCL_MUL=${TRY_PCL_MUL})
             fi
 
             docker build \
@@ -143,7 +157,7 @@ commands:
               images/
 
             for i in {1..5}; do
-              docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
+              docker push "${IMAGE}" && break || sleep 15
             done
 
             if [[ "<< parameters.image-flavor >>" == "stackrox-build" ]]; then
@@ -177,6 +191,14 @@ jobs:
       - build-and-push-image:
           dockerfile-path: images/rocksdb.Dockerfile
           image-flavor: "rocksdb"
+
+  build-and-push-rocksdb-m1:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/rocksdb.Dockerfile
+          image-flavor: "rocksdb"
+          m1-build: true
 
   build-and-push-stackrox-build:
     <<: *defaults
@@ -360,6 +382,15 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+    - build-and-push-rocksdb-m1:
+        context: &buildPushContext
+          - quay-rhacs-eng-readwrite
+          - docker-io-pull
+        filters:
+          tags:
+            only: /.*/
+        requires:
+          - bats/run
     - build-and-push-stackrox-build:
         context: &buildPushCheckContext
           - quay-rhacs-eng-readwrite
