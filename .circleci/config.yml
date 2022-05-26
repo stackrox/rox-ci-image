@@ -147,7 +147,7 @@ commands:
               TAG="${TAG}-portable"
             fi
             BUILD_ARGS+=(--build-arg "TRY_SSE42=${TRY_SSE42}")
-            BUILD_ARGS+=(--build-arg "TRY_PCL_MUL=${TRY_PCL_MUL})
+            BUILD_ARGS+=(--build-arg "TRY_PCL_MUL=${TRY_PCL_MUL}")
 
             docker build \
               "${BUILD_ARGS[@]}" \
