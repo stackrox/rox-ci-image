@@ -23,6 +23,9 @@ RUN set -ex \
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
 
+# Install Postgres repo
+RUN yum --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
 # Install all the packages
 RUN yum update -y && \
     yum install -y \
@@ -34,8 +37,8 @@ RUN yum update -y && \
         jq \
         kubectl \
         lsof \
+        lz4 \
         openssl \
-        @postgresql:12 \
         procps \
         unzip \
         xz \
@@ -43,6 +46,8 @@ RUN yum update -y && \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
         xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
+    yum --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
+    yum install -y @postgresql:12 && \
     yum clean all && \
     rm -rf /var/cache/yum
 
