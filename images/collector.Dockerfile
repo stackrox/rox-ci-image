@@ -27,8 +27,8 @@ RUN yum update -y && \
 # Symlink python to python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-ARG GOLANG_VERSION=1.16.16
-ARG GOLANG_SHA256=f242a9db6a0ad1846de7b6d94d507915d14062660616a61ef7c808a76e4f1676
+ARG GOLANG_VERSION=1.16.15
+ARG GOLANG_SHA256=77c782a633186d78c384f972fb113a43c24be0234c42fef22c2d8c4c4c8e7475
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
