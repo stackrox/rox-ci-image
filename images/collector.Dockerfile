@@ -17,6 +17,7 @@ RUN yum update -y && \
         clang-tools-extra \
         cmake \
         google-cloud-sdk \
+        jq \
         python3 \
         wget \
         && \
