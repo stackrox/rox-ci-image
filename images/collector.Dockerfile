@@ -2,6 +2,13 @@ FROM quay.io/centos/centos:stream8
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+### cci-export support (and google-cloud-sdk repo)
+
+RUN set -ex \
+  && find /static-tmp -type f -print0 | \
+    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
+  && rm -r /static-tmp
+
 RUN yum update -y && \
     yum install -y epel-release dnf-plugins-core && \
     yum config-manager --set-enabled powertools && \
@@ -40,19 +47,6 @@ RUN \
 # Install hub-comment
     wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 && \
     install hub-comment_linux_amd64 /usr/bin/hub-comment
-
-### cci_export support (and more)
-
-# We are copying the contents in static-contents into / in the image, following the directory structure.
-# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
-# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
-# the contents of static-contents/bin, which is NOT what we want.
-# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
-COPY ./static-contents/ /static-tmp
-RUN set -ex \
-  && find /static-tmp -type f -print0 | \
-    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
-  && rm -r /static-tmp
 
 ### Circle CI support
 
