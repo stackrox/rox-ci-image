@@ -3,7 +3,7 @@ FROM quay.io/centos/centos:stream8
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ### cci-export support (and google-cloud-sdk repo)
-
+COPY ./static-contents/ /static-tmp
 RUN set -ex \
   && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
