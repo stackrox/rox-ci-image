@@ -50,6 +50,8 @@ RUN \
 
 ### Circle CI support
 
+ENV GOCACHE="/linux-gocache"
+
 RUN set -ex && \
     yum update -y && \
     yum install -y \
