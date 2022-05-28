@@ -66,10 +66,11 @@ RUN set -ex && \
     mkdir -p "$GOCACHE" && \
     chown -R circleci:circleci "$GOCACHE"
 
-USER circleci
-
 ENV ROX_CI_IMAGE=collector-ci-image
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
+
+USER circleci
+
