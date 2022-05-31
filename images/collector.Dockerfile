@@ -18,7 +18,7 @@ RUN yum update -y && \
         cmake \
         google-cloud-sdk \
         jq \
-        python3 \
+        python38 \
         wget \
         && \
     yum upgrade -y && \
