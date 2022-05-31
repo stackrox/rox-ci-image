@@ -18,7 +18,7 @@ RUN yum update -y && \
         cmake \
         google-cloud-sdk \
         jq \
-        python38 \
+        python3 \
         wget \
         && \
     yum upgrade -y && \
@@ -48,6 +48,9 @@ RUN \
 # Install hub-comment
     wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 && \
     install hub-comment_linux_amd64 /usr/bin/hub-comment
+
+# Extra python dependencies for test-scripts
+RUN pip3 -q install --upgrade scipy google-cloud-storage==2.2.1
 
 ### Circle CI support
 
