@@ -62,3 +62,9 @@ test-cci-export:
 	$(DOCKER) run \
 		-it \
 		test-cci-export
+
+.PHONY: collector-test-image
+collector-test-image:
+	$(DOCKER) build \
+		-f images/collector.Dockerfile \
+		images/
