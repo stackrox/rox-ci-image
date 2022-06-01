@@ -116,6 +116,13 @@ RUN set -ex \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
+# Install hub-comment
+RUN set -ex \
+  && wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
+  && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
+  && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
+  && chmod +x /usr/bin/hub-comment
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
