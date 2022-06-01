@@ -266,7 +266,7 @@ jobs:
       - open-test-pr:
           repo: stackrox
           labels: "ci-upgrade-tests"
-          image-flavors: "stackrox-build,stackrox-test-cci"
+          image-flavors: "stackrox-build,stackrox-test-cci,stackrox-test"
 
   create-or-update-scanner-repo-pr:
     <<: *defaults
