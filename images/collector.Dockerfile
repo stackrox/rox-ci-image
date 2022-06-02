@@ -33,6 +33,9 @@ RUN yum update -y && \
 # Symlink python to python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# Install pip
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
+
 ARG GOLANG_VERSION=1.16.15
 ARG GOLANG_SHA256=77c782a633186d78c384f972fb113a43c24be0234c42fef22c2d8c4c4c8e7475
 ENV GOPATH /go
