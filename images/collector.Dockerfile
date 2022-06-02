@@ -12,6 +12,7 @@ RUN set -ex \
 RUN yum update -y && \
     yum install -y epel-release dnf-plugins-core && \
     yum config-manager --set-enabled powertools && \
+    yum config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
     yum -y groupinstall "Development Tools" && \
     yum install -y \
         clang-tools-extra \
@@ -20,6 +21,10 @@ RUN yum update -y && \
         jq \
         python38 \
         wget \
+        docker-ce \
+        docker-ce-cli \
+        docker-ce-rootless-extras \
+        docker-scan-plugin \
         && \
     yum upgrade -y && \
     yum clean all && \
@@ -77,4 +82,3 @@ RUN \
 	mv /bin/bash-wrapper /bin/bash
 
 USER circleci
-
