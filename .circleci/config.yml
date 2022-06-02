@@ -82,6 +82,11 @@ commands:
                 git add BUILD_IMAGE_VERSION
               fi
 
+              if [[ "$flavor" == "stackrox-test" && "<< parameters.repo >>" == "stackrox" ]]; then
+                sed -r -i "s@(.*)/apollo-ci:${prefix}[0-9].*@\1/apollo-ci:${tag}@g" .openshift-ci/Dockerfile.build_root
+                git add .openshift-ci/Dockerfile.build_root
+              fi
+
               if git diff-files --quiet; then
                 echo "There are no changes to commit in the dependent repo"
               else
@@ -261,7 +266,7 @@ jobs:
       - open-test-pr:
           repo: stackrox
           labels: "ci-upgrade-tests"
-          image-flavors: "stackrox-build,stackrox-test-cci"
+          image-flavors: "stackrox-build,stackrox-test-cci,stackrox-test"
 
   create-or-update-scanner-repo-pr:
     <<: *defaults

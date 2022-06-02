@@ -7,7 +7,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV GOCACHE="/linux-gocache"
 
-# Circle CI manages its own BASH_ENV.
+# Circle CI manages its own BASH_ENV
 ENV BASH_ENV=
 
 RUN set -ex && \
