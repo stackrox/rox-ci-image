@@ -26,6 +26,7 @@ RUN yum update -y && \
         libzstd-devel \
         lz4-devel \
         nodejs \
+        procps-ng \
         snappy-devel \
         yarn \
         zlib-devel \

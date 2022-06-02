@@ -19,6 +19,7 @@ RUN yum update -y && \
         cmake \
         google-cloud-sdk \
         jq \
+        procps-ng \
         python38 \
         wget \
         docker-ce \

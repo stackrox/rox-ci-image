@@ -39,7 +39,6 @@ RUN yum update -y && \
         lsof \
         lz4 \
         openssl \
-        procps \
         unzip \
         xz \
         zip \
