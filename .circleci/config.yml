@@ -148,11 +148,11 @@ commands:
               -t "${IMAGE}" \
               images/
 
-            for i in {1..5}; do
+            for _ in {1..5}; do
               docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
             done
 
-            for i in {1..5}; do
+            for _ in {1..5}; do
               docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
               docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
               docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break || sleep 15
