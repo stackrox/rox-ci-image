@@ -83,7 +83,7 @@ commands:
               fi
 
               if [[ "$flavor" == "stackrox-test" && "<< parameters.repo >>" == "stackrox" ]]; then
-                sed -r -i "s@(.*)/apollo-ci:${prefix}[0-9].*@\1/apollo-ci:${tag}@g" .openshift-ci/Dockerfile.build_root
+                sed -r -i "s@(.*)/apollo-ci:${prefix}[0-9].*@\1/apollo-ci:${tag} ${todo}@g" .openshift-ci/Dockerfile.build_root
                 git add .openshift-ci/Dockerfile.build_root
               fi
 
