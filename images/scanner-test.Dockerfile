@@ -35,6 +35,7 @@ RUN dnf update -y && \
         lz4 \
         openssl \
         @postgresql:12 \
+        python3 \
         unzip \
         xz \
         zip \
@@ -54,9 +55,6 @@ RUN set -ex \
  && rm -rf /tmp/docker /tmp/docker.tgz \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
-
- # Symlink python to python3
- RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # helm
 RUN set -ex \
