@@ -259,15 +259,15 @@ jobs:
       - check-image:
           image-flavor: "scanner-test"
 
-    build-and-push-scanner-test-cci:
-      <<: *defaults
-      steps:
-        - build-and-push-image:
-            dockerfile-path: images/circleci.Dockerfile
-            image-flavor: "scanner-test-cci"
-            builds-on: "scanner-test"
-        - check-image:
-            image-flavor: "scanner-test-cci"
+  build-and-push-scanner-test-cci:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/circleci.Dockerfile
+          image-flavor: "scanner-test-cci"
+          builds-on: "scanner-test"
+      - check-image:
+          image-flavor: "scanner-test-cci"
 
   build-and-push-jenkins-plugin:
     <<: *defaults
