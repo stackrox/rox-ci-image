@@ -9,12 +9,12 @@ RUN set -ex \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
 
-RUN yum update -y && \
-    yum install -y epel-release dnf-plugins-core && \
-    yum config-manager --set-enabled powertools && \
-    yum config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
-    yum -y groupinstall "Development Tools" && \
-    yum install -y \
+RUN dnf update -y && \
+    dnf install -y epel-release dnf-plugins-core && \
+    dnf config-manager --set-enabled powertools && \
+    dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
+    dnf -y groupinstall "Development Tools" && \
+    dnf install -y \
         clang-tools-extra \
         cmake \
         google-cloud-sdk \
@@ -27,9 +27,9 @@ RUN yum update -y && \
         docker-ce-rootless-extras \
         docker-scan-plugin \
         && \
-    yum upgrade -y && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    dnf upgrade -y && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum
 
 # Symlink python to python3
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -66,12 +66,12 @@ RUN pip3 -q install --upgrade scipy google-cloud-storage==2.2.1
 ENV GOCACHE="/linux-gocache"
 
 RUN set -ex && \
-    yum update -y && \
-    yum install -y \
+    dnf update -y && \
+    dnf install -y \
         sudo \
         && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum && \
     groupadd --gid 3434 circleci && \
     useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci && \
     echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci && \

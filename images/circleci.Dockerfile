@@ -11,12 +11,12 @@ ENV GOCACHE="/linux-gocache"
 ENV BASH_ENV=
 
 RUN set -ex && \
-    yum update -y && \
-    yum install -y \
+    dnf update -y && \
+    dnf install -y \
         sudo \
         && \
-    yum clean all && \
-    rm -rf /var/cache/yum && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum && \
     groupadd --gid 3434 circleci && \
     useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci && \
     echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci && \
