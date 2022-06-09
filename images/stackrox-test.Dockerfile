@@ -46,9 +46,11 @@ RUN yum update -y && \
         xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
     yum --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
-    yum install -y @postgresql:12 && \
     yum clean all && \
     rm -rf /var/cache/yum
+
+# Update PATH for Postgres14
+ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Install bats
 RUN set -ex \
