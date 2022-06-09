@@ -8,19 +8,19 @@ FROM quay.io/centos/centos:${CENTOS_TAG} as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN yum update -y && \
-    yum install -y \
+RUN dnf update -y && \
+    dnf install -y \
         dnf-plugins-core \
         epel-release \
         wget \
         && \
-    yum config-manager --set-enabled powertools && \
-    yum update -y && \
+    dnf config-manager --set-enabled powertools && \
+    dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
-    yum update -y && \
-    yum -y groupinstall "Development Tools" && \
-    yum install -y \
+    dnf update -y && \
+    dnf -y groupinstall "Development Tools" && \
+    dnf install -y \
         bzip2-devel \
         git-core \
         libzstd-devel \
@@ -31,9 +31,9 @@ RUN yum update -y && \
         yarn \
         zlib-devel \
         && \
-    yum upgrade -y && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    dnf upgrade -y && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum
 
 ARG GOLANG_VERSION=1.17.2
 ARG GOLANG_SHA256=f242a9db6a0ad1846de7b6d94d507915d14062660616a61ef7c808a76e4f1676
