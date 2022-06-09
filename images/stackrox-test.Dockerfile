@@ -24,11 +24,11 @@ RUN set -ex \
 ENV BASH_ENV /etc/initial-bash.env
 
 # Install Postgres repo
-RUN yum --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
 # Install all the packages
-RUN yum update -y && \
-    yum install -y \
+RUN dnf update -y && \
+    dnf install -y \
         expect \
         gcc \
         gcc-c++ \
@@ -45,9 +45,9 @@ RUN yum update -y && \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
         xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
-    yum --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum
 
 # Update PATH for Postgres14
 ENV PATH=$PATH:/usr/pgsql-14/bin
