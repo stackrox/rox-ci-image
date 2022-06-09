@@ -1,5 +1,5 @@
-# Provides the tooling required to build StackRox images and test StackRox
-# binaries and images. Builds upon stackrox-build.Dockerfile.
+# Provides the tooling required to build Scanner images and test Scanner
+# binaries and images. Builds upon scanner-build.Dockerfile.
 
 ARG BASE_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
@@ -23,39 +23,25 @@ RUN set -ex \
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
 
-# Install Postgres repo
-RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-
-# Install all the packages
 RUN dnf update -y && \
     dnf install -y \
         expect \
         gcc \
         gcc-c++ \
         google-cloud-sdk \
-        java-1.8.0-openjdk-devel \
         jq \
         kubectl \
         lsof \
         lz4 \
         openssl \
+        @postgresql:12 \
+        python3 \
         unzip \
         xz \
         zip \
-        # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
-        xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
-    dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
-
-# Update PATH for Postgres14
-ENV PATH=$PATH:/usr/pgsql-14/bin
-
-# Install bats
-RUN set -ex \
-  && npm install -g bats@1.5.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
-  && bats -v
 
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6
@@ -70,17 +56,6 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
- # Symlink python to python3
- RUN ln -s /usr/bin/python3 /usr/bin/python
-
-# oc
-RUN set -ex \
- && wget --no-verbose -O oc.tgz https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz \
- && tar -xf oc.tgz \
- && install openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc /usr/local/bin \
- && rm -rf openshift-* oc.tgz \
- && command -v oc
-
 # helm
 RUN set -ex \
  && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.3.0-linux-amd64.tar.gz \
@@ -88,27 +63,6 @@ RUN set -ex \
  && install linux-amd64/helm /usr/local/bin \
  && rm -rf helm.tgz linux-amd64 \
  && command -v helm
-
-# Install gradle
-ARG GRADLE_VERSION=7.3.3
-ENV PATH=$PATH:/opt/gradle/bin
-RUN set -ex \
- && wget --no-verbose https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
- && mkdir /opt/gradle \
- && unzip -q gradle-${GRADLE_VERSION}-bin.zip \
- && mv gradle-${GRADLE_VERSION}/* /opt/gradle \
- && rm gradle-${GRADLE_VERSION}-bin.zip \
- && rmdir gradle-${GRADLE_VERSION} \
- && command -v gradle
-
-# Install aws cli
-RUN set -ex \
- && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" \
- && unzip awscliv2.zip \
- && ./aws/install \
- && rm awscliv2.zip \
- && rm -rf aws \
- && aws --version
 
 # Install yq v4.16.2
 RUN set -ex \

@@ -249,6 +249,26 @@ jobs:
       - check-image:
           image-flavor: "scanner-build"
 
+  build-and-push-scanner-test:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/scanner-test.Dockerfile
+          image-flavor: "scanner-test"
+          builds-on: "scanner-build"
+      - check-image:
+          image-flavor: "scanner-test"
+
+  build-and-push-scanner-test-cci:
+    <<: *defaults
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/circleci.Dockerfile
+          image-flavor: "scanner-test-cci"
+          builds-on: "scanner-test"
+      - check-image:
+          image-flavor: "scanner-test-cci"
+
   build-and-push-jenkins-plugin:
     <<: *defaults
     steps:
@@ -272,7 +292,7 @@ jobs:
       - open-test-pr:
           repo: scanner
           labels: "generate-dumps-on-pr"
-          image-flavors: "stackrox-test-cci"
+          image-flavors: "scanner-build,scanner-test-cci,scanner-test"
 
   create-or-update-collector-repo-pr:
     <<: *defaults
@@ -359,6 +379,22 @@ workflows:
             only: /.*/
         requires:
         - bats/run
+    - build-and-push-scanner-test:
+        context:
+          *buildPushCheckContext
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - build-and-push-scanner-build
+    - build-and-push-scanner-test-cci:
+        context:
+          *buildPushCheckContext
+        filters:
+          tags:
+            only: /.*/
+        requires:
+        - build-and-push-scanner-test
     - build-and-push-jenkins-plugin:
         context:
           *buildPushCheckContext
@@ -386,7 +422,7 @@ workflows:
             ignore: master
         requires:
         - build-and-push-scanner-build
-        - build-and-push-stackrox-test-cci
+        - build-and-push-scanner-test-cci
     - create-or-update-jenkins-plugin-repo-pr:
         filters:
           branches:
