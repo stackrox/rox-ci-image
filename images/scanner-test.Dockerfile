@@ -56,23 +56,6 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
-# fetch
-ARG FETCH_VERSION=0.3.5
-ARG FETCH_SHA256=8d4d99e903b30dbd24290e9a056a982ea2326a05ded24c63be64df16e7e0d9f0
-RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
-    echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
-    install fetch /usr/bin
-
-# ossls
-ARG OSSLS_VERSION=0.10.1
-ARG OSSLS_SHA256=afdec2fa63b27ced4aeb3297399d45b0f06861e6ebc8cb2431b9653b7f113320
-ARG GITHUB_TOKEN
-RUN export GITHUB_OAUTH_TOKEN="${GITHUB_TOKEN}" && \
-    fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
-    echo "${OSSLS_SHA256} *ossls_linux_amd64" | sha256sum -c - && \
-    install ossls_linux_amd64 /usr/bin/ossls && \
-    ossls version
-
 # helm
 RUN set -ex \
  && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.3.0-linux-amd64.tar.gz \
