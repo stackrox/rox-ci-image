@@ -33,6 +33,7 @@ RUN dnf update -y && \
         gcc \
         gcc-c++ \
         google-cloud-sdk \
+        google-cloud-sdk-gke-gcloud-auth-plugin \
         java-1.8.0-openjdk-devel \
         jq \
         kubectl \
@@ -49,11 +50,9 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
-# Get updated auth plugin for GCP
+# Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
-RUN gcloud components install gke-gcloud-auth-plugin && \
-    gke-gcloud-auth-plugin --version && \
-    gcloud components update
+RUN gke-gcloud-auth-plugin --version
 
 # Update PATH for Postgres14
 ENV PATH=$PATH:/usr/pgsql-14/bin
