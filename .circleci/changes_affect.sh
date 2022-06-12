@@ -34,8 +34,7 @@ affects_collector() {
 }
 
 affects_scanner() {
-  [[ " $* " =~ [[:space:]]images/rocksdb.Dockerfile[[:space:]] ]] \
-    || [[ " $* " =~ [[:space:]]images/scanner-build.Dockerfile[[:space:]] ]] \
+  [[ " $* " =~ [[:space:]]images/scanner-build.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/scanner-test.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/circleci.Dockerfile[[:space:]] ]] \
     || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]] \
