@@ -41,7 +41,7 @@ commands:
 
             git config user.email "roxbot@stackrox.com"
             git config user.name "RoxBot"
-            branch_name="roxbot/update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
+            branch_name="stackrox-update-ci-image-from-${CIRCLE_PULL_REQUEST##*/}"
             if git fetch --quiet origin "${branch_name}"; then
               git checkout "${branch_name}"
               git pull --quiet --set-upstream origin "${branch_name}"

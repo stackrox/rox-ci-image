@@ -29,6 +29,7 @@ RUN dnf update -y && \
         gcc \
         gcc-c++ \
         google-cloud-sdk \
+        google-cloud-sdk-gke-gcloud-auth-plugin \
         jq \
         kubectl \
         lsof \
@@ -42,6 +43,10 @@ RUN dnf update -y && \
         && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
+
+# Use updated auth plugin for GCP
+ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
+RUN gke-gcloud-auth-plugin --version
 
 # Install docker binary
 ARG DOCKER_VERSION=20.10.6

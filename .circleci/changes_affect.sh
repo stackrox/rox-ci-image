@@ -34,7 +34,11 @@ affects_collector() {
 }
 
 affects_scanner() {
-  affects_stackrox "$*"
+  [[ " $* " =~ [[:space:]]images/scanner-build.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/scanner-test.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/circleci.Dockerfile[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/static-contents/etc/yum.repos.d/google-cloud-sdk.repo[[:space:]] ]] \
+    || [[ " $* " =~ [[:space:]]images/static-contents/scripts/create_update_pr.sh[[:space:]] ]]
 }
 
 affects_stackrox() {
