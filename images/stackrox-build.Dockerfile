@@ -55,9 +55,7 @@ RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/do
 
 ARG OSSLS_VERSION=0.10.1
 ARG OSSLS_SHA256=afdec2fa63b27ced4aeb3297399d45b0f06861e6ebc8cb2431b9653b7f113320
-ARG GITHUB_TOKEN
-RUN export GITHUB_OAUTH_TOKEN="${GITHUB_TOKEN}" && \
-    fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
+RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
     echo "${OSSLS_SHA256} *ossls_linux_amd64" | sha256sum -c - && \
     install ossls_linux_amd64 /usr/bin/ossls && \
     ossls version
