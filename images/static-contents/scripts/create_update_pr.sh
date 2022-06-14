@@ -34,7 +34,7 @@ usage() {
 #      - (After): -
 
 main() {
-  [[ -n "${GITHUB_TOKEN}" ]] || die "No GitHub token found"
+  [[ -n "${GITHUB_TOKEN_FOR_PRS}" ]] || die "No GitHub token found"
 
   branch_name="$1"
   repo_name="$2"
@@ -92,7 +92,7 @@ array_contains() {
 github_curl() {
   curl --silent --show-error \
     -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: token ${GITHUB_TOKEN}" "${@}"
+    -H "Authorization: token ${GITHUB_TOKEN_FOR_PRS}" "${@}"
 }
 
 # get_repo_labels returns list of existing labels for a given repo
