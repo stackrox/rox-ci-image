@@ -9,7 +9,7 @@ on:
       - shane/rs-525-ci-migration
 
 env:
-  BAR: bar
+  FOO: foo
 
 jobs:
   setup:
@@ -22,10 +22,14 @@ jobs:
     steps:
       - name: greeting
         env:
-          FOO: foo
+          BAR: bar
         run: |
           echo "FOO: [$FOO]"
           echo "BAR: [$BAR]"
+          whoami
+          pwd
+          uname -a
+          which docker
     needs: setup
   teardown:
     runs-on: ubuntu-latest
