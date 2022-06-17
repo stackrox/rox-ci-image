@@ -1,24 +1,22 @@
 name: Test GitHub Actions
 
+### on:
+###   push:
+###     inputs:
+###       message:
+###         description: Message
+###         type: string
+###         default: hello world
+###         required: true
+
 on:
-  push:
+  workflow_dispatch:
     inputs:
       message:
         description: Message
         type: string
         default: hello world
         required: true
-
-### on:
-###   push:
-###     branches:
-###       - shane/rs-525-ci-migration
-###   inputs:
-###     message:
-###       description: Message
-###       type: string
-###       default: hello world
-###       required: true
 
 jobs:
   setup:
