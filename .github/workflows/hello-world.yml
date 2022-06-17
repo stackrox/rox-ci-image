@@ -9,7 +9,7 @@ on:
       - shane/rs-525-ci-migration
 
 env:
-  DAY_OF_WEEK: Friday
+  BAR: bar
 
 jobs:
   setup:
@@ -22,10 +22,10 @@ jobs:
     steps:
       - name: greeting
         env:
-          PAYLOAD: foo
+          FOO: foo
         run: |
-          echo "PAYLOAD     : [$PAYLOAD]"
-          echo "DAY_OF_WEEK : [$DAY_OF_WEEK]"
+          echo "FOO: [$FOO]"
+          echo "BAR: [$BAR]"
     needs: setup
   teardown:
     runs-on: ubuntu-latest
