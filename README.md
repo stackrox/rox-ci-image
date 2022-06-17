@@ -1,11 +1,39 @@
-[![CircleCI][circleci-badge]][circleci-link]
-[![Docker Hub][docker-badge]][docker-link]
+StackRox Container Images for CI Workflows
+------------------------------------------
 
-# StackRox CI & Build Images
+* https://github.com/stackrox/rox-ci-image/
+* https://github.com/stackrox/rox-ci-image/actions
+* https://app.circleci.com/pipelines/github/stackrox/rox-ci-image
+* https://quay.io/repository/rhacs-eng/apollo-ci
 
-This repository holds the Dockerfiles for images used in StackRox CI & builds.
 
-[circleci-badge]: https://circleci.com/gh/stackrox/rox-ci-image.svg?&style=shield&circle-token=f9c93b8793b8d77af175d0f34a200fe7261212d2
-[circleci-link]:  https://circleci.com/gh/stackrox/workflows/rox-ci-image/tree/master
-[docker-badge]:   https://img.shields.io/badge/docker-hub-blue.svg
-[docker-link]:    https://hub.docker.com/r/stackrox/apollo-ci/tags/
+Image Hierarchy
+---------------
+
+### Images based on //config/CENTOS\_TAG
+
+```mermaid
+graph TD;
+  quay.io/centos/centos:stream8 --> quay.io/rhacs-eng/apollo-ci:collector;
+  quay.io/centos/centos:stream8 --> quay.io/rhacs-eng/apollo-ci:rocksdb;
+  quay.io/centos/centos:stream8 --> quay.io/rhacs-eng/apollo-ci:scanner;
+  quay.io/centos/centos:stream8 --> quay.io/rhacs-eng/apollo-ci:stackrox;
+  quay.io/rhacs-eng/apollo-ci:ROCKSDB_TAG --> quay.io/rhacs-eng/apollo-ci:stackrox;
+```
+
+### Images based on apollo-ci:BASE\_TAG
+
+See build-and-push-image.sh, _BASE_TAG_ is the current tag for the apollo-ci variant.
+
+```mermaid
+graph TD;
+  quay.io/rhacs-eng/apollo-ci:BASE_TAG --> quay.io/rhacs-eng/apollo-ci:scanner-test;
+  quay.io/rhacs-eng/apollo-ci:BASE_TAG --> quay.io/rhacs-eng/apollo-ci:stackrox-test;
+```
+
+### Images based on ubuntu:22.04
+
+```mermaid
+graph TD;
+  ubuntu:22.04 --> quay.io/rhacs-eng/apollo-ci:jenkins-plugin;
+```

@@ -1,70 +1,90 @@
+REGISTRY := quay.io/rhacs-eng
+APP_NAME := apollo-ci
+
 ifeq ($(CENTOS_TAG),)
-CENTOS_TAG=$(shell cat CENTOS_TAG)
+	CENTOS_TAG := $(shell cat config/CENTOS_TAG)
 endif
+
 ifeq ($(ROCKSDB_TAG),)
-ROCKSDB_TAG=$(shell .circleci/get_tag.sh "rocksdb" "$(CENTOS_TAG)")
+	ROCKSDB_TAG := $(shell scripts/get_tag.sh rocksdb $(CENTOS_TAG))
 endif
-ifeq ($(DOCKER),)
-DOCKER=docker
-endif
-QUAY_REPO=rhacs-eng
 
-.PHONY: rocksdb-image
-rocksdb-image:
-	$(DOCKER) build \
-	    -t stackrox/apollo-ci:$(ROCKSDB_TAG) \
-	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG) \
+STACKROX_TAG      := $(shell scripts/get_tag.sh "stackrox")
+STACKROX_TEST_TAG := $(shell scripts/get_tag.sh "stackrox-test")
+STACKROX_CCI_TAG  := $(shell scripts/get_tag.sh "stackrox-cci")
+COLLECTOR_TAG     := $(shell scripts/get_tag.sh "collector")
+
+
+tag:
+	git describe --tags --abbrev=10
+
+setup:
+	@#docker buildx create --use
+	docker buildx ls
+
+build-rocksdb:
+	docker buildx build --platform linux/amd64 --progress=plain \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
-		-f images/rocksdb.Dockerfile \
-		images/
-
-STACKROX_BUILD_TAG=$(shell .circleci/get_tag.sh "stackrox-build")
-
-.PHONY: stackrox-build-image
-stackrox-build-image:
-	$(DOCKER) build \
-	    -t stackrox/apollo-ci:$(STACKROX_BUILD_TAG) \
-	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
+		-t ${REGISTRY}/${APP_NAME}:$(ROCKSDB_TAG) \
+		-f Dockerfile.rocksdb \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${ROCKSDB_TAG}
+
+build-stackrox:
+	docker buildx build --platform linux/amd64 --progress=plain \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
-		-f images/stackrox-build.Dockerfile \
-		images/
+		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
+		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
+		-f Dockerfile.stackrox \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
 
-STACKROX_TEST_TAG=$(shell .circleci/get_tag.sh "stackrox-test")
+build-collector:
+	docker buildx build --platform linux/amd64 --progress=plain \
+		-f Dockerfile.collector \
+		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
 
-.PHONY: stackrox-test-image
-stackrox-test-image:
-	$(DOCKER) build \
-	    -t stackrox/apollo-ci:$(STACKROX_TEST_TAG) \
-	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
-		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
-		-f images/stackrox-test.Dockerfile \
-		images/
+build-stackrox-test:
+	docker buildx build --platform linux/amd64 --progress=plain \
+		--build-arg BASE_TAG=$(STACKROX_TAG) \
+		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TEST_TAG) \
+		-f Dockerfile.stackrox-test \
+		--push .
 
-STACKROX_TEST_CCI_TAG=$(shell .circleci/get_tag.sh "stackrox-test-cci")
+gha-list-workflows:
+	gh workflow list --all
 
-.PHONY: stackrox-test-cci-image
-stackrox-test-cci-image:
-	$(DOCKER) build \
-	    -t stackrox/apollo-ci:$(STACKROX_TEST_CCI_TAG) \
-	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_CCI_TAG) \
-		--build-arg BASE_TAG=$(STACKROX_TEST_TAG) \
-		-f images/circleci.Dockerfile \
-		images/
+gha-enable-workflows:
+	gh workflow enable stackrox || true
+	gh workflow enable collector || true
+	gh workflow enable scanner || true
+	gh workflow enable jenkins || true
 
-.PHONY: test-cci-export
-test-cci-export:
-	$(DOCKER) build \
-	    -t test-cci-export \
-		--build-arg BASE_TAG=$(STACKROX_TEST_CCI_TAG) \
-		-f images/test.cci-export.Dockerfile \
-		images/
-	$(DOCKER) run \
-		-it \
-		test-cci-export
+gha-disable-workflows:
+	gh workflow disable stackrox || true
+	gh workflow disable collector || true
+	gh workflow disable scanner || true
+	gh workflow disable jenkins || true
 
-.PHONY: collector-test-image
-collector-test-image:
-	$(DOCKER) build \
-		-f images/collector.Dockerfile \
-		images/
+github-workflow-syntax-check:
+	yq e .github/workflows/*.yml
+
+lint-shell:
+	find scripts -name '*.sh' | xargs shellcheck -P scripts
+
+# https://github.com/bats-core/bats-core
+# https://github.com/bats-core/bats-docs
+bats: TEST_REPORT=/tmp/bats-report    # bats expects output directory to exist
+bats: TEST_OUTPUTS=/tmp/bats-outputs  # bats creates the specified directory
+bats:
+	mkdir -p $(TEST_REPORT) && rm -rf $(TEST_OUTPUTS)
+	bats --recursive --timing --formatter pretty --verbose-run \
+		--output $(TEST_REPORT) --report-formatter tap13 \
+		--gather-test-outputs-in $(TEST_OUTPUTS) \
+		$(PWD)/scripts/

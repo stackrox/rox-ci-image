@@ -1,0 +1,105 @@
+# vim: set shiftwidth=2 expandtab :
+name: scanner
+
+on:
+  push:
+    branches:
+      - shane/rs-525-ci-migration
+    paths:
+      - '**/workflows/scanner.yml'
+      - '**/Dockerfile.scanner'
+      - '**/Dockerfile.scanner-test'
+      - '**/static/etc/yum.repos.d/google-cloud-sdk.repo'
+      - 'scripts/**'
+  pull_request:
+    branches:
+      - shane/rs-525-ci-migration
+
+jobs:
+  run-bats-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          submodules: true
+          path: .
+
+      - name: invoke script
+        run: ./scripts/run-bats-tests.sh
+
+  build-push-scanner:
+    runs-on: ubuntu-latest
+    needs: [run-bats-tests]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          submodules: false
+          path: .
+
+      - name: build-and-push-image
+        env:
+          QUAY_RHACS_ENG_RW_USERNAME: ${{ secrets.QUAY_RHACS_ENG_RW_USERNAME }}
+          QUAY_RHACS_ENG_RW_PASSWORD: ${{ secrets.QUAY_RHACS_ENG_RW_PASSWORD }}
+        run: |
+          ./scripts/build-and-push-image.sh "Dockerfile.scanner" \
+                                            "scanner"
+
+      - name: check-image
+        env:
+          ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+          STACKROX_CENTRAL_HOST: ${{ secrets.STACKROX_CENTRAL_HOST }}
+        run: ./scripts/check-image.sh "scanner"
+
+  build-push-scanner-test:
+    runs-on: ubuntu-latest
+    needs: [build-push-scanner]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          submodules: false
+          path: .
+
+      - name: build-and-push-image
+        env:
+          QUAY_RHACS_ENG_RW_USERNAME: ${{ secrets.QUAY_RHACS_ENG_RW_USERNAME }}
+          QUAY_RHACS_ENG_RW_PASSWORD: ${{ secrets.QUAY_RHACS_ENG_RW_PASSWORD }}
+        run: |
+          ./scripts/build-and-push-image.sh "Dockerfile.scanner-test" \
+                                            "scanner-test" \
+                                            "scanner"
+
+      - name: check-image
+        env:
+          ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+          STACKROX_CENTRAL_HOST: ${{ secrets.STACKROX_CENTRAL_HOST }}
+        run: ./scripts/check-image.sh "scanner-test"
+
+  open-test-pr:
+    runs-on: ubuntu-latest
+    needs: [build-push-scanner, build-push-scanner-test]
+    if: github.ref != 'refs/heads/master'
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          submodules: false
+          path: .
+
+      - name: open-test-pr
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          ./scripts/open-test-pr.sh "scanner" \
+                                    "generate-dumps-on-pr" \
+                                    "scanner,scanner-test"

@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
-
-set -eEuo pipefail
-
-usage() {
-  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> [pr-labels...]"
-  exit 2
-}
-
+# This is a utility script called from open-test-pr.sh.
+#
 # This script updates existing or opens a new PR according to the following requirements:
 #   - This script will assign the PR to a person who triggered the CI flow
 #   - This script will apply labels to the PR (new labels will not be created, only existing applied)
@@ -32,6 +26,13 @@ usage() {
 #      - (Before): Push code changes to remote branch
 #      - (Script): Run this script
 #      - (After): -
+
+set -eEuo pipefail
+
+usage() {
+  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> [pr-labels...]"
+  exit 2
+}
 
 main() {
   [[ -n "${GITHUB_TOKEN_FOR_PRS}" ]] || die "No GitHub token found"
@@ -86,7 +87,7 @@ main() {
 array_contains() {
   local needle="$1"; shift
   local haystack=("${@}")
-	printf '%s\0' "${haystack[@]}" | grep --fixed-strings -q "$needle"
+  printf '%s\0' "${haystack[@]}" | grep --fixed-strings -q "$needle"
 }
 
 github_curl() {
@@ -171,4 +172,5 @@ die() {
   exit 1
 }
 
-main "$@"
+echo "TODO(sbostick): [create-update-pr.sh] overriding to test ci workflow trigger filtering by branch"
+#main "$@"

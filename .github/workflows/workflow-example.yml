@@ -1,0 +1,160 @@
+# vim: set shiftwidth=2 expandtab :
+
+# This workflow is only to test features of GHA and help make workflow design
+# decisions regarding best way to map processes to workflows, jobs, and avoid
+# duplication. This file should probably be removed before merging to mainline,
+# or moved to a separate location for experimental work, examples, etc.
+
+name: Workflow Example
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - shane/rs-525-ci-migration
+
+env:
+  FOO: foo
+  BAR: bar
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    outputs:
+      message1: ${{ steps.greeting.outputs.first }}
+      message2: ${{ steps.greeting.outputs.second }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
+
+      - name: setup
+        run: mkdir -p output
+
+      - name: greeting
+        id: greeting
+        env:
+          MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
+        run: |
+          MOCK_SECRET_BASE64="$(base64 <<<$MOCK_SECRET | tr -d '\r\n')"
+
+          # Verify stand-alone script env inheritance
+          export MOCK_SECRET MOCK_SECRET_BASE64
+          ./rox-ci-image/scripts/workflow-test.sh init \
+              | tee output/job-init.log
+
+          # Verify capability to explicitly mask generated and mutated secrets
+          echo "::add-mask::$MOCK_SECRET_BASE64"
+          echo "FOO                : [$FOO]"
+          echo "MOCK_SECRET        : [$MOCK_SECRET]"
+          echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
+
+          # Verify secret masking in log capture group.
+          # Capture group just encloses output into a collapsible block.
+          echo "::group::Test secret masking within a log capture group"
+          echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
+          echo "::endgroup::"
+
+          # Verify secret mask covers output from stand-alone script invocation
+          export MOCK_SECRET MOCK_SECRET_BASE64
+          ./rox-ci-image/scripts/workflow-test.sh init \
+              | tee output/job-init.log
+
+          # Verify log capture group capability
+          echo "::group::Source checkout (first 30 lines of file tree output)"
+          tree -alpn . | head -n30
+          echo "::endgroup::"
+
+          # Job step outputs can be used in caller if this is a reusable workflow.
+          # Job step outputs can be used in subsequent job steps.
+          echo "::set-output name=first::hello"
+          echo "::set-output name=second::world"
+
+          # Verify setting env var for use in subsequent steps
+          echo "MY_VAR=42" >> $GITHUB_ENV
+
+          # Demonstrate setting the step summary data
+          echo "SUMMARY: [RS-525](https://issues.redhat.com/browse/RS-525)" \
+              >> $GITHUB_STEP_SUMMARY
+
+          # Demonstrate pulling event info from environment
+          PULL_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          echo "PULL_NUMBER: $PULL_NUMBER"
+          cp "$GITHUB_EVENT_PATH" output/event.json
+
+      - name: test-use-step-output
+        run: |
+          # Verify use of step-level outputs
+          echo "Step output first  : ${{ steps.greeting.outputs.first }}"
+          echo "Step output second : ${{ steps.greeting.outputs.second }}"
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: job-init-results
+          path: |
+              output/job-init.log
+              output/event.json
+          retention-days: 5
+
+  build-foo:
+    runs-on: ubuntu-latest
+    needs: [init]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
+
+      - name: setup
+        run: mkdir -p output
+
+      - name: foo
+        run: |
+          # Verify use of job-level outputs
+          echo "message1: ${{ needs.init.outputs.message1 }}"
+          echo "message2: ${{ needs.init.outputs.message2 }}"
+          ./rox-ci-image/scripts/workflow-test.sh foo \
+              | tee output/job-foo.log
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: job-foo-results
+          path: output/job-foo.log
+          retention-days: 5
+
+  build-bar:
+    runs-on: ubuntu-latest
+    needs: [init]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
+
+      - name: setup
+        run: mkdir -p output
+
+      - name: bar
+        run: |
+          # Verify use of job-level outputs
+          echo "message1: ${{ needs.init.outputs.message1 }}"
+          echo "message2: ${{ needs.init.outputs.message2 }}"
+          ./rox-ci-image/scripts/workflow-test.sh bar \
+              | tee output/job-bar.log
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: job-bar-results
+          path: output/job-bar.log
+          retention-days: 5

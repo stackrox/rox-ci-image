@@ -3,18 +3,9 @@
 
 ARG BASE_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
-
-# This line makes sure that piped commands in RUN instructions exit early.
-# This should not affect use in CircleCI because Circle doesn't use
-# CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# We are copying the contents in static-contents into / in the image, following the directory structure.
-# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
-# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
-# the contents of static-contents/bin, which is NOT what we want.
-# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
-COPY ./static-contents/ /static-tmp
+COPY ./static/ /static-tmp
 RUN set -ex \
   && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
@@ -82,7 +73,3 @@ RUN set -ex \
   && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
   && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
   && chmod +x /usr/bin/hub-comment
-
-RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash
