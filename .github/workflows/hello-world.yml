@@ -28,8 +28,10 @@ jobs:
           echo "BAR: [$BAR]"
           whoami
           pwd
+          ls -lh
           uname -a
           which docker
+          which tree
     needs: setup
   teardown:
     runs-on: ubuntu-latest
