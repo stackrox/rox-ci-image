@@ -28,7 +28,6 @@ jobs:
           echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
           whoami
           pwd
-          ls -lh
           uname -a
           which docker || true
           which tree || true
@@ -40,7 +39,7 @@ jobs:
           # docker login || true
           # docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
           # docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-          ls -lh ./images/*.Dockerfile
+          tree -alpn . | head -n100
     needs: setup
   teardown:
     runs-on: ubuntu-latest
