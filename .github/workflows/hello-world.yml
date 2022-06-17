@@ -28,11 +28,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: greeting
+        env:
+          PAYLOAD: "${{ inputs.message }}"
         run: |
           echo "${{ inputs.message }}"
           echo ${{ inputs.message }}
           echo "${{ github.event.inputs.message }}"
           echo ${{ github.event.inputs.message }}
+          echo "payload: [$PAYLOAD]"
     needs: setup
   teardown:
     runs-on: ubuntu-latest
