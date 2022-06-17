@@ -19,6 +19,10 @@ jobs:
         run: echo "setup"
       - name: checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
   greeting:
     runs-on: ubuntu-latest
     steps:
