@@ -2,7 +2,7 @@ name: Test GitHub Actions
 on:
   push:
     branches:
-      - shane/rs-525-ci-migration
+      - shane/rs-525-ci-migration-ERROR
     inputs:
       message:
         description: Message
@@ -19,7 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: greeting
-        run: echo "${{ inputs.message }}"
+        run: |
+          echo "${{ inputs.message }}"
+          echo ${{ inputs.message }}
     needs: setup
   teardown:
     runs-on: ubuntu-latest
