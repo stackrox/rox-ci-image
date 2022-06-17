@@ -25,7 +25,7 @@ jobs:
           MOCK_SECRET: 'testing'
         run: |
           echo "FOO: [$FOO]"
-          echo "BAR: [$BAR]"
+          echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
           whoami
           pwd
           ls -lh
@@ -37,7 +37,6 @@ jobs:
           which curl || true
           which bats || true
           which python && python --version || true
-          echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
           # docker login || true
           # docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
           # docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
