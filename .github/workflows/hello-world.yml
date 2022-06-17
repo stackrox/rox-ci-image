@@ -28,6 +28,7 @@ jobs:
         env:
           PAYLOAD: foo
         run: |
+          env | sed 's/=.*//'
           echo "${{ inputs.message }}"
           echo ${{ inputs.message }}
           echo "${{ github.event.inputs.message }}"
