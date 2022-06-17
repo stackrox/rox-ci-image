@@ -1,12 +1,8 @@
 name: Test GitHub Actions
 on:
-  push:
-    branches:
-      - shane/rs-525-ci-migration
   pull_request:
     branches:
       - shane/rs-525-ci-migration
-  workflow_dispatch:
     inputs:
       message:
         description: Message
