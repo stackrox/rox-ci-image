@@ -1,4 +1,4 @@
-name: Test GitHub Actions
+name: Hello World
 
 ### on:
 ###   push:
@@ -15,7 +15,7 @@ on:
       message:
         description: Message
         type: string
-        default: hello world
+        default: "hello world"
         required: true
 
 jobs:
@@ -31,6 +31,8 @@ jobs:
         run: |
           echo "${{ inputs.message }}"
           echo ${{ inputs.message }}
+          echo "${{ github.event.inputs.message }}"
+          echo ${{ github.event.inputs.message }}
     needs: setup
   teardown:
     runs-on: ubuntu-latest
