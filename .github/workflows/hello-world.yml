@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: greeting
         env:
-          BAR: bar
+          MOCK_SECRET: 'testing'
         run: |
           echo "FOO: [$FOO]"
           echo "BAR: [$BAR]"
@@ -30,8 +30,18 @@ jobs:
           pwd
           ls -lh
           uname -a
-          which docker
-          which tree
+          which docker || true
+          which tree || true
+          which git || true
+          which gh || true
+          which curl || true
+          which bats || true
+          which python && python --version || true
+          echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
+          # docker login || true
+          # docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
+          # docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+          ls -lh ./images/*.Dockerfile
     needs: setup
   teardown:
     runs-on: ubuntu-latest
