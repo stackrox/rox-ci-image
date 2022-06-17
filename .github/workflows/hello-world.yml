@@ -9,6 +9,14 @@ on:
         type: string
         default: hello world
         required: true
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Message
+        type: string
+        default: hello world
+        required: true
+
 jobs:
   setup:
     runs-on: ubuntu-latest
