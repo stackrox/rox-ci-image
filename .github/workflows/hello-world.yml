@@ -1,0 +1,34 @@
+name: Test GitHub Actions
+on:
+  push:
+    branches:
+      - shane/rs-525-ci-migration
+  pull_request:
+    branches:
+      - shane/rs-525-ci-migration
+  workflow_dispatch:
+    inputs:
+      message:
+        description: Message
+        type: string
+        default: hello world
+        required: false
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup
+        run: echo "setup"
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: greeting
+        run: echo "${{inputs.message}}"
+    needs: setup
+  teardown:
+    runs-on: ubuntu-latest
+    steps:
+      - name: teardown
+        run: echo "teardown"
+    if: "${{ always() }}"
+    needs: [setup, greeting]
