@@ -2,18 +2,18 @@ name: Hello World
 
 on:
   workflow_dispatch:
+    inputs:
+      message:
+        description: Message
+        type: string
+        default: "hello world"
+        required: true
   push:
     branches:
       - shane/rs-525-ci-migration
   pull_request:
     branches:
       - shane/rs-525-ci-migration
-  inputs:
-    message:
-      description: Message
-      type: string
-      default: "hello world"
-      required: true
 
 jobs:
   setup:
