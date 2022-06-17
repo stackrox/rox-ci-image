@@ -317,6 +317,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
     - build-and-push-rocksdb:
         context: &buildPushContext
           - quay-rhacs-eng-readwrite
@@ -324,6 +326,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - bats/run
     - build-and-push-stackrox-build:
@@ -335,6 +339,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-rocksdb
     - build-and-push-stackrox-test:
@@ -343,6 +349,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-stackrox-build
     - build-and-push-stackrox-test-cci:
@@ -351,6 +359,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-stackrox-test
     - test-cci-export:
@@ -358,6 +368,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-stackrox-test-cci
     - build-and-push-collector:
@@ -366,6 +378,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - bats/run
     - build-and-push-scanner-build:
@@ -377,6 +391,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - bats/run
     - build-and-push-scanner-test:
@@ -385,6 +401,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-scanner-build
     - build-and-push-scanner-test-cci:
@@ -393,6 +411,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - build-and-push-scanner-test
     - build-and-push-jenkins-plugin:
@@ -401,6 +421,8 @@ workflows:
         filters:
           tags:
             only: /.*/
+          branches:
+            ignore: shane/rs-525-ci-migration
         requires:
         - bats/run
     - create-or-update-collector-repo-pr:

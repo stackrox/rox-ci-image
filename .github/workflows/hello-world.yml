@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: greeting
-        run: echo "${{inputs.message}}"
+        run: echo "${{ github.event.inputs.message }}"
     needs: setup
   teardown:
     runs-on: ubuntu-latest
