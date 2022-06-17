@@ -1,5 +1,7 @@
-# https://github.com/actions/starter-workflows/blob/main/automation/manual.yml
 # This is a basic workflow that is manually triggered
+# https://github.com/actions/starter-workflows/blob/main/automation/manual.yml
+# https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
+# NOTE: To trigger the workflow_dispatch event, your workflow must be in the default branch
 
 name: Manual workflow
 

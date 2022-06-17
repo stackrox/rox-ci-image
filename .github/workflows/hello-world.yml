@@ -1,19 +1,15 @@
 name: Hello World
 
 on:
-  workflow_dispatch:
-    inputs:
-      message:
-        description: Message
-        type: string
-        default: "hello world"
-        required: true
   push:
     branches:
       - shane/rs-525-ci-migration
   pull_request:
     branches:
       - shane/rs-525-ci-migration
+
+env:
+  DAY_OF_WEEK: Friday
 
 jobs:
   setup:
@@ -28,12 +24,8 @@ jobs:
         env:
           PAYLOAD: foo
         run: |
-          env | sed 's/=.*//'
-          echo "${{ inputs.message }}"
-          echo ${{ inputs.message }}
-          echo "${{ github.event.inputs.message }}"
-          echo ${{ github.event.inputs.message }}
-          echo "payload: [$PAYLOAD]"
+          echo "PAYLOAD     : [$PAYLOAD]"
+          echo "DAY_OF_WEEK : [$DAY_OF_WEEK]"
     needs: setup
   teardown:
     runs-on: ubuntu-latest
