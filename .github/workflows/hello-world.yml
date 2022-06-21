@@ -29,6 +29,8 @@ jobs:
         run: |
           echo "FOO: [$FOO]"
           echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
+          MOCK_SECRET_BASE64="$(base64 <<<$MOCK_SECRET | tr -d '\r\n')"
+          echo "MOCK_SECRET_BASE64: [$MOCK_SECRET_BASE64]"
           whoami
           pwd
           uname -a
