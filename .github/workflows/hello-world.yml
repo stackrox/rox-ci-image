@@ -39,7 +39,6 @@ jobs:
           which curl || true
           which bats || true
           which python && python --version || true
-          #
           # docker login || true
           # docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
           # docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
@@ -57,7 +56,6 @@ jobs:
           path: rox-ci-image
       - name: foo
         run: echo "foo"
-        needs: greeting
 
   build-bar:
     runs-on: ubuntu-latest
@@ -71,5 +69,3 @@ jobs:
           path: rox-ci-image
       - name: bar
         run: echo "bar"
-        needs: greeting
-
