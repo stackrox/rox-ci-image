@@ -55,7 +55,9 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: foo
-        run: echo "foo"
+        run: |
+          sleep 120
+          echo "bar"
 
   build-bar:
     runs-on: ubuntu-latest
@@ -68,4 +70,6 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: bar
-        run: echo "bar"
+        run: |
+          sleep 120
+          echo "bar"
