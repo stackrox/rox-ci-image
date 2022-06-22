@@ -15,14 +15,12 @@ jobs:
   greeting:
     runs-on: ubuntu-latest
     steps:
-
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           repository: stackrox/rox-ci-image
           path: rox-ci-image
-
       - name: greeting
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
@@ -45,22 +43,33 @@ jobs:
           # docker login || true
           # docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
           # docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-          #
-          # CONTEXTS:
-          #   stackrox-ci-instance
-          #     ROX_API_TOKEN
-          #     STACKROX_CENTRAL_HOST
-          #   quay-rhacs-eng-readwrite
-          #     QUAY_RHACS_ENG_RW_PASSWORD
-          #     QUAY_RHACS_ENG_RW_USERNAME
-          #   quay-stackrox-io-readwrite
-          #     QUAY_STACKROX_IO_RW_PASSWORD
-          #     QUAY_STACKROX_IO_RW_USERNAME
-          #   docker-io-pull
-          #     DOCKER_IO_PULL_PASSWORD
-          #     DOCKER_IO_PULL_USERNAME
-          #
-          # PROJECT SETTINGS -> ENV VARS:
-          #   CIRCLE_TOKEN_ROXBOT
-          #   GITHUB_TOKEN_FOR_PRS
           tree -alpn . | head -n100
+
+  build-foo:
+    runs-on: ubuntu-latest
+    needs: [greeting]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
+      - name: foo
+        run: echo "foo"
+        needs: greeting
+
+  build-bar:
+    runs-on: ubuntu-latest
+    needs: [greeting]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          repository: stackrox/rox-ci-image
+          path: rox-ci-image
+      - name: bar
+        run: echo "bar"
+        needs: greeting
+
