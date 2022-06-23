@@ -10,6 +10,7 @@ on:
 
 env:
   FOO: foo
+  SSH_KEY_FINGERPRINT: "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
 
 jobs:
   greeting:
@@ -55,9 +56,7 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: foo
-        run: |
-          sleep 120
-          echo "bar"
+        run: ./scripts/bootstrap.sh foo
 
   build-bar:
     runs-on: ubuntu-latest
@@ -70,6 +69,4 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: bar
-        run: |
-          sleep 120
-          echo "bar"
+        run: ./scripts/bootstrap.sh bar
