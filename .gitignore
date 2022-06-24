@@ -2,3 +2,5 @@
 
 # Ignore GoLand
 .idea
+
+output/
