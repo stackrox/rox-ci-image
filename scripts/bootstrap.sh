@@ -7,7 +7,7 @@ function find_in_path {
     if command -v "$name" &>/dev/null; then
         whereis -b "$name"
     else
-        echo "$name: comand not found"
+        echo "$name: NOT_FOUND"
     fi
 }
 
