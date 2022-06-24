@@ -34,3 +34,5 @@ References
 * https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
 * https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
 * https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+
+NOTE: toggle step debug logging by updating the `ACTIONS_RUNNER_DEBUG` repo secret.
