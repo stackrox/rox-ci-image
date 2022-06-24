@@ -15,8 +15,10 @@ env:
 jobs:
   greeting:
     runs-on: ubuntu-latest
+    outputs:
+      message1: ${{ steps.greeting.outputs.first }}
+      message2: ${{ steps.greeting.outputs.second }}
     steps:
-
       - name: checkout
         uses: actions/checkout@v3
         with:
@@ -27,9 +29,6 @@ jobs:
       - name: greeting
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
-        outputs:
-          message1: ${{ steps.greeting.outputs.first }}
-          message2: ${{ steps.greeting.outputs.second }}
         run: |
           # Verify capability to explicitly mask generated and mutated secrets
           MOCK_SECRET_BASE64="$(base64 <<<$MOCK_SECRET | tr -d '\r\n')"
