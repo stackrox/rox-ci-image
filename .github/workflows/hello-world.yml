@@ -40,15 +40,19 @@ jobs:
           echo "MOCK_SECRET        : [$MOCK_SECRET]"
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
 
-          # Verify capability to surface select output
+          # Verify log capture group capability
           echo "::group::Source checkout (first 30 lines of file tree output)"
           tree -alpn . | head -n30
+          echo "::endgroup::"
+
+          # Verify secret masking in log capture group
+          echo "::group::Test secret masking within a log capture group"
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
           echo "::endgroup::"
 
           # Verify stand-alone script env inheritance
           ./rox-ci-image/scripts/bootstrap.sh greeting \
-            | tee output/job-greeting.log
+              | tee output/job-greeting.log
 
           # Verify job output mechanism
           echo "::set-output name=first::hello"
@@ -59,7 +63,7 @@ jobs:
 
           # Verify setting step summary
           echo "SUMMARY: [RS-525](https://issues.redhat.com/browse/RS-525)" \
-            >> $GITHUB_STEP_SUMMARY
+              >> $GITHUB_STEP_SUMMARY
 
       - name: archive build log
         uses: actions/upload-artifact@v3
@@ -83,7 +87,11 @@ jobs:
         run: mkdir -p output
 
       - name: foo
-        run: ./rox-ci-image/scripts/bootstrap.sh foo | tee output/job-foo.log
+        run: |
+          echo ${{ needs.greeting.outputs.message1 }}
+          echo ${{ needs.greeting.outputs.message2 }}
+          ./rox-ci-image/scripts/bootstrap.sh foo \
+              | tee output/job-foo.log
 
   build-bar:
     runs-on: ubuntu-latest
@@ -100,4 +108,8 @@ jobs:
         run: mkdir -p output
 
       - name: bar
-        run: ./rox-ci-image/scripts/bootstrap.sh bar | tee output/job-bar.log
+        run: |
+          echo ${{ needs.greeting.outputs.message1 }}
+          echo ${{ needs.greeting.outputs.message2 }}
+          ./rox-ci-image/scripts/bootstrap.sh bar \
+              | tee output/job-bar.log
