@@ -2,11 +2,7 @@ name: Hello World
 
 on:
   push:
-    branches:
-      - sb2106/test-public-fork
   pull_request:
-    branches:
-      - sb2106/test-public-fork
 
 env:
   FOO: foo
