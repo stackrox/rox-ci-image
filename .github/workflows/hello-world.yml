@@ -26,6 +26,9 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
 
+      - name: setup
+        run: mkdir -p output
+
       - name: greeting
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
@@ -76,6 +79,9 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
 
+      - name: setup
+        run: mkdir -p output
+
       - name: foo
         run: ./rox-ci-image/scripts/bootstrap.sh foo | tee output/job-foo.log
 
@@ -89,6 +95,9 @@ jobs:
           fetch-depth: 0
           repository: stackrox/rox-ci-image
           path: rox-ci-image
+
+      - name: setup
+        run: mkdir -p output
 
       - name: bar
         run: ./rox-ci-image/scripts/bootstrap.sh bar | tee output/job-bar.log
