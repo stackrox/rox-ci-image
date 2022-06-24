@@ -68,6 +68,7 @@ jobs:
 
       - name: test-use-step-output
         run: |
+          # Verify use of step-level outputs
           echo "Step output first  : ${{ steps.greeting.outputs.first }}"
           echo "Step output second : ${{ steps.greeting.outputs.second }}"
 
@@ -94,6 +95,7 @@ jobs:
 
       - name: foo
         run: |
+          # Verify use of job-level outputs
           echo "message1: ${{ needs.init.outputs.message1 }}"
           echo "message2: ${{ needs.init.outputs.message2 }}"
           ./rox-ci-image/scripts/bootstrap.sh foo \
@@ -115,6 +117,7 @@ jobs:
 
       - name: bar
         run: |
+          # Verify use of job-level outputs
           echo "message1: ${{ needs.init.outputs.message1 }}"
           echo "message2: ${{ needs.init.outputs.message2 }}"
           ./rox-ci-image/scripts/bootstrap.sh bar \
