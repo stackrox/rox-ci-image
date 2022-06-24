@@ -16,12 +16,14 @@ jobs:
   greeting:
     runs-on: ubuntu-latest
     steps:
+
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           repository: stackrox/rox-ci-image
           path: rox-ci-image
+
       - name: greeting
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
@@ -35,17 +37,28 @@ jobs:
           echo "FOO                : [$FOO]"
           echo "MOCK_SECRET        : [$MOCK_SECRET]"
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
+
           # Verify capability to surface select output
           echo "::group::Source checkout (first 30 lines of file tree output)"
           tree -alpn . | head -n30
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
           echo "::endgroup::"
+
           # Verify stand-alone script env inheritance
           ./rox-ci-image/scripts/bootstrap.sh greeting \
             | tee output/job-greeting.log
+
           # Verify job output mechanism
           echo "::set-output name=first::hello"
           echo "::set-output name=second::world"
+
+          # Verify setting env var for use in subsequent steps
+          echo "MY_VAR=42" >> $GITHUB_ENV
+
+          # Verify setting step summary
+          echo "SUMMARY: [RS-525](https://issues.redhat.com/browse/RS-525)" \
+            >> $GITHUB_STEP_SUMMARY
+
       - name: archive build log
         uses: actions/upload-artifact@v3
         with:
@@ -63,6 +76,7 @@ jobs:
           fetch-depth: 0
           repository: stackrox/rox-ci-image
           path: rox-ci-image
+
       - name: foo
         run: ./rox-ci-image/scripts/bootstrap.sh foo | tee output/job-foo.log
 
@@ -76,5 +90,6 @@ jobs:
           fetch-depth: 0
           repository: stackrox/rox-ci-image
           path: rox-ci-image
+
       - name: bar
         run: ./rox-ci-image/scripts/bootstrap.sh bar | tee output/job-bar.log
