@@ -56,7 +56,7 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: foo
-        run: ./scripts/bootstrap.sh foo
+        run: ./rox-ci-image/scripts/bootstrap.sh foo
 
   build-bar:
     runs-on: ubuntu-latest
@@ -69,4 +69,4 @@ jobs:
           repository: stackrox/rox-ci-image
           path: rox-ci-image
       - name: bar
-        run: ./scripts/bootstrap.sh bar
+        run: ./rox-ci-image/scripts/bootstrap.sh bar
