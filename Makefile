@@ -71,5 +71,4 @@ collector-test-image:
 
 .PHONY: github-workflow-syntax-check
 github-workflow-syntax-check:
-	yq e .github/workflows/hello-world.yml
-	yq e .github/workflows/hello-world.yml
+	yq e .github/workflows/*.yml
