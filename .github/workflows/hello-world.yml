@@ -13,7 +13,7 @@ env:
   SSH_KEY_FINGERPRINT: "c7:dd:37:f0:33:4b:a1:16:80:d6:56:48:fd:d3:6c:87"
 
 jobs:
-  greeting:
+  init:
     runs-on: ubuntu-latest
     outputs:
       message1: ${{ steps.greeting.outputs.first }}
@@ -30,6 +30,7 @@ jobs:
         run: mkdir -p output
 
       - name: greeting
+        id: greeting
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
         run: |
@@ -51,8 +52,8 @@ jobs:
           echo "::endgroup::"
 
           # Verify stand-alone script env inheritance
-          ./rox-ci-image/scripts/bootstrap.sh greeting \
-              | tee output/job-greeting.log
+          ./rox-ci-image/scripts/bootstrap.sh init \
+              | tee output/job-init.log
 
           # Verify job output mechanism
           echo "::set-output name=first::hello"
@@ -65,16 +66,21 @@ jobs:
           echo "SUMMARY: [RS-525](https://issues.redhat.com/browse/RS-525)" \
               >> $GITHUB_STEP_SUMMARY
 
+      - name: test-use-step-output
+        run: |
+          echo "Step output first  : ${{ steps.greeting.outputs.first }}"
+          echo "Step output second : ${{ steps.greeting.outputs.second }}"
+
       - name: archive build log
         uses: actions/upload-artifact@v3
         with:
           name: greeting-log
-          path: output/job-greeting.log
+          path: output/job-init.log
           retention-days: 5
 
   build-foo:
     runs-on: ubuntu-latest
-    needs: [greeting]
+    needs: [init]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -88,14 +94,14 @@ jobs:
 
       - name: foo
         run: |
-          echo ${{ needs.greeting.outputs.message1 }}
-          echo ${{ needs.greeting.outputs.message2 }}
+          echo "message1: ${{ needs.init.outputs.message1 }}"
+          echo "message2: ${{ needs.init.outputs.message2 }}"
           ./rox-ci-image/scripts/bootstrap.sh foo \
               | tee output/job-foo.log
 
   build-bar:
     runs-on: ubuntu-latest
-    needs: [greeting]
+    needs: [init]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -109,7 +115,7 @@ jobs:
 
       - name: bar
         run: |
-          echo ${{ needs.greeting.outputs.message1 }}
-          echo ${{ needs.greeting.outputs.message2 }}
+          echo "message1: ${{ needs.init.outputs.message1 }}"
+          echo "message2: ${{ needs.init.outputs.message2 }}"
           ./rox-ci-image/scripts/bootstrap.sh bar \
               | tee output/job-bar.log
