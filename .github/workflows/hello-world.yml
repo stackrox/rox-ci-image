@@ -37,20 +37,16 @@ jobs:
           echo "FOO                : [$FOO]"
           echo "MOCK_SECRET        : [$MOCK_SECRET]"
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
-
           # Verify capability to surface select output
           echo "::group::Source checkout (first 30 lines of file tree output)"
           tree -alpn . | head -n30
           echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"
           echo "::endgroup::"
-
           # Verify stand-alone script env inheritance
           ./rox-ci-image/scripts/bootstrap.sh greeting \
             | tee output/job-greeting.log
-
           # Verify artifact persistence
           todo
-
           # Verify job output mechanism
           echo "::set-output name=first::hello"
           echo "::set-output name=second::world"
