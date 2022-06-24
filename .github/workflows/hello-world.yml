@@ -1,5 +1,3 @@
-# NOTE: toggle step debug logging by updating the ACTIONS_RUNNER_DEBUG repo secret.
-# https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/enabling-debug-logging
 name: Hello World
 
 on:
