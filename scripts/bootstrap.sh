@@ -12,10 +12,14 @@ function find_in_path {
 }
 
 
-echo "$0 $@"
-whoami
-pwd
-uname -a
+echo "invocation : $0 $*"
+echo "whoami     : $(whoami)"
+echo "pwd        : $(pwd)"
+echo "uname      : $(uname -a)"
+
+sudo apt-get update -y
+sudo apt-get install -y bats
+
 {
     find_in_path "docker"
     find_in_path "tree"

@@ -72,3 +72,7 @@ collector-test-image:
 .PHONY: github-workflow-syntax-check
 github-workflow-syntax-check:
 	yq e .github/workflows/*.yml
+
+.PHONY: lint-shell
+lint-shell:
+	find scripts -name '*.sh' | xargs shellcheck -P scripts

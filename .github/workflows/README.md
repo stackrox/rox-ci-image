@@ -1,3 +1,14 @@
+Development (local iteration)
+-----------------------------
+
+> :warning: toggle step debug logging by updating the `ACTIONS_RUNNER_DEBUG` secret.
+
+```bash
+make lint-shell
+make github-workflow-syntax-check
+```
+
+
 Github Actions CLI Examples
 ---------------------------
 
@@ -32,7 +43,7 @@ References
 * https://docs.github.com/en/rest/actions/secrets
 * https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 * https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
-* https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
 * https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
-
-NOTE: toggle step debug logging by updating the `ACTIONS_RUNNER_DEBUG` repo secret.
+* https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+* https://github.com/actions/upload-artifact
+* https://github.com/actions/download-artifact
