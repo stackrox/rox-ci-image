@@ -28,10 +28,10 @@ jobs:
         env:
           MOCK_SECRET: ${{ secrets.MOCK_SECRET }}
         run: |
-          echo "FOO: [$FOO]"
-          echo "MOCK_SECRET: [$MOCK_SECRET]"  # test exposure visibility as env var
           MOCK_SECRET_BASE64="$(base64 <<<$MOCK_SECRET | tr -d '\r\n')"
-          echo "MOCK_SECRET_BASE64: [$MOCK_SECRET_BASE64]"
+          echo "FOO                : [$FOO]"                 # test env input
+          echo "MOCK_SECRET        : [$MOCK_SECRET]"         # test secret input
+          echo "MOCK_SECRET_BASE64 : [$MOCK_SECRET_BASE64]"  # check visibility workaround
           whoami
           pwd
           uname -a
