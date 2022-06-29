@@ -34,6 +34,7 @@ gh workflow run 'Hello World' --ref shane/rs-525-ci-migration
 References
 ----------
 
+* https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
 * https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 * https://docs.github.com/en/actions/examples
 * https://github.com/actions/starter-workflows/blob/main/ci/docker-image.yml
@@ -47,3 +48,12 @@ References
 * https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
 * https://github.com/actions/upload-artifact
 * https://github.com/actions/download-artifact
+
+* https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+* https://docs.github.com/en/actions/using-workflows/reusing-workflows
+* https://docs.github.com/en/actions/using-workflows/about-workflows
+
+* https://github.com/actions
+* https://github.com/actions/starter-workflows/blob/main/ci/docker-image.yml
+* https://github.com/actions/starter-workflows/blob/main/ci/docker-publish.yml
+* https://github.com/docker/login-action
