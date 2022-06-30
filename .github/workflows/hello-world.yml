@@ -62,9 +62,14 @@ jobs:
           # Verify setting env var for use in subsequent steps
           echo "MY_VAR=42" >> $GITHUB_ENV
 
-          # Verify setting step summary
+          # Demonstrate setting the step summary data
           echo "SUMMARY: [RS-525](https://issues.redhat.com/browse/RS-525)" \
               >> $GITHUB_STEP_SUMMARY
+
+          # Demonstrate pulling event info from environment
+          PULL_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          echo "PULL_NUMBER: $PULL_NUMBER"
+          cp "$GITHUB_EVENT_PATH" output/event.json
 
       - name: test-use-step-output
         run: |
@@ -76,7 +81,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: greeting-log
-          path: output/job-init.log
+          path: |
+              output/job-init.log
+              output/event.json
           retention-days: 5
 
   build-foo:
