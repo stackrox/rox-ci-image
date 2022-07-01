@@ -1,15 +1,17 @@
 name: Hello World
 
 on:
-  push:
-    branches:
-      - shane/rs-525-ci-migration
+  ### push:
+  ###   branches:
+  ###     - shane/rs-525-ci-migration
   pull_request:
+      types: [opened, synchronize, reopened]
     branches:
       - shane/rs-525-ci-migration
 
 env:
   FOO: foo
+  BAR: bar
 
 jobs:
   init:
