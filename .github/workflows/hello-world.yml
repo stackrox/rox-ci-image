@@ -3,9 +3,9 @@ name: Hello World
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  ### push:
-  ###   branches:
-  ###     - shane/rs-525-ci-migration
+  push:
+    branches:
+      - shane/rs-525-ci-migration
 
 env:
   FOO: foo
