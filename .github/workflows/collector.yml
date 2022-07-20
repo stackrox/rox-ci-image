@@ -10,6 +10,7 @@ on:
       - '**/Dockerfile.collector'
       - '**/scripts/create_update_pr.sh'
       - 'scripts/**'
+      - 'config/**'
   pull_request:
     types: [opened, synchronize, reopened]
     branches:

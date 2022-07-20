@@ -11,6 +11,7 @@ on:
       - '**/Dockerfile.scanner-test'
       - '**/static/etc/yum.repos.d/google-cloud-sdk.repo'
       - 'scripts/**'
+      - 'config/**'
   pull_request:
     branches:
       - shane/rs-525-ci-migration

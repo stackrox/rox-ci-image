@@ -9,6 +9,7 @@ on:
       - '**/workflows/jenkins.yml'
       - '**/Dockerfile.jenkins-plugin'
       - 'scripts/**'
+      - 'config/**'
   pull_request:
     branches:
       - shane/rs-525-ci-migration
