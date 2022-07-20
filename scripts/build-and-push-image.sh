@@ -7,10 +7,20 @@ docker_login() {
         | docker login quay.io -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin
 }
 
-function image_manifest_exists {
+image_manifest_exists() {
     local image="$1"
     export DOCKER_CLI_EXPERIMENTAL=enabled
     docker manifest inspect "$image" >/dev/null || return 1
+}
+
+docker_push_with_retry() {
+    local image="$1"
+    local tries="${2:-5}"
+
+    for idx in {1..$tries}; do
+        echo "docker push attempt $idx/$tries"
+        docker push "$image" && break || sleep 15
+    done
 }
 
 build_and_push_image() {
@@ -24,26 +34,27 @@ build_and_push_image() {
     BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(scripts/get_tag.sh rocksdb "${CENTOS_TAG}")")
 
     TAG="$(scripts/get_tag.sh "$IMAGE_TAG_PREFIX" "${CENTOS_TAG}")"
-    IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
+    RHACS_ENG_IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
+    STACKROX_IO_IMAGE="quay.io/stackrox-io/apollo-ci:${TAG}"
 
-    echo "CMD              : [scripts/get_tag.sh "$IMAGE_TAG_PREFIX" "${CENTOS_TAG}"]"
-    echo "TAG              : [$TAG]"
-    echo "IMAGE            : [$IMAGE]"
-    echo "IMAGE_TAG_PREFIX : [$IMAGE_TAG_PREFIX]"
+    echo "CMD                : [scripts/get_tag.sh "$IMAGE_TAG_PREFIX" "${CENTOS_TAG}"]"
+    echo "TAG                : [$TAG]"
+    echo "RHACS_ENG_IMAGE    : [$RHACS_ENG_IMAGE]"
+    echo "STACKROX_IO_IMAGE  : [$STACKROX_IO_IMAGE]"
+    echo "IMAGE_TAG_PREFIX   : [$IMAGE_TAG_PREFIX]"
 
     if [[ "$IMAGE_TAG_PREFIX" == "rocksdb" ]]; then
-        if image_manifest_exists "$IMAGE"; then
-            echo "Image '$IMAGE' already exists - no need to build it"
+        if image_manifest_exists "$RHACS_ENG_IMAGE"; then
+            echo "Image '$RHACS_ENG_IMAGE' already exists - no need to build it"
             exit 0
         fi
     fi
 
-    docker build "${BUILD_ARGS[@]}" -f "$DOCKERFILE_PATH" -t "${IMAGE}" .
+    docker build "${BUILD_ARGS[@]}" -f "$DOCKERFILE_PATH" -t "$RHACS_ENG_IMAGE" .
+    docker_push_with_retry "$RHACS_ENG_IMAGE"
 
-    for idx in {1..5}; do
-        echo "docker push attempt $idx/5"
-        docker push "${IMAGE}" && break || sleep 15
-    done
+    docker tag "$RHACS_ENG_IMAGE" "$STACKROX_IO_IMAGE"
+    docker_push_with_retry "$STACKROX_IO_IMAGE"
 }
 
 
