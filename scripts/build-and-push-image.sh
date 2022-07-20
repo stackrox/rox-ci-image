@@ -2,9 +2,14 @@
 # vim: set sw=4 expandtab :
 set -eu
 
-docker_login() {
+docker_login_quay_rhacs_eng() {
     echo "$QUAY_RHACS_ENG_RW_PASSWORD" \
         | docker login quay.io -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin
+}
+
+docker_login_quay_stackrox_io() {
+    echo "$QUAY_STACKROX_IO_RW_PASSWORD" \
+        | docker login quay.io -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin
 }
 
 image_manifest_exists() {
@@ -17,7 +22,7 @@ docker_push_with_retry() {
     local image="$1"
     local tries="${2:-5}"
 
-    for idx in {1..$tries}; do
+    for idx in $(seq $tries); do
         echo "docker push attempt $idx/$tries"
         docker push "$image" && break || sleep 15
     done
@@ -50,9 +55,11 @@ build_and_push_image() {
         fi
     fi
 
+    docker_login_quay_rhacs_eng
     docker build "${BUILD_ARGS[@]}" -f "$DOCKERFILE_PATH" -t "$RHACS_ENG_IMAGE" .
     docker_push_with_retry "$RHACS_ENG_IMAGE"
 
+    docker_login_quay_stackrox_io
     docker tag "$RHACS_ENG_IMAGE" "$STACKROX_IO_IMAGE"
     docker_push_with_retry "$STACKROX_IO_IMAGE"
 }
@@ -63,5 +70,4 @@ DOCKERFILE_PATH="$1"   # string -- path to the Dockerfile
 IMAGE_TAG_PREFIX="$2"  # string -- used to tag the image as a particular variant
 BUILDS_ON="${3:-}"     # string -- base image variant on which to build
 
-docker_login
 build_and_push_image
