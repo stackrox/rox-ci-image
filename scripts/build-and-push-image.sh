@@ -23,7 +23,7 @@ docker_push_with_retry() {
     local tries="${2:-5}"
 
     for idx in $(seq $tries); do
-        echo "docker push attempt $idx/$tries"
+        echo "docker push [$image] attempt $idx/$tries"
         docker push "$image" && break || sleep 15
     done
 }
