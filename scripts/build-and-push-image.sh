@@ -1,5 +1,5 @@
 #!/bin/bash
-# vim: set sw=4 expandtab :
+# vim: set shiftwidth=4 expandtab :
 set -eu
 
 docker_login_quay_rhacs_eng() {
