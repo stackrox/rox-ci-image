@@ -5,7 +5,8 @@ set -eu
 
 install_bats() {
     if command -v "bats" &>/dev/null; then
-        local bats_path=$(whereis -b "bats")
+        local bats_path
+        bats_path=$(whereis -b "bats")
         echo "Found bats at $bats_path"
     else
         echo "Installing bats"

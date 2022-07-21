@@ -3,7 +3,7 @@
 set -eu
 
 IMAGE_TAG_PREFIX="$1"  # string -- stackrox | stackrox-test | collector | ...
-TAG="$(./scripts/get_tag.sh ${IMAGE_TAG_PREFIX})"
+TAG="$(./scripts/get_tag.sh "$IMAGE_TAG_PREFIX")"
 
 echo "Downloading roxctl"
 curl --retry 3 -k -o roxctl \

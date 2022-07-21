@@ -23,15 +23,16 @@ git_clone_and_branch() {
 }
 
 update_image_refs() {
-    local flavor="$1"
-    local comment="# TODO(do not merge): this image ref should be updated from a new tag after upstream PR is merged"
-    local tag="$($ORIG_CWD/scripts/get_tag.sh $flavor)"
+    local flavor comment tag
+    flavor="$1"
+    comment="# TODO(do not merge): this image ref should be updated from a new tag after upstream PR is merged"
+    tag="$("$ORIG_CWD/scripts/get_tag.sh" "$flavor")"
 
     pushd "$REPO_SOURCE_ROOT"
 
     # Open/update a PR and configure labels, assignees
     # This must happen before pushing changes to the branch
-    $ORIG_CWD/scripts/create_update_pr.sh \
+    "$ORIG_CWD/scripts/create_update_pr.sh" \
         "$BRANCH_NAME" \
         "$REPO" \
         "Update apollo-ci image" \
@@ -82,13 +83,13 @@ echo "IMAGE_FLAVORS : [$IMAGE_FLAVORS]"
 echo "BRANCH_NAME   : [$BRANCH_NAME]"
 echo "ORIG_CWD      : [$ORIG_CWD]"
 echo "---------------------------------------"
-for flavor in $(sed 's/,/\n/g' <<<"$IMAGE_FLAVORS"); do
+for flavor in ${IMAGE_FLAVORS//,/ /}; do
     echo "SKIPPING update_image_ref for [$flavor]"
 done
 exit 0
 
 git_clone_and_branch
 
-for flavor in $(sed 's/,/\n/g' <<<"$IMAGE_FLAVORS"); do
+for flavor in ${IMAGE_FLAVORS//,/ /}; do
     update_image_refs "$flavor"
 done

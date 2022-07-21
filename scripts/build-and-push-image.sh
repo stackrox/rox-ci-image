@@ -22,9 +22,9 @@ docker_push_with_retry() {
     local image="$1"
     local tries="${2:-5}"
 
-    for idx in $(seq $tries); do
+    for idx in $(seq "$tries"); do
         echo "docker push [$image] attempt $idx/$tries"
-        docker push "$image" && break || sleep 15
+        { docker push "$image" && break; } || sleep 15;
     done
 }
 
@@ -42,7 +42,7 @@ build_and_push_image() {
     RHACS_ENG_IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
     STACKROX_IO_IMAGE="quay.io/stackrox-io/apollo-ci:${TAG}"
 
-    echo "CMD                : [scripts/get_tag.sh "$IMAGE_TAG_PREFIX" "${CENTOS_TAG}"]"
+    echo "CMD                : [scripts/get_tag.sh $IMAGE_TAG_PREFIX $CENTOS_TAG]"
     echo "TAG                : [$TAG]"
     echo "RHACS_ENG_IMAGE    : [$RHACS_ENG_IMAGE]"
     echo "STACKROX_IO_IMAGE  : [$STACKROX_IO_IMAGE]"
