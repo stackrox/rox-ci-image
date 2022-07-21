@@ -119,7 +119,6 @@ commands:
           name: Build & push image
           command: |
             # Login may be required for pulling the base image for building (if used) and to omit the rate limit
-            docker login -u "$DOCKER_IO_PULL_USERNAME" -p "$DOCKER_IO_PULL_PASSWORD" docker.io
             docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
             if [[ -n "<< parameters.builds-on >>" ]]; then
