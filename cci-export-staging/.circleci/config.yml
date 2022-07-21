@@ -1,0 +1,31 @@
+jobs:
+  build-and-push-stackrox-test-cci:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - build-and-push-image:
+          dockerfile-path: images/circleci.Dockerfile
+          image-flavor: "stackrox-test-cci"
+          builds-on: "stackrox-test"
+      - check-image:
+          image-flavor: "stackrox-test-cci"
+
+  test-cci-export:
+    docker:
+      - image: cimg/base:stable
+    resource_class: medium
+    steps:
+    - checkout
+    - setup_remote_docker
+    - run:
+        name: Test cci-export inside Docker
+        command: |
+          docker login -u "$QUAY_RHACS_ENG_RO_USERNAME" --password-stdin \<<<"$QUAY_RHACS_ENG_RO_PASSWORD" quay.io
+          BASE_TAG="$(.circleci/get_tag.sh stackrox-test-cci)"
+
+          docker build \
+            --build-arg BASE_TAG="$BASE_TAG" \
+            -f images/test.cci-export.Dockerfile \
+            -t test.cci-export \
+            images/
+          docker run --rm test.cci-export
