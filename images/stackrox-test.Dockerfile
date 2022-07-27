@@ -108,12 +108,8 @@ RUN set -ex \
 
 # Install aws cli
 RUN set -ex \
- && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" \
- && unzip awscliv2.zip \
- && ./aws/install \
- && rm awscliv2.zip \
- && rm -rf aws \
- && aws --version
+  && pip3 --no-cache-dir install awscli==1.25.4 \
+  && aws --version
 
 # Install yq v4.16.2
 RUN set -ex \
