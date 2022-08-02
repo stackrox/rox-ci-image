@@ -30,6 +30,17 @@ stackrox-build-image:
 		-f images/stackrox-build.Dockerfile \
 		images/
 
+SCANNER_BUILD_TAG=$(shell .circleci/get_tag.sh "scanner-build")
+
+.PHONY: scanner-build-image
+scanner-build-image:
+	$(DOCKER) build \
+	    -t stackrox/apollo-ci:$(SCANNER_BUILD_TAG) \
+	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(SCANNER_BUILD_TAG) \
+		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		-f images/stackrox-build.Dockerfile \
+		images/
+
 STACKROX_TEST_TAG=$(shell .circleci/get_tag.sh "stackrox-test")
 
 .PHONY: stackrox-test-image
