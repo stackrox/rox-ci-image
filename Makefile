@@ -32,12 +32,22 @@ build-rocksdb:
 	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
 	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${ROCKSDB_TAG}
 
-build-stackrox:
+build-stackrox-amd64:
 	docker buildx build --platform linux/amd64 --progress=plain \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
 		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
-		-f Dockerfile.stackrox \
+		-f Dockerfile.stackrox.amd64 \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
+
+build-stackrox-arm64:
+	docker buildx build --platform linux/arm64 --progress=plain \
+		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
+		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
+		-f Dockerfile.stackrox.arm64 \
 		--push .
 	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
 	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
