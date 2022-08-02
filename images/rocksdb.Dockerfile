@@ -32,11 +32,3 @@ RUN mkdir -p /build && \
 RUN cd /tmp/rocksdb && \
     DEBUG_LEVEL=0 make ldb
 
-ARG UPX_VERSION=3.96
-ARG UPX_SHA256=ac75f5172c1c530d1b5ce7215ca9e94586c07b675a26af3b97f8421b8b8d413d
-RUN url="https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-amd64_linux.tar.xz" && \
-    wget --no-verbose -O upx.txz "$url" && \
-    echo "${UPX_SHA256} *upx.txz" | sha256sum -c - && \
-    tar -xJf upx.txz && \
-    "upx-${UPX_VERSION}-amd64_linux/upx" -9 /tmp/rocksdb/ldb && \
-    rm -rf upx.txz "upx-${UPX_VERSION}-amd64_linux"
