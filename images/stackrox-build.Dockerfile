@@ -1,10 +1,10 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-ARG CENTOS_TAG
+ARG STACKROX_CENTOS_TAG
 ARG ROCKSDB_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as builder
 
-FROM quay.io/centos/centos:${CENTOS_TAG} as base
+FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

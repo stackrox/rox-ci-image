@@ -1,7 +1,6 @@
 # Provides the tooling required to run Scanner dockerized build targets.
 
-ARG CENTOS_TAG
-FROM quay.io/centos/centos:${CENTOS_TAG}
+FROM quay.io/centos/centos:stream9
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

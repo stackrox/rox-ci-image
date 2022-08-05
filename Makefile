@@ -1,8 +1,8 @@
-ifeq ($(CENTOS_TAG),)
-CENTOS_TAG=$(shell cat CENTOS_TAG)
+ifeq ($(STACKROX_CENTOS_TAG),)
+STACKROX_CENTOS_TAG=$(shell cat STACKROX_CENTOS_TAG)
 endif
 ifeq ($(ROCKSDB_TAG),)
-ROCKSDB_TAG=$(shell .circleci/get_tag.sh "rocksdb" "$(CENTOS_TAG)")
+ROCKSDB_TAG=$(shell .circleci/get_tag.sh "rocksdb" "$(STACKROX_CENTOS_TAG)")
 endif
 ifeq ($(DOCKER),)
 DOCKER=docker
@@ -14,7 +14,7 @@ rocksdb-image:
 	$(DOCKER) build \
 	    -t stackrox/apollo-ci:$(ROCKSDB_TAG) \
 	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG) \
-		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/rocksdb.Dockerfile \
 		images/
 
@@ -26,7 +26,7 @@ stackrox-build-image:
 	    -t stackrox/apollo-ci:$(STACKROX_BUILD_TAG) \
 	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
-		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/stackrox-build.Dockerfile \
 		images/
 
@@ -63,8 +63,9 @@ test-cci-export:
 		-it \
 		test-cci-export
 
-.PHONY: collector-test-image
-collector-test-image:
+.PHONY: %-image
+%-image: images/%.Dockerfile 
 	$(DOCKER) build \
-		-f images/collector.Dockerfile \
-		images/
+	   --tag quay.io/rhacs-eng/apollo-ci:$$(.circleci/get_tag.sh $@ "${STACKROX_CENTOS_TAG}") \
+	   --file $< \
+           images/

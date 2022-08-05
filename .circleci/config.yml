@@ -126,20 +126,28 @@ commands:
               BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
             fi
 
-            CENTOS_TAG="$(cat CENTOS_TAG)"
-            BUILD_ARGS+=(--build-arg "CENTOS_TAG=${CENTOS_TAG}")
+            STACKROX_CENTOS_TAG="$(cat STACKROX_CENTOS_TAG)"
 
-            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(.circleci/get_tag.sh rocksdb "${CENTOS_TAG}")")
-
-            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>" "${CENTOS_TAG}")"
+            TAG="$(.circleci/get_tag.sh "<< parameters.image-flavor >>" "${STACKROX_CENTOS_TAG}")"
             IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
-            if [[ "<< parameters.image-flavor >>" == "rocksdb" ]] && \
-                   DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
-              echo "Image '$IMAGE' already exists - no need to build it"
-              circleci step halt
-              exit 0
-            fi
+            # The `stackrox-build` and `rocksdb` images share the centos image
+            # tag through `STACKROX_CENTOS_TAG`.
+
+            case "<< parameters.image-flavor >>" in
+               rocksdb)
+                   if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+                      echo "Image '$IMAGE' already exists - no need to build it"
+                      circleci step halt
+                      exit 0
+                   fi
+                   BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
+                   ;;
+               stackrox-build)
+                   BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
+                   BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(.circleci/get_tag.sh rocksdb "${STACKROX_CENTOS_TAG}")")
+                   ;;
+            esac
 
             docker build \
               "${BUILD_ARGS[@]}" \
@@ -148,7 +156,7 @@ commands:
               images/
 
             for _ in {1..5}; do
-              docker push "quay.io/rhacs-eng/apollo-ci:${TAG}" && break || sleep 15
+              docker push "${IMAGE}" && break || sleep 15
             done
 
             for _ in {1..5}; do
