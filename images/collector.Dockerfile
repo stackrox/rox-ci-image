@@ -72,8 +72,6 @@ RUN set -ex && \
     groupadd --gid 3434 circleci && \
     useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci && \
     echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci && \
-    chown -R circleci:circleci "$GOPATH" && \
-    mkdir -p "$GOCACHE" && \
-    chown -R circleci:circleci "$GOCACHE"
+    chown -R circleci:circleci "$GOPATH"
 
 ENV ROX_CI_IMAGE=collector-ci-image
