@@ -60,3 +60,20 @@ RUN \
 
 # Extra python dependencies for test-scripts
 RUN pip3 -q install --upgrade scipy google-cloud-storage==2.2.1
+
+
+RUN set -ex && \
+    dnf update -y && \
+    dnf install -y \
+        sudo \
+        && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum && \
+    groupadd --gid 3434 circleci && \
+    useradd --uid 3434 --gid circleci --shell /bin/bash --create-home circleci && \
+    echo 'circleci ALL=NOPASSWD: ALL' > /etc/sudoers.d/50-circleci && \
+    chown -R circleci:circleci "$GOPATH" && \
+    mkdir -p "$GOCACHE" && \
+    chown -R circleci:circleci "$GOCACHE"
+
+ENV ROX_CI_IMAGE=collector-ci-image
