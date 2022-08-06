@@ -94,7 +94,7 @@ bats: TEST_REPORT=/tmp/bats-report    # bats expects output directory to exist
 bats: TEST_OUTPUTS=/tmp/bats-outputs  # bats creates the specified directory
 bats:
 	mkdir -p $(TEST_REPORT) && rm -rf $(TEST_OUTPUTS)
-	bats --recursive --timing --formatter pretty --verbose-run \
+	bats --recursive --formatter pretty --verbose-run \
 		--output $(TEST_REPORT) --report-formatter tap13 \
 		--gather-test-outputs-in $(TEST_OUTPUTS) \
 		$(PWD)/test/
