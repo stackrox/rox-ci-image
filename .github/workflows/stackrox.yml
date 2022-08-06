@@ -69,7 +69,7 @@ jobs:
           QUAY_RHACS_ENG_RW_PASSWORD: ${{ secrets.QUAY_RHACS_ENG_RW_PASSWORD }}
           QUAY_STACKROX_IO_RW_USERNAME: ${{ secrets.QUAY_STACKROX_IO_RW_USERNAME }}
           QUAY_STACKROX_IO_RW_PASSWORD: ${{ secrets.QUAY_STACKROX_IO_RW_PASSWORD }}
-        run: ./scripts/build-and-push-image.sh "Dockerfile.stackrox" "stackrox"
+        run: ./scripts/build-and-push-image.sh "Dockerfile.stackrox.amd64" "stackrox"
       - name: check-image
         env:
           ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}

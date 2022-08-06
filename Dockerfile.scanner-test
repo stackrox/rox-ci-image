@@ -5,7 +5,7 @@ ARG BASE_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY static/etc/yum.repos.d /etc
+COPY static/etc/yum.repos.d/ /etc/yum.repos.d/
 COPY static/usr/local/bin/ /usr/local/bin/
 
 # BASH_ENV enables env var persistence across CI steps exected in the same
