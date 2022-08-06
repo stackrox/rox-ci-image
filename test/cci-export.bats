@@ -11,11 +11,6 @@ setup() {
   export _CERT="./test/test-ca.crt"
   export _FILE="./test/FILE"
 
-  # Create test file before the test case is run
-  echo "1.2.3" > "${_FILE}"
-  run test -f "${_FILE}"
-  assert_success
-
   # Create backing store for env persistence (using local file)
   export BASH_ENV="/tmp/bash-env.sh"
   :> "$BASH_ENV"

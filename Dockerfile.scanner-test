@@ -5,13 +5,11 @@ ARG BASE_TAG
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY ./static/ /static-tmp
-RUN set -ex \
-  && find /static-tmp -type f -print0 | \
-    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
-  && rm -r /static-tmp
-# Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
-# an initial BASH_ENV as a foundation for cci-export().
+COPY static/etc/yum.repos.d /etc
+COPY static/usr/local/bin/ /usr/local/bin/
+
+# BASH_ENV enables env var persistence across CI steps exected in the same
+# runtime environment.
 ENV BASH_ENV /etc/initial-bash.env
 
 RUN dnf update -y && \

@@ -2,11 +2,8 @@ FROM quay.io/centos/centos:stream8
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY ./static/ /static-tmp
-RUN set -ex \
-  && find /static-tmp -type f -print0 | \
-    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
-  && rm -r /static-tmp
+COPY static/etc/yum.repos.d /etc
+COPY static/usr/local/bin/ /usr/local/bin/
 
 RUN echo "installing dnf packages" \
     && dnf update -y \
@@ -52,7 +49,8 @@ RUN echo "installing golang" \
 
 RUN echo "installing formatters and linters" \
     && go install mvdan.cc/sh/v3/cmd/shfmt@v3.4.1 \
-    && wget -qO- "https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz" | tar -xJv \
+    && wget -qO- "https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz" \
+       | tar -xJv \
     && cp "shellcheck-stable/shellcheck" /usr/bin/ \
     && wget --quiet "https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64" \
     && install hub-comment_linux_amd64 /usr/bin/hub-comment

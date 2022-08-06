@@ -1,4 +1,4 @@
-# KNWON_ISSUE: segfault when building linux/amd64 target on 2022 m1 macbook pro
+# KNOWN_ISSUE: segfault when building linux/amd64 target on 2022 m1 macbook pro
 
 ARG CENTOS_TAG
 
