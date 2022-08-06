@@ -1,5 +1,6 @@
 REGISTRY := quay.io/rhacs-eng
 APP_NAME := apollo-ci
+PLATFORM := linux/amd64
 
 ifeq ($(CENTOS_TAG),)
 	CENTOS_TAG := $(shell cat config/CENTOS_TAG)
@@ -13,6 +14,8 @@ STACKROX_TAG      := $(shell scripts/get_tag.sh "stackrox")
 STACKROX_TEST_TAG := $(shell scripts/get_tag.sh "stackrox-test")
 STACKROX_CCI_TAG  := $(shell scripts/get_tag.sh "stackrox-cci")
 COLLECTOR_TAG     := $(shell scripts/get_tag.sh "collector")
+SCANNER_TAG       := $(shell scripts/get_tag.sh "scanner")
+SCANNER_TEST_TAG  := $(shell scripts/get_tag.sh "scanner-test")
 
 
 tag:
@@ -23,7 +26,7 @@ setup:
 	docker buildx ls
 
 build-rocksdb:
-	docker buildx build --platform linux/amd64 --progress=plain \
+	docker buildx build --platform ${PLATFORM} --progress=plain \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
 		-t ${REGISTRY}/${APP_NAME}:$(ROCKSDB_TAG) \
@@ -32,8 +35,8 @@ build-rocksdb:
 	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
 	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${ROCKSDB_TAG}
 
-build-stackrox-amd64:
-	docker buildx build --platform linux/amd64 --progress=plain \
+build-stackrox:
+	docker buildx build --platform ${PLATFORM} --progress=plain \
 		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
 		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
 		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
@@ -42,30 +45,40 @@ build-stackrox-amd64:
 	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
 	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
 
-build-stackrox-arm64:
-	docker buildx build --platform linux/arm64 --progress=plain \
-		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
-		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
-		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
-		-f Dockerfile.stackrox.arm64 \
-		--push .
-	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
-	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
-
-build-collector:
-	docker buildx build --platform linux/amd64 --progress=plain \
-		-f Dockerfile.collector \
-		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TAG) \
-		--push .
-	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
-	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TAG}
-
 build-stackrox-test:
-	docker buildx build --platform linux/amd64 --progress=plain \
+	docker buildx build --platform ${PLATFORM} --progress=plain \
 		--build-arg BASE_TAG=$(STACKROX_TAG) \
 		-t ${REGISTRY}/${APP_NAME}:$(STACKROX_TEST_TAG) \
 		-f Dockerfile.stackrox-test \
 		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${STACKROX_TEST_TAG}
+
+build-collector:
+	docker buildx build --platform ${PLATFORM} --progress=plain \
+		-f Dockerfile.collector \
+		-t ${REGISTRY}/${APP_NAME}:$(COLLECTOR_TAG) \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${COLLECTOR_TAG}
+
+build-scanner:
+	docker buildx build --platform ${PLATFORM} --progress=plain \
+		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		-f Dockerfile.scanner \
+		-t ${REGISTRY}/${APP_NAME}:$(SCANNER_TAG) \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${SCANNER_TAG}
+
+build-scanner-test:
+	docker buildx build --platform ${PLATFORM} --progress=plain \
+		--build-arg BASE_TAG=$(SCANNER_TAG) \
+		-f Dockerfile.scanner-test \
+		-t ${REGISTRY}/${APP_NAME}:$(SCANNER_TEST_TAG) \
+		--push .
+	docker images --digests --format "{{json .}}" ${REGISTRY}/${APP_NAME} | jq .
+	docker buildx imagetools inspect ${REGISTRY}/${APP_NAME}:${SCANNER_TEST_TAG}
 
 gha-list-workflows:
 	gh workflow list --all
