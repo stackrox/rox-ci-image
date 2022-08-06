@@ -1,15 +1,9 @@
 #!/usr/bin/env bats
 
-# To run the test locally do:
-# make rocksdb-image
-# make stackrox-build-image
-# make stackrox-test-image
-# make stackrox-test-cci-image
-# make test-cci-export
-
-bats_helpers_root="/usr/lib/node_modules"
-load "${bats_helpers_root}/bats-support/load.bash"
-load "${bats_helpers_root}/bats-assert/load.bash"
+setup() {
+  load "../third-party/bats-assert/load"
+  load "../third-party/bats-support/load"
+}
 
 foo_printer() {
   "$HOME/test/bats/foo-printer.sh" "${@}"
