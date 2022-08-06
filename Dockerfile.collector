@@ -2,7 +2,7 @@ FROM quay.io/centos/centos:stream8
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-COPY static/etc/yum.repos.d /etc
+COPY static/etc/yum.repos.d/ /etc/yum.repos.d/
 COPY static/usr/local/bin/ /usr/local/bin/
 
 RUN echo "installing dnf packages" \
