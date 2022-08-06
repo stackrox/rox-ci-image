@@ -9,7 +9,7 @@ setup() {
 
   # Globals
   export _CERT="./test/test-ca.crt"
-  export _FILE="./test/FILE"
+  export _FILE="./test/INPUT"
 
   # Create backing store for env persistence (using local file)
   export BASH_ENV="/tmp/bash-env.sh"
