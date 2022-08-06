@@ -12,6 +12,7 @@ on:
       - '**/static/etc/yum.repos.d/google-cloud-sdk.repo'
       - 'scripts/**'
       - 'config/**'
+      - 'Makefile'
   pull_request:
     branches:
       - shane/rs-525-ci-migration

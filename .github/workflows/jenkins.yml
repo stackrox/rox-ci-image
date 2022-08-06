@@ -10,6 +10,7 @@ on:
       - '**/Dockerfile.jenkins-plugin'
       - 'scripts/**'
       - 'config/**'
+      - 'Makefile'
   pull_request:
     branches:
       - shane/rs-525-ci-migration
