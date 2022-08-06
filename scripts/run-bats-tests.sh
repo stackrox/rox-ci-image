@@ -25,7 +25,8 @@ assert_cwd_in_git_tree() {
 
 assert_cwd_in_git_tree
 install_bats
-bats --tap "./scripts/get_tag.bats" || {
-    echo "ERROR: bats test failure"
-    exit 1
-}
+### bats --tap "./test/get_tag.bats" || {
+###     echo "ERROR: bats test failure"
+###     exit 1
+### }
+make bats
