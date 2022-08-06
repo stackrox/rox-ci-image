@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -u
+
+persist() {
+  key="$1"
+  val="$2"
+
+  grep -vE "^export $key=" "$BASH_ENV" > "$TEMP_BASH_ENV" || true
+  printf "export %s=%q\n" "$key" "$val" >> "$TEMP_BASH_ENV"
+  cp "$TEMP_BASH_ENV" "$BASH_ENV"
+}
+
+
+# __MAIN__
+TEMP_BASH_ENV="/tmp/bash-env-tmp.sh"
+touch "$BASH_ENV" "$TEMP_BASH_ENV"
+persist "$1" "$2"

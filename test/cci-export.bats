@@ -4,6 +4,9 @@ setup() {
   load "../third-party/bats-assert/load"
   load "../third-party/bats-support/load"
 
+  # Add 'cci-export' location to PATH
+  export PATH="$PWD/static/usr/local/bin:$PATH"
+
   # Globals
   export _CERT="./test/test-ca.crt"
   export _FILE="./test/FILE"
@@ -14,7 +17,7 @@ setup() {
   assert_success
 
   # Create backing store for env persistence (using local file)
-  export BASH_ENV="$(mktemp)"
+  export BASH_ENV="/tmp/bash-env.sh"
   :> "$BASH_ENV"
 
   # Ensure each test case starts with an empty persistent-env store
@@ -34,6 +37,7 @@ setup() {
 
   run cci-export FOO cci1
   assert_success
+
   run ./test/env-var-printer.sh FOO
   assert_output "FOO: cci1"
   refute_output "FOO: "
@@ -63,27 +67,26 @@ setup() {
 
 @test "cci-export should properly handle multiline values" {
   # Sanity check on cert test fixture
-  run test -f "${_CERT}"
+  run test -f "$_CERT"
   assert_success
   # The unprocessed cert should be parsable with openssl
-  run openssl x509 -in "${_CERT}" -noout
+  run openssl x509 -in "$_CERT" -noout
   assert_success
 
-  run cci-export CERT "$(cat ${_CERT})"
+  run cci-export CERT "$(cat $_CERT)"
   assert_success
 
-  post_cert="${_CERT}.post"
-  ./test/env-var-printer.sh CERT --silent > "$post_cert"
-  # openssl should be able to load the cert after processing it with cci-export
-  run openssl x509 -in "$post_cert" -noout
+  POST_CERT="/tmp/cci-export-multiline-cert-test.crt"
+  ./test/env-var-printer.sh CERT --silent > "$POST_CERT"
+  run openssl x509 -in "$POST_CERT" -noout
   assert_success
 
-  run diff -q "${_CERT}" "$post_cert"
+  run diff -q "$_CERT" "$POST_CERT"
   assert_success
 }
 
 @test "cci-export should allow overwriting multiline values" {
-  run cci-export CERT "$(cat ${_CERT})"
+  run cci-export CERT "$(cat $_CERT)"
   assert_success
   run ./test/env-var-printer.sh "CERT"
   assert_line "CERT: -----BEGIN CERTIFICATE-----"
@@ -95,11 +98,11 @@ setup() {
 }
 
 @test "cci-export should not leave duplicate lines in BASH_ENV" {
-  run cci-export FOO foo # creates 2 lines in BASH_ENV
-  run cci-export FOO foo2 # removes 2 and creates 2 lines in BASH_ENV
+  run cci-export FOO first  # persisted as 1 line in BASH_ENV (initial write)
+  run cci-export FOO second # persisted as 1 line in BASH_ENV (overwrite)
 
-  run bash -c "grep FOO "$BASH_ENV" | wc -l"
-  assert_output 2
+  run grep -Ec "^export FOO=" "$BASH_ENV"
+  assert_output 1
 }
 
 @test "cci-export sanity check many values" {
@@ -150,6 +153,26 @@ setup() {
 }
 
 @test "exported variable should have priority over the cci-exported one" {
+  # TODO(sbostick): this test case verifies behavior that is contrary to
+  # the standard semantics of BASH_ENV. The complexity due to non-standard use
+  # motivates fixing this in the ci workflows instead of building and maintaing
+  # additional and unnecessary code.
+  #
+  # A test-case or ci-step can override a cci-variable directly with cci-export.
+  #
+  # A test-case or ci-step can use another variable if more suitable.
+  #
+  # A test-case or ci-step can use the filesystem to persist multiline or
+  # structured data which should be stored verbatim.
+  #
+  # I cannot see the justification for implementing alternative BASH_ENV
+  # semantics, string escaping, shadow variable defaults, and maintaining
+  # test cases to enable this peculiar `cci-export` functionality to support
+  # what is in effect BASH_ENV with local and shadow var override.
+  #
+  # And then relying on these semantics across automation workloads.
+  skip
+
   run cci-export FOO cci
   export FOO=bar
   run ./test/env-var-printer.sh FOO
@@ -159,6 +182,9 @@ setup() {
 }
 
 @test "shadowed variable should have priority over the cci-exported one" {
+  # TODO(sbostick): same as previous
+  skip
+
   run cci-export FOO cci
   FOO=bar run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
@@ -167,6 +193,9 @@ setup() {
 }
 
 @test "shadowed variable should have priority over both: the exported and the cci-exported one" {
+  # TODO(sbostick): same as previous
+  skip
+
   export FOO=bar-export
   run cci-export FOO cci
   FOO=bar-shadow run ./test/env-var-printer.sh FOO
@@ -186,6 +215,9 @@ setup() {
 }
 
 @test "shadowed empty variable should be respected in a script" {
+  # TODO(sbostick): same as previous
+  skip
+
   run cci-export FOO "value"
   FOO="" run ./test/env-var-printer.sh FOO
   assert_output "FOO: "
