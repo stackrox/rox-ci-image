@@ -249,6 +249,8 @@ jobs:
 
   build-and-push-scanner-build:
     <<: *defaults
+    setup_remote_docker:
+      version: 20.10.14
     steps:
       - build-and-push-image:
           dockerfile-path: images/scanner-build.Dockerfile
@@ -258,6 +260,8 @@ jobs:
 
   build-and-push-scanner-test:
     <<: *defaults
+    setup_remote_docker:
+      version: 20.10.14
     steps:
       - build-and-push-image:
           dockerfile-path: images/scanner-test.Dockerfile
@@ -268,6 +272,8 @@ jobs:
 
   build-and-push-scanner-test-cci:
     <<: *defaults
+    setup_remote_docker:
+      version: 20.10.14
     steps:
       - build-and-push-image:
           dockerfile-path: images/circleci.Dockerfile
