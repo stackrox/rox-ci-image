@@ -97,4 +97,4 @@ bats:
 	bats --recursive --timing --formatter pretty --verbose-run \
 		--output $(TEST_REPORT) --report-formatter tap13 \
 		--gather-test-outputs-in $(TEST_OUTPUTS) \
-		$(PWD)/scripts/
+		$(PWD)/test/

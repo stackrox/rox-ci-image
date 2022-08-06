@@ -3,4 +3,4 @@
 # Ignore GoLand
 .idea
 
-output/
+/test/FILE

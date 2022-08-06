@@ -3,35 +3,28 @@
 setup() {
   load "../third-party/bats-assert/load"
   load "../third-party/bats-support/load"
-}
 
-foo_printer() {
-  "$HOME/test/bats/foo-printer.sh" "${@}"
-}
+  # Globals
+  export _CERT="./test/test-ca.crt"
+  export _FILE="./test/FILE"
 
-setup() {
-  export _CERT="$HOME/test/bats/test-ca.crt"
-  export _FILE="$HOME/test/bats/FILE"
-  # Create a file used in test-cases using subshell execution of 'cat'
+  # Create test file before the test case is run
   echo "1.2.3" > "${_FILE}"
   run test -f "${_FILE}"
   assert_success
 
-  bash_env="$(mktemp)"
-  export BASH_ENV="$bash_env"
-  # ensure clean start of every test case
-  unset FOO
-  echo "" > "$bash_env"
-  run echo $BASH_ENV
-  assert_output "$bash_env"
+  # Create backing store for env persistence (using local file)
+  export BASH_ENV="$(mktemp)"
+  :> "$BASH_ENV"
+
+  # Ensure each test case starts with an empty persistent-env store
   run cat $BASH_ENV
   assert_output ""
-  run foo_printer
+
+  # Sanity check handling of unset variable
+  unset FOO
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: "
-  run test -n $CIRCLECI
-  assert_success
-  run echo $CIRCLECI
-  assert_output "true"
 }
 
 @test "cci-export BASH_ENV does not exist" {
@@ -41,7 +34,7 @@ setup() {
 
   run cci-export FOO cci1
   assert_success
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: cci1"
   refute_output "FOO: "
 }
@@ -49,13 +42,13 @@ setup() {
 @test "cci-export sanity check single value" {
   run cci-export FOO cci1
   assert_success
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: cci1"
   refute_output "FOO: "
 
   run cci-export FOO cci2
   assert_success
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: cci2"
   refute_output "FOO: cci1"
 }
@@ -63,7 +56,7 @@ setup() {
 @test "cci-export should escape special characters in values" {
   run cci-export FOO 'quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   assert_success
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output 'FOO: quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   refute_output "FOO: "
 }
@@ -80,7 +73,7 @@ setup() {
   assert_success
 
   post_cert="${_CERT}.post"
-  foo_printer CERT --silent > "$post_cert"
+  ./test/env-var-printer.sh CERT --silent > "$post_cert"
   # openssl should be able to load the cert after processing it with cci-export
   run openssl x509 -in "$post_cert" -noout
   assert_success
@@ -92,12 +85,12 @@ setup() {
 @test "cci-export should allow overwriting multiline values" {
   run cci-export CERT "$(cat ${_CERT})"
   assert_success
-  run foo_printer "CERT"
+  run ./test/env-var-printer.sh "CERT"
   assert_line "CERT: -----BEGIN CERTIFICATE-----"
   assert_line "-----END CERTIFICATE-----"
 
   run cci-export CERT "dummy"
-  run foo_printer "CERT"
+  run ./test/env-var-printer.sh "CERT"
   assert_output "CERT: dummy"
 }
 
@@ -118,15 +111,15 @@ setup() {
   run cci-export VAR2 "text/$VAR/text:$(cat "${_FILE}")"
   run cci-export IMAGE3 "text/$VAR/text:$(cat "${_FILE}")"
 
-  run foo_printer "VAR1"
+  run ./test/env-var-printer.sh "VAR1"
   assert_output "VAR1: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "VAR1: text/placeholder/text:1.2.3"
 
-  run foo_printer VAR2
+  run ./test/env-var-printer.sh VAR2
   assert_output "VAR2: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "VAR2: text/placeholder/text:1.2.3"
 
-  run foo_printer IMAGE3
+  run ./test/env-var-printer.sh IMAGE3
   assert_output "IMAGE3: text/$VAR/text:$(cat "${_FILE}")"
   assert_output "IMAGE3: text/placeholder/text:1.2.3"
 }
@@ -136,22 +129,22 @@ setup() {
   run cci-export PART1_PART2 "value_joined"
   run cci-export PART1 "value2"
 
-  run foo_printer PART1
+  run ./test/env-var-printer.sh PART1
   assert_output "PART1: value2"
   refute_output "PART1: value1"
-  run foo_printer PART1_PART2
+  run ./test/env-var-printer.sh PART1_PART2
   assert_output "PART1_PART2: value_joined"
 }
 
 @test "exported variable should be respected in a script" {
   export FOO=bar
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
   refute_output "FOO: "
 }
 
 @test "shadowed variable should be respected in a script" {
-  FOO=bar run foo_printer
+  FOO=bar run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
   refute_output "FOO: "
 }
@@ -159,7 +152,7 @@ setup() {
 @test "exported variable should have priority over the cci-exported one" {
   run cci-export FOO cci
   export FOO=bar
-  run foo_printer
+  run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
   refute_output "FOO: cci"
   refute_output "FOO: "
@@ -167,7 +160,7 @@ setup() {
 
 @test "shadowed variable should have priority over the cci-exported one" {
   run cci-export FOO cci
-  FOO=bar run foo_printer
+  FOO=bar run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
   refute_output "FOO: cci"
   refute_output "FOO: "
@@ -176,7 +169,7 @@ setup() {
 @test "shadowed variable should have priority over both: the exported and the cci-exported one" {
   export FOO=bar-export
   run cci-export FOO cci
-  FOO=bar-shadow run foo_printer
+  FOO=bar-shadow run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar-shadow"
   refute_output "FOO: bar-export"
   refute_output "FOO: cci"
@@ -185,7 +178,7 @@ setup() {
 
   run cci-export FOO cci2
   export FOO=bar-export2
-  FOO=bar-shadow2 run foo_printer
+  FOO=bar-shadow2 run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar-shadow2"
   refute_output "FOO: bar-export2"
   refute_output "FOO: cci2"
@@ -194,7 +187,7 @@ setup() {
 
 @test "shadowed empty variable should be respected in a script" {
   run cci-export FOO "value"
-  FOO="" run foo_printer
+  FOO="" run ./test/env-var-printer.sh FOO
   assert_output "FOO: "
   refute_output "FOO: value"
 }
