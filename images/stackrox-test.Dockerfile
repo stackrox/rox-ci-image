@@ -35,7 +35,6 @@ RUN dnf update -y && \
         google-cloud-sdk \
         google-cloud-sdk-gke-gcloud-auth-plugin \
         java-1.8.0-openjdk-devel \
-        jq \
         kubectl \
         lsof \
         lz4 \
