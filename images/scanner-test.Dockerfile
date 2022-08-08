@@ -23,7 +23,11 @@ RUN set -ex \
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
 
-RUN dnf update -y && \
+RUN \
+    dnf update -y && \
+    dnf install -y \
+        https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
+        && \
     dnf install -y \
         expect \
         gcc \
@@ -35,7 +39,7 @@ RUN dnf update -y && \
         lsof \
         lz4 \
         openssl \
-        @postgresql:12 \
+        postgresql12-server \
         python3 \
         unzip \
         xz \
