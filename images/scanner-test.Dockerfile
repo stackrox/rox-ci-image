@@ -33,6 +33,10 @@ COPY ./static-contents-scanner/etc/yum.repos.d/google-cloud-sdk.repo /etc/yum.re
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
 
+# PostgreSQL environment.
+ENV PG_MAJOR=12
+ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
+
 RUN dnf install -y \
         https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
  && dnf update -y \
@@ -46,7 +50,7 @@ RUN dnf install -y \
         lsof \
         lz4 \
         openssl \
-        postgresql12-server \
+        postgresql${PG_MAJOR}-server \
         python3 \
         unzip \
         xz \
