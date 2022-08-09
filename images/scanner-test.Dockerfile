@@ -42,6 +42,7 @@ RUN dnf install -y \
         gcc-c++ \
         jq \
         kubectl \
+        libxcrypt-compat \
         lsof \
         lz4 \
         openssl \
@@ -50,7 +51,6 @@ RUN dnf install -y \
         unzip \
         xz \
         zip \
-        libcrypt \
  && dnf clean all \
  && rm -rf /var/cache/dnf /var/cache/yum
 
@@ -65,7 +65,7 @@ RUN update-crypto-policies --set DEFAULT:SHA1 \
  && dnf install -y \
         google-cloud-sdk \
         google-cloud-sdk-gke-gcloud-auth-plugin \
- && update-crypto-policies --set DEFAULT
+ && update-crypto-policies --set DEFAULT:NO-SHA1
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
