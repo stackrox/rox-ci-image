@@ -63,17 +63,8 @@ test-cci-export:
 		-it \
 		test-cci-export
 
-# Generic targets
-# ===============
-
-# Set BASE_TAG for certain images, matching against the image target.
-scanner-test-image__base_tag := scanner-build
-
-.PHONY: %-image
-%-image: images/%.Dockerfile
+.PHONY: collector-test-image
+collector-test-image:
 	$(DOCKER) build \
-	    $(if ${$@__base_tag},--build-arg BASE_TAG=$$(.circleci/get_tag.sh ${$@__base_tag} "${STACKROX_CENTOS_TAG}")) \
-	    $(foreach arg,${$@__additional_args},--build-arg ${arg}) \
-	    --tag quay.io/rhacs-eng/apollo-ci:$$(.circleci/get_tag.sh $@ "${STACKROX_CENTOS_TAG}") \
-	    --file $< \
-            images/
+		-f images/collector.Dockerfile \
+		images/
