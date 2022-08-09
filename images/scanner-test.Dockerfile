@@ -9,31 +9,34 @@ FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
 # CMD/ENTRYPOINT.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# We are copying the contents in static-contents into / in the image, following the directory structure.
-# The reason we don't do a simple COPY ./static-contents / is that, in the base image (as of ubuntu:20.04)
-# /bin is a symlink to /usr/bin, and so the COPY ends up overwriting the symlink with a directory containing only
-# the contents of static-contents/bin, which is NOT what we want.
-# The following method of copying to /static-tmp and then explicitly copying file by file works around that.
-COPY ./static-contents/ /static-tmp
+# We are copying the contents in static-contents into / in the image, following
+# the directory structure.
+#
+# The reason we don't do a simple COPY ./static-contents / is that, in the base
+# image (as of ubuntu:20.04) /bin is a symlink to /usr/bin, and so the COPY ends
+# up overwriting the symlink with a directory containing only the contents of
+# static-contents/bin, which is NOT what we want.
+#
+# The following method of copying to /static-tmp and then explicitly copying
+# file by file works around that.
+COPY ./static-contents-scanner/ /static-tmp
 RUN set -ex \
-  && find /static-tmp -type f -print0 | \
-    xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
-  && rm -r /static-tmp
+ && find /static-tmp -type f -print0 \
+  | xargs -0 -I '{}' -n1 \
+        bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
+ && rm -r /static-tmp
+
 # Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
 
-RUN \
-    dnf update -y && \
-    dnf install -y \
+RUN dnf install -y \
         https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
-        && \
-    dnf install -y \
+ && dnf update -y \
+ && dnf install -y \
         expect \
         gcc \
         gcc-c++ \
-        google-cloud-sdk \
-        google-cloud-sdk-gke-gcloud-auth-plugin \
         jq \
         kubectl \
         lsof \
@@ -44,9 +47,22 @@ RUN \
         unzip \
         xz \
         zip \
-        && \
-    dnf clean all && \
-    rm -rf /var/cache/dnf /var/cache/yum
+        libcrypt \
+ && dnf clean all \
+ && rm -rf /var/cache/dnf /var/cache/yum
+
+# Installing GC and GCP SDK.
+#
+# These packages are signed with SHA1, which is restricted by default in
+# RHEL9[1]. We disable the restriction to verify signatures.
+#
+# [1]: https://access.redhat.com/articles/6846411
+#
+RUN update-crypto-policies --set DEFAULT:SHA1 \
+ && dnf install -y \
+        google-cloud-sdk \
+        google-cloud-sdk-gke-gcloud-auth-plugin \
+ && update-crypto-policies --set DEFAULT
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
