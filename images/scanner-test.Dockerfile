@@ -19,12 +19,15 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 #
 # The following method of copying to /static-tmp and then explicitly copying
 # file by file works around that.
-COPY ./static-contents-scanner/ /static-tmp
+COPY ./static-contents /static-tmp
 RUN set -ex \
  && find /static-tmp -type f -print0 \
   | xargs -0 -I '{}' -n1 \
         bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
  && rm -r /static-tmp
+
+# Overwrite google cloud sdk with scanner's version.
+COPY ./static-contents-scanner/etc/yum.repos.d/google-cloud-sdk.repo /etc/yum.repos.d/google-cloud-sdk.repo
 
 # Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
 # an initial BASH_ENV as a foundation for cci-export().
