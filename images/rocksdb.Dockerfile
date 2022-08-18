@@ -21,7 +21,7 @@ RUN dnf update -y && \
 # This compiles RocksDB without BMI and AVX2 instructions
 ENV PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
 
-ARG ROCKSDB_VERSION="v6.7.3"
+ARG ROCKSDB_VERSION="v6.29.4"
 RUN mkdir -p /build && \
     cd /tmp && \
     git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && \
