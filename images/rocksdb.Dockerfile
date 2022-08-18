@@ -27,7 +27,7 @@ RUN mkdir -p /build && \
     git clone -b "${ROCKSDB_VERSION}" --depth 1 https://github.com/facebook/rocksdb.git && \
     cd rocksdb && \
     git ls-files -s | git hash-object --stdin >/build/ROCKSDB_HASH && \
-    DEBUG_LEVEL=1 make librocksdb.a
+    DEBUG_LEVEL=1 LIBNAME=librocksdb make librocksdb.a
 
 RUN cd /tmp/rocksdb && \
     DEBUG_LEVEL=0 make ldb
