@@ -14,6 +14,7 @@ RUN dnf update -y && \
         snappy-devel \
         wget \
         zlib-devel \
+        jemalloc-devel \
         && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
