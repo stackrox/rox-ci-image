@@ -1,4 +1,4 @@
-FROM cimg/base:stable
+FROM cimg/base:current
 
 # Avoid interaction with apt-get commands.
 # This pops up when doing apt-get install lsb-core,
