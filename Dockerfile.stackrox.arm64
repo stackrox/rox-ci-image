@@ -20,6 +20,7 @@ RUN dnf update -y && \
     dnf install -y \
         bzip2-devel \
         git-core \
+        jq \
         libzstd-devel \
         lz4-devel \
         nodejs \
