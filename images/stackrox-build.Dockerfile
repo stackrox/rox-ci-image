@@ -19,7 +19,7 @@ RUN dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     dnf update -y && \
-    dnf -y groupinstall "Developmengt Tools" && \
+    dnf -y groupinstall "Development Tools" && \
     dnf install -y \
         bzip2-devel \
         git-core \
