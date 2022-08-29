@@ -19,7 +19,7 @@ RUN dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     dnf update -y && \
-    dnf -y groupinstall "Development Tools" && \
+    dnf -y groupinstall "Developmengt Tools" && \
     dnf install -y \
         bzip2-devel \
         git-core \
@@ -36,8 +36,8 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
-ARG GOLANG_VERSION=1.17.12
-ARG GOLANG_SHA256=6e5203fbdcade4aa4331e441fd2e1db8444681a6a6c72886a37ddd11caa415d4
+ARG GOLANG_VERSION=1.18.5
+ARG GOLANG_SHA256=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
