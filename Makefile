@@ -64,7 +64,7 @@ build-collector:
 
 build-scanner:
 	docker buildx build --platform ${PLATFORM} --progress=plain \
-		--build-arg CENTOS_TAG=$(CENTOS_TAG) \
+		--build-arg CENTOS_TAG=stream9 \
 		-f Dockerfile.scanner \
 		-t ${REGISTRY}/${APP_NAME}:$(SCANNER_TAG) \
 		--push .
