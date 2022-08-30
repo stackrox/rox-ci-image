@@ -34,7 +34,13 @@ build_and_push_image() {
         BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
     fi
 
-    CENTOS_TAG="stream9"
+    if [[ "$IMAGE_TAG_PREFIX" =~ "stackrox|rocksdb" ]]; then
+        CENTOS_TAG="stream8"
+    elif [[ "$IMAGE_TAG_PREFIX" == "scanner" ]]; then
+        CENTOS_TAG="stream9"
+    else
+        CENTOS_TAG="stream8"
+    fi
     BUILD_ARGS+=(--build-arg "CENTOS_TAG=${CENTOS_TAG}")
     BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(scripts/get_tag.sh rocksdb "${CENTOS_TAG}")")
 

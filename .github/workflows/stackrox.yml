@@ -120,8 +120,7 @@ jobs:
           registry: quay.io
       - name: Run tests
         run: |
-          CENTOS_TAG="stream8"
-          TAG=$(scripts/get_tag.sh "stackrox-test" "${CENTOS_TAG}")
+          TAG=$(scripts/get_tag.sh "stackrox-test" "stream8")
           docker run -t --rm --entrypoint "" \
               "quay.io/rhacs-eng/apollo-ci:${TAG}" uptime
 
