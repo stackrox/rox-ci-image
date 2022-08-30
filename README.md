@@ -10,7 +10,7 @@ StackRox Container Images for CI Workflows
 Image Hierarchy
 ---------------
 
-### Images based on //config/CENTOS\_TAG
+### Images based on streamN
 
 ```mermaid
 graph TD;

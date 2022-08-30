@@ -34,7 +34,7 @@ build_and_push_image() {
         BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
     fi
 
-    CENTOS_TAG="$(cat config/CENTOS_TAG)"
+    CENTOS_TAG="stream9"
     BUILD_ARGS+=(--build-arg "CENTOS_TAG=${CENTOS_TAG}")
     BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(scripts/get_tag.sh rocksdb "${CENTOS_TAG}")")
 

@@ -12,7 +12,6 @@ on:
       - '**/Dockerfile.stackrox-test'
       - '**/etc/yum.repos.d/google-cloud-sdk.repo'
       - 'scripts/**'
-      - 'config/**'
       - 'Makefile'
   pull_request:
     branches:
@@ -121,7 +120,7 @@ jobs:
           registry: quay.io
       - name: Run tests
         run: |
-          CENTOS_TAG="$(cat config/CENTOS_TAG)"
+          CENTOS_TAG="stream8"
           TAG=$(scripts/get_tag.sh "stackrox-test" "${CENTOS_TAG}")
           docker run -t --rm --entrypoint "" \
               "quay.io/rhacs-eng/apollo-ci:${TAG}" uptime

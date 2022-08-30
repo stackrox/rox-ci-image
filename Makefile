@@ -3,7 +3,7 @@ APP_NAME := apollo-ci
 PLATFORM := linux/amd64
 
 ifeq ($(CENTOS_TAG),)
-	CENTOS_TAG := $(shell cat config/CENTOS_TAG)
+	CENTOS_TAG := stream8
 endif
 
 ifeq ($(ROCKSDB_TAG),)
