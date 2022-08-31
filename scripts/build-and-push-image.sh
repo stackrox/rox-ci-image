@@ -34,7 +34,7 @@ build_and_push_image() {
         BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
     fi
 
-    if [[ "$IMAGE_TAG_PREFIX" =~ "stackrox|rocksdb" ]]; then
+    if [[ "$IMAGE_TAG_PREFIX" =~ stackrox|rocksdb ]]; then
         CENTOS_TAG="stream8"
     elif [[ "$IMAGE_TAG_PREFIX" == "scanner" ]]; then
         CENTOS_TAG="stream9"
