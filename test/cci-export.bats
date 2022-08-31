@@ -148,28 +148,14 @@ setup() {
 }
 
 @test "exported variable should have priority over the cci-exported one" {
-  # TODO(sbostick): this test case verifies behavior that is contrary to
-  # the standard semantics of BASH_ENV. The complexity due to non-standard use
-  # motivates fixing this in the ci workflows instead of building and maintaing
-  # additional and unnecessary code.
-  #
-  # A test-case or ci-step can override a cci-variable directly with cci-export.
-  #
-  # A test-case or ci-step can use another variable if more suitable.
-  #
-  # A test-case or ci-step can use the filesystem to persist multiline or
-  # structured data which should be stored verbatim.
-  #
-  # I cannot see the justification for implementing alternative BASH_ENV
-  # semantics, string escaping, shadow variable defaults, and maintaining
-  # test cases to enable this peculiar `cci-export` functionality to support
-  # what is in effect BASH_ENV with local and shadow var override.
-  #
-  # And then relying on these semantics across automation workloads.
-  skip
+  ### skip
 
   run cci-export FOO cci
   export FOO=bar
+
+  run echo "$BASH_ENV"
+  assert_output "/tmp/bash-env.sh"
+
   run ./test/env-var-printer.sh FOO
   assert_output "FOO: bar"
   refute_output "FOO: cci"
@@ -177,8 +163,7 @@ setup() {
 }
 
 @test "shadowed variable should have priority over the cci-exported one" {
-  # TODO(sbostick): same as previous
-  skip
+  ### skip
 
   run cci-export FOO cci
   FOO=bar run ./test/env-var-printer.sh FOO
@@ -188,8 +173,7 @@ setup() {
 }
 
 @test "shadowed variable should have priority over both: the exported and the cci-exported one" {
-  # TODO(sbostick): same as previous
-  skip
+  ### skip
 
   export FOO=bar-export
   run cci-export FOO cci
@@ -210,8 +194,7 @@ setup() {
 }
 
 @test "shadowed empty variable should be respected in a script" {
-  # TODO(sbostick): same as previous
-  skip
+  ### skip
 
   run cci-export FOO "value"
   FOO="" run ./test/env-var-printer.sh FOO
