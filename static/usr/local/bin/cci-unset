@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -u
+
+_unset() {
+  key="$1"
+
+  grep -vE "^export $key=" "$BASH_ENV" > "$TEMP_BASH_ENV" || true
+  cp "$TEMP_BASH_ENV" "$BASH_ENV"
+}
+
+
+# __MAIN__
+TEMP_BASH_ENV="/tmp/bash-env-tmp.sh"
+touch "$BASH_ENV" "$TEMP_BASH_ENV"
+_unset "$1"
