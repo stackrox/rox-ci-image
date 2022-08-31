@@ -148,7 +148,14 @@ setup() {
 }
 
 @test "exported variable should have priority over the cci-exported one" {
-  ### skip
+  # The previous version of 'cci-export' used BASH_ENV but implemented SHADOW
+  # variable functionality such that exported variables would override
+  # those defined in BASH_ENV. The behavior was contrary to how BASH_ENV works.
+  # This results in unnecessary complexity projected on CI jobs, complicates
+  # maintenance, and requires additional tests. It is unnecessary because
+  # BASH_ENV and any CI system already have mechanisms to persist data across
+  # execution contexts, CI jobs, etc.
+  skip  # invalid test case
 
   run cci-export FOO cci
   export FOO=bar
@@ -163,7 +170,7 @@ setup() {
 }
 
 @test "shadowed variable should have priority over the cci-exported one" {
-  ### skip
+  skip  # invalid test case
 
   run cci-export FOO cci
   FOO=bar run ./test/env-var-printer.sh FOO
@@ -173,7 +180,7 @@ setup() {
 }
 
 @test "shadowed variable should have priority over both: the exported and the cci-exported one" {
-  ### skip
+  skip  # invalid test case
 
   export FOO=bar-export
   run cci-export FOO cci
@@ -194,7 +201,7 @@ setup() {
 }
 
 @test "shadowed empty variable should be respected in a script" {
-  ### skip
+  skip  # invalid test case
 
   run cci-export FOO "value"
   FOO="" run ./test/env-var-printer.sh FOO
