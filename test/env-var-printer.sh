@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
-# Lookup env variables by name and output "key: val" pairs to the terminal.
+# Lookup env variables by name, and output "key: val" pairs to the terminal.
 #
-# Examples:
-#   ./test/env-var-printer.sh FOO BAR BAZ
-#   ./test/env-var-printer.sh -s FOO BAR BAZ
-#   ./test/env-var-printer.sh FOO --silent
+# Example:
+#   ./test/env-var-printer.sh [--silent] VAR1 VAR2 ...
 set -eo pipefail
 
 function shell_is_zsh { [[ -n "${ZSH_VERSION:-}" ]]; }

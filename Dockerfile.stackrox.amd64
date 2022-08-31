@@ -21,6 +21,7 @@ RUN dnf update -y && \
         bzip2-devel \
         git-core \
         gperftools-libs \
+        jemalloc-devel \
         jq \
         libzstd-devel \
         lz4-devel \
@@ -66,7 +67,7 @@ COPY --from=rocksdb /tmp/rocksdb/include /lib/rocksdb/include
 COPY --from=rocksdb /tmp/rocksdb/ldb /usr/local/bin/ldb
 
 ENV CGO_CFLAGS="-I/lib/rocksdb/include"
-ENV CGO_LDFLAGS="-L/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
+ENV CGO_LDFLAGS="-L/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ljemalloc"
 ENV CGO_ENABLED=1
 
 WORKDIR /go/src/github.com/stackrox/rox
