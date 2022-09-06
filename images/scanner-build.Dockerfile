@@ -1,6 +1,6 @@
 # Provides the tooling required to run Scanner dockerized build targets.
 
-FROM quay.io/centos/centos:stream9
+FROM quay.io/centos/centos:stream8
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

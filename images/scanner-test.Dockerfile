@@ -26,9 +26,6 @@ RUN set -ex \
         bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
  && rm -r /static-tmp
 
-# Overwrite google cloud sdk with scanner's version.
-COPY ./static-contents-scanner/etc/yum.repos.d/google-cloud-sdk.repo /etc/yum.repos.d/google-cloud-sdk.repo
-
 # Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
 # an initial BASH_ENV as a foundation for cci-export().
 ENV BASH_ENV /etc/initial-bash.env
@@ -38,15 +35,17 @@ ENV PG_MAJOR=12
 ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
 
 RUN dnf install -y \
-        https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
+        https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
+ && dnf -qy module disable postgresql \
  && dnf update -y \
  && dnf install -y \
         expect \
         gcc \
         gcc-c++ \
+        google-cloud-sdk \
+        google-cloud-sdk-gke-gcloud-auth-plugin \
         jq \
         kubectl \
-        libxcrypt-compat \
         lsof \
         lz4 \
         openssl \
@@ -55,21 +54,9 @@ RUN dnf install -y \
         unzip \
         xz \
         zip \
- && dnf clean all \
- && rm -rf /var/cache/dnf /var/cache/yum
-
-# Installing GC and GCP SDK.
-#
-# These packages are signed with SHA1, which is restricted by default in
-# RHEL9[1]. We disable the restriction to verify signatures.
-#
-# [1]: https://access.redhat.com/articles/6846411
-#
-RUN update-crypto-policies --set DEFAULT:SHA1 \
- && dnf install -y \
-        google-cloud-sdk \
-        google-cloud-sdk-gke-gcloud-auth-plugin \
- && update-crypto-policies --set DEFAULT:NO-SHA1
+        && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf /var/cache/yum
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
