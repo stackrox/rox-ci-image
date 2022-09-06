@@ -37,7 +37,7 @@ build_and_push_image() {
     if [[ "$IMAGE_TAG_PREFIX" =~ stackrox|rocksdb ]]; then
         CENTOS_TAG="stream8"
     elif [[ "$IMAGE_TAG_PREFIX" == "scanner" ]]; then
-        CENTOS_TAG="stream8"
+        CENTOS_TAG="stream9"
     else
         CENTOS_TAG="stream8"
     fi
