@@ -68,3 +68,18 @@ collector-test-image:
 	$(DOCKER) build \
 		-f images/collector.Dockerfile \
 		images/
+
+.PHONY: scanner-test-image scanner-build-image
+
+scanner-test-image:
+	$(DOCKER) build \
+	    --build-arg BASE_TAG=$(shell .circleci/get_tag.sh "scanner-build") \
+	    -t quay.io/rhacs-eng/apollo-ci:$(shell .circleci/get_tag.sh "scanner-test") \
+	    -f images/scanner-test.Dockerfile \
+	    images/
+
+scanner-build-image:
+	$(DOCKER) build \
+	    -t quay.io/rhacs-eng/apollo-ci:$(shell .circleci/get_tag.sh "scanner-build") \
+	    -f images/scanner-build.Dockerfile \
+	    images/
