@@ -157,7 +157,7 @@ create_pr_and_get_http_status() {
   local pr_description="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source unknown'"}.
   $pr_description_body"
   local payload
-  payload="$(printf '{"title": "%s", "body": %s, "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$pr_description")" "$branch_name")"
+  payload="$(jq -nr '{"title": $title, "body": $body, "head": $head, "base": $base}' --arg title "$pr_title" --arg body "$pr_description" --arg head "$branch_name" --arg base "$repo_main_branch")"
   # warning: no --fail here - we accept code 422 as not-error
   github_curl \
     -X POST \

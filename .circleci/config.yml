@@ -13,9 +13,6 @@ commands:
       repo:
         description: Name of the repo where the PR should be opened.
         type: string
-      repo-main-branch:
-        description: Name of the main branch of the repo.
-        type: string
       labels:
         description: Space separated list of PR labels to add.
         type: string
@@ -41,6 +38,12 @@ commands:
             fi
 
             pushd "/tmp/<< parameters.repo >>"
+            
+            main_branch="$(git symbolic-ref --short HEAD)"
+            [[ -n "$main_branch" ]] || {
+              echo >&2 "Could not determine main branch of repo github.com/stackrox/<< parameters.repo >>.git"
+              exit 1
+            }
 
             git config user.email "roxbot@stackrox.com"
             git config user.name "RoxBot"
@@ -68,7 +71,7 @@ commands:
               .circleci/create_update_pr.sh \
                 "${branch_name}" \
                 "<< parameters.repo >>" \
-                "<< parameters.repo_main_branch >>" \
+                "${main_branch}" \
                 "Update apollo-ci image" \
                 "Bump version of apollo-ci image used in CircleCI" \
                 "<< parameters.labels >>"
@@ -294,7 +297,6 @@ jobs:
     steps:
       - open-test-pr:
           repo: stackrox
-          repo-main-branch: master
           labels: "ci-upgrade-tests"
           image-flavors: "stackrox-build,stackrox-test-cci,stackrox-test"
 
@@ -303,7 +305,6 @@ jobs:
     steps:
       - open-test-pr:
           repo: scanner
-          repo-main-branch: master
           labels: "generate-dumps-on-pr"
           image-flavors: "scanner-build,scanner-test-cci,scanner-test"
 
@@ -312,7 +313,6 @@ jobs:
     steps:
       - open-test-pr:
           repo: collector
-          repo-main-branch: master
           image-flavors: "collector"
 
   create-or-update-jenkins-plugin-repo-pr:
@@ -320,7 +320,6 @@ jobs:
     steps:
       - open-test-pr:
           repo: jenkins-plugin
-          repo-main-branch: master
           image-flavors: "jenkins-plugin"
 
 workflows:
