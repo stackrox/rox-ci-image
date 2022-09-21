@@ -3,7 +3,7 @@
 set -eEuo pipefail
 
 usage() {
-  echo >&2 "Usage: $0 <branch_name> <repo_name> <pr_title> <pr_description_body> [pr-labels...]"
+  echo >&2 "Usage: $0 <branch_name> <repo_name> <repo_main_branch> <pr_title> <pr_description_body> [pr-labels...]"
   exit 2
 }
 
@@ -36,17 +36,18 @@ usage() {
 main() {
   [[ -n "${GITHUB_TOKEN_FOR_PRS}" ]] || die "No GitHub token found"
 
-  branch_name="$1"
-  repo_name="$2"
-  pr_title="$3"
-  pr_description_body="$4"
-  shift; shift; shift; shift;
+  branch_name="$1"; shift
+  repo_name="$1"; shift
+  repo_main_branch="$1"; shift
+  pr_title="$1"; shift
+  pr_description_body="$1"; shift
   labels=("${@}")
 
   [[ -n "${CIRCLE_USERNAME}" ]] || die "No CIRCLE_USERNAME found."
 
   [[ -n "$branch_name" ]] || usage
   [[ -n "$repo_name" ]] || usage
+  [[ -n "$repo_main_branch" ]] || usage
   [[ -n "$pr_title" ]] || usage
   [[ -n "$pr_description_body" ]] || usage
 
@@ -55,7 +56,7 @@ main() {
   known_labels_str="$(printf "'%s', " "${known_labels[@]}")"
   echo "Got ${#known_labels[@]} known labels: ${known_labels_str#,}"
 
-  status_code="$(create_pr_and_get_http_status "$repo_name" "$branch_name" "$pr_title" "$pr_description_body")"
+  status_code="$(create_pr_and_get_http_status "$repo_name" "$repo_main_branch" "$branch_name" "$pr_title" "$pr_description_body")"
   echo "Attempting to open a PR resulted in status code: ${status_code}"
 
   # 201 is returned on PR creation - the reply body contains PR number
@@ -80,7 +81,7 @@ main() {
       echo "Skipping label '$label'"
     fi
   done
-  assign_label "$repo_name" "$branch_name" "$pr_number" "${labels_to_add[@]}"
+  assign_label "$repo_name" "$pr_number" "${labels_to_add[@]}"
 }
 
 array_contains() {
@@ -115,10 +116,8 @@ get_pr_number(){
 }
 
 assign_label() {
-  local repo_name="$1"
-  local branch_name="$2"
-  local pr_number="$3"
-  shift; shift; shift;
+  local repo_name="$1"; shift
+  local pr_number="$1"; shift
   local labels_to_add=("$@")
   [[ ${#labels_to_add[@]} == 0 ]] && { echo "No new labels to add"; return 0; }
   (( pr_number > 0 )) || die "PR number '$pr_number' is not a number"
@@ -149,11 +148,13 @@ set_assignee() {
 }
 
 create_pr_and_get_http_status() {
-  local repo_name="$1"
-  local branch_name="$2"
-  local pr_title="$3"
-  local pr_description_body="$4"
-  local pr_description="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source uknown'"}.
+  local repo_name="$1"; shift
+  local repo_main_branch="$1"; shift
+  local branch_name="$1"; shift
+  local pr_title="$1"; shift
+  local pr_description_body="$1"; shift
+
+  local pr_description="This is an automated PR created from ${CIRCLE_PULL_REQUEST:-"'source unknown'"}.
   $pr_description_body"
   local payload
   payload="$(printf '{"title": "%s", "body": %s, "head": "%s", "base": "master"}' "$pr_title" "$(jq -sR <<<"$pr_description")" "$branch_name")"
