@@ -38,6 +38,12 @@ commands:
             fi
 
             pushd "/tmp/<< parameters.repo >>"
+            
+            main_branch="$(git symbolic-ref --short HEAD)"
+            [[ -n "$main_branch" ]] || {
+              echo >&2 "Could not determine main branch of repo github.com/stackrox/<< parameters.repo >>.git"
+              exit 1
+            }
 
             git config user.email "roxbot@stackrox.com"
             git config user.name "RoxBot"
@@ -65,6 +71,7 @@ commands:
               .circleci/create_update_pr.sh \
                 "${branch_name}" \
                 "<< parameters.repo >>" \
+                "${main_branch}" \
                 "Update apollo-ci image" \
                 "Bump version of apollo-ci image used in CircleCI" \
                 "<< parameters.labels >>"
@@ -413,26 +420,34 @@ workflows:
     - create-or-update-collector-repo-pr:
         filters:
           branches:
-            ignore: master
+            ignore:
+            - master
+            - main
         requires:
         - build-and-push-collector
     - create-or-update-stackrox-repo-pr:
         filters:
           branches:
-            ignore: master
+            ignore:
+            - master
+            - main
         requires:
         - build-and-push-stackrox-build
         - build-and-push-stackrox-test-cci
     - create-or-update-scanner-repo-pr:
         filters:
           branches:
-            ignore: master
+            ignore:
+            - master
+            - main
         requires:
         - build-and-push-scanner-build
         - build-and-push-scanner-test-cci
     - create-or-update-jenkins-plugin-repo-pr:
         filters:
           branches:
-            ignore: master
+            ignore:
+            - master
+            - main
         requires:
         - build-and-push-jenkins-plugin
