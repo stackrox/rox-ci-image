@@ -31,7 +31,6 @@ RUN dnf update -y && \
         snappy-devel \
         yarn \
         zlib-devel \
-        jemalloc-devel \
         && \
     dnf upgrade -y && \
     dnf clean all && \
@@ -69,7 +68,7 @@ COPY --from=builder /tmp/rocksdb/include /lib/rocksdb/include
 COPY --from=builder /tmp/rocksdb/ldb /usr/local/bin/ldb
 
 ENV CGO_CFLAGS="-I/lib/rocksdb/include"
-ENV CGO_LDFLAGS="-L/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ljemalloc"
+ENV CGO_LDFLAGS="-L/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
 ENV CGO_ENABLED=1
 
 WORKDIR /go/src/github.com/stackrox/rox
