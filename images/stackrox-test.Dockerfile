@@ -40,6 +40,7 @@ RUN dnf update -y && \
         lz4 \
         openssl \
         unzip \
+        xmlstarlet \
         xz \
         zip \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
