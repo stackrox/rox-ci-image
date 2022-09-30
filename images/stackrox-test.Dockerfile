@@ -40,6 +40,7 @@ RUN dnf update -y && \
         lz4 \
         openssl \
         unzip \
+        xmlstarlet \
         xz \
         zip \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
@@ -127,6 +128,18 @@ RUN set -ex \
   && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
   && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
   && chmod +x /usr/bin/hub-comment
+
+# Install shellcheck
+ARG SHELLCHECK_VERSION=0.8.0
+ARG SHELLCHECK_SHA256=ab6ee1b178f014d1b86d1e24da20d1139656c8b0ed34d2867fbb834dad02bf0a
+RUN set -ex \
+  && wget --quiet "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && sha256sum --check --status <<< "${SHELLCHECK_SHA256}  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && tar -xJf "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/shellcheck \
+  && rm "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
+  && shellcheck --version
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
