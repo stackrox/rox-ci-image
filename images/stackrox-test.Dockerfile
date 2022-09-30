@@ -131,9 +131,10 @@ RUN set -ex \
 
 # Install shellcheck
 ARG SHELLCHECK_VERSION=0.8.0
+ARG SHELLCHECK_SHA256=ab6ee1b178f014d1b86d1e24da20d1139656c8b0ed34d2867fbb834dad02bf0a
 RUN set -ex \
   && wget --quiet "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
-  && sha256sum --check --status <<< "ab6ee1b178f014d1b86d1e24da20d1139656c8b0ed34d2867fbb834dad02bf0a  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && sha256sum --check --status <<< "${SHELLCHECK_SHA256}  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
   && tar -xJf "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
   && cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/shellcheck \
   && rm "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
