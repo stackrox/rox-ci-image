@@ -50,6 +50,7 @@ RUN dnf install -y \
         lz4 \
         openssl \
         postgresql${PG_MAJOR}-server \
+        procps-ng \
         python3 \
         unzip \
         xz \
