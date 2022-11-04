@@ -39,6 +39,7 @@ RUN dnf update -y && \
         lsof \
         lz4 \
         openssl \
+        parallel \
         unzip \
         xmlstarlet \
         xz \
