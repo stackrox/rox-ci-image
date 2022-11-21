@@ -26,6 +26,9 @@ ENV BASH_ENV /etc/initial-bash.env
 # Install Postgres repo
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
+# Add hashicorp for vault
+RUN dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
 # Install all the packages
 RUN dnf update -y && \
     dnf install -y \
@@ -41,6 +44,7 @@ RUN dnf update -y && \
         openssl \
         parallel \
         unzip \
+        vault \
         xmlstarlet \
         xz \
         zip \
