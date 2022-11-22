@@ -26,9 +26,6 @@ ENV BASH_ENV /etc/initial-bash.env
 # Install Postgres repo
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
-# Add hashicorp for vault
-RUN dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-
 # Install all the packages
 RUN dnf update -y && \
     dnf install -y \
@@ -44,7 +41,6 @@ RUN dnf update -y && \
         openssl \
         parallel \
         unzip \
-        vault \
         xmlstarlet \
         xz \
         zip \
@@ -145,6 +141,18 @@ RUN set -ex \
   && rm "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
   && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
   && shellcheck --version
+
+# Install hashicorp vault
+ARG VAULT_VERSION=1.12.1
+ARG VAULT_SHA256=839fa81eacd250e0b0298e518751a792cd5d7194650af78cf5da74d7b7b1e5fb
+RUN set -ex \
+  && wget --quiet "https://releases.hashicorp.com/vault/1.12.1/vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && sha256sum --check --status <<< "${VAULT_SHA256}  vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && unzip "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && strip "vault" \
+  && cp "vault" /usr/bin/vault \
+  && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && vault --version
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
