@@ -150,7 +150,7 @@ RUN set -ex \
   && sha256sum --check --status <<< "${VAULT_SHA256}  vault_${VAULT_VERSION}_linux_amd64.zip" \
   && unzip "vault_${VAULT_VERSION}_linux_amd64.zip" \
   && strip "vault" \
-  && cp "vault" /usr/bin/vault \
+  && mv "vault" /usr/bin/vault \
   && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
   && vault --version
 
