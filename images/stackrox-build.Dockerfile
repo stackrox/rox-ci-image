@@ -8,6 +8,8 @@ FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+RUN touch /i-am-rox-ci-image
+
 RUN dnf update -y && \
     dnf install -y \
         dnf-plugins-core \

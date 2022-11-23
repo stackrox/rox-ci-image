@@ -142,6 +142,18 @@ RUN set -ex \
   && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
   && shellcheck --version
 
+# Install hashicorp vault
+ARG VAULT_VERSION=1.12.1
+ARG VAULT_SHA256=839fa81eacd250e0b0298e518751a792cd5d7194650af78cf5da74d7b7b1e5fb
+RUN set -ex \
+  && wget --quiet "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && sha256sum --check --status <<< "${VAULT_SHA256}  vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && unzip "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && strip "vault" \
+  && mv "vault" /usr/bin/vault \
+  && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && vault --version
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
