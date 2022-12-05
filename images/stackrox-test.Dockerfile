@@ -47,6 +47,7 @@ RUN dnf update -y && \
         # `# Cypress dependencies: (see https://docs.cypress.io/guides/guides/continuous-integration.html#Dependencies)` \
         xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib \
         && \
+	dnf remove -y java-1.8.0-openjdk-headless && \
     dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
