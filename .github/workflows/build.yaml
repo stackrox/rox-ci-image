@@ -131,7 +131,7 @@ jobs:
       - name: Test cci-export in a context similar to how it is used in CI
         run: |
           docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-          BASE_TAG="$(.circleci/get_tag.sh stackrox-test)"
+          BASE_TAG="$(scripts/get_tag.sh stackrox-test)"
 
           docker build \
             --build-arg BASE_TAG="$BASE_TAG" \

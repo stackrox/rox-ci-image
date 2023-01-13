@@ -11,13 +11,13 @@ build_and_push_image() {
     docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
     if [[ -n "$builds_on" ]]; then
-        BASE_TAG="$(.circleci/get_tag.sh "$builds_on")"
+        BASE_TAG="$(scripts/get_tag.sh "$builds_on")"
         BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
     fi
 
     STACKROX_CENTOS_TAG="$(cat STACKROX_CENTOS_TAG)"
 
-    TAG="$(.circleci/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
+    TAG="$(scripts/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
     # The `stackrox-build` and `rocksdb` images share the centos image
@@ -33,7 +33,7 @@ build_and_push_image() {
             ;;
         stackrox-build)
             BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
-            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(.circleci/get_tag.sh rocksdb "${STACKROX_CENTOS_TAG}")")
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(scripts/get_tag.sh rocksdb "${STACKROX_CENTOS_TAG}")")
             ;;
     esac
 
