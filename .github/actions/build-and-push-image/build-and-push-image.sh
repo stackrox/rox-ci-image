@@ -8,7 +8,7 @@ build_and_push_image() {
     local builds_on="$3"
 
     # Login may be required for pulling the base image for building (if used) and to omit the rate limit
-    docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+    docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
     if [[ -n "$builds_on" ]]; then
         BASE_TAG="$(.circleci/get_tag.sh "$builds_on")"
