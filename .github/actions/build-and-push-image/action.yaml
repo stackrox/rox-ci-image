@@ -35,7 +35,6 @@ runs:
             rocksdb)
                 if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
                   echo "Image '$IMAGE' already exists - no need to build it"
-                  circleci step halt
                   exit 0
                 fi
                 BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
