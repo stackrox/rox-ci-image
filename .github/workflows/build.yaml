@@ -138,4 +138,6 @@ jobs:
             -f images/test.cci-export.Dockerfile \
             -t test.cci-export \
             images/
+          docker run --rm --entrypoint=/bin/bash test.cci-export pwd || true
+          docker run --rm --entrypoint=/bin/bash test.cci-export ls -l || true
           docker run --rm test.cci-export
