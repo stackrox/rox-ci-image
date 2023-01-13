@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/rocksdb.Dockerfile
@@ -34,6 +37,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/stackrox-build.Dockerfile
@@ -46,6 +52,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/stackrox-test.Dockerfile
@@ -57,6 +66,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/collector.Dockerfile
@@ -69,6 +81,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/scanner-build.Dockerfile
@@ -81,6 +96,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/scanner-test.Dockerfile
@@ -92,6 +110,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
           dockerfile-path: images/jenkins-plugin.Dockerfile
@@ -104,10 +125,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Test cci-export in a context similar to how it is used in CI
         run: |
           docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
-          BASE_TAG="$(.circleci/get_tag.sh stackrox-test-cci)"
+          BASE_TAG="$(.circleci/get_tag.sh stackrox-test)"
 
           docker build \
             --build-arg BASE_TAG="$BASE_TAG" \
