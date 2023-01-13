@@ -4,7 +4,6 @@
 # make rocksdb-image
 # make stackrox-build-image
 # make stackrox-test-image
-# make stackrox-test-cci-image
 # make test-cci-export
 
 bats_helpers_root="/usr/lib/node_modules"
