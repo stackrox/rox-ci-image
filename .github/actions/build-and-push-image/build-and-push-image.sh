@@ -49,7 +49,7 @@ build_and_push_image() {
     done
 
     for _ in {1..5}; do
-        docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+        docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
         docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
         docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break
         sleep 15
