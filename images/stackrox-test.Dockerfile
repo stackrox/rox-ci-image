@@ -82,10 +82,11 @@ RUN set -ex \
 
 # oc
 RUN set -ex \
- && wget --no-verbose -O oc.tgz https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz \
- && tar -xf oc.tgz \
- && install openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc /usr/local/bin \
- && rm -rf openshift-* oc.tgz \
+ && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-client-linux-4.11.0-0.okd-2022-12-02-145640.tar.gz \
+ && mkdir "oc-dir" \
+ && tar -C "oc-dir" -xf oc.tgz \
+ && install oc-dir/oc /usr/local/bin \
+ && rm -rf "oc-dir" oc.tgz \
  && command -v oc
 
 # helm
