@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/stackrox-build.Dockerfile
+          dockerfile-path: images/stackrox-test.Dockerfile
           image-flavor: "stackrox-test"
           builds-on: "stackrox-build"
 
@@ -83,7 +83,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/scanner-build.Dockerfile
+          dockerfile-path: images/scanner-test.Dockerfile
           image-flavor: "scanner-test"
           builds-on: "scanner-build"
 
