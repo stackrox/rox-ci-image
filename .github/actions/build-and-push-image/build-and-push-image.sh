@@ -56,4 +56,4 @@ build_and_push_image() {
     done
 }
 
-build_and_push_image "$*"
+build_and_push_image "$@"
