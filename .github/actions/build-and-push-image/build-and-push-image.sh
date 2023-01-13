@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+build_and_push_image() {
+    local image_flavor="$1"
+    local dockerfile_path="$2"
+    local builds_on="$3"
+
+    # Login may be required for pulling the base image for building (if used) and to omit the rate limit
+    docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" -p "$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+
+    if [[ -n "$builds_on" ]]; then
+        BASE_TAG="$(.circleci/get_tag.sh "$builds_on")"
+        BUILD_ARGS+=(--build-arg "BASE_TAG=$BASE_TAG")
+    fi
+
+    STACKROX_CENTOS_TAG="$(cat STACKROX_CENTOS_TAG)"
+
+    TAG="$(.circleci/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
+    IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
+
+    # The `stackrox-build` and `rocksdb` images share the centos image
+    # tag through `STACKROX_CENTOS_TAG`.
+
+    case "$image_flavor" in
+        rocksdb)
+            if DOCKER_CLI_EXPERIMENTAL=enabled docker manifest inspect "$IMAGE" >/dev/null; then
+                echo "Image '$IMAGE' already exists - no need to build it"
+                exit 0
+            fi
+            BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
+            ;;
+        stackrox-build)
+            BUILD_ARGS+=(--build-arg "STACKROX_CENTOS_TAG=${STACKROX_CENTOS_TAG}")
+            BUILD_ARGS+=(--build-arg "ROCKSDB_TAG=$(.circleci/get_tag.sh rocksdb "${STACKROX_CENTOS_TAG}")")
+            ;;
+    esac
+
+    docker build \
+        "${BUILD_ARGS[@]}" \
+        -f "$dockerfile_path" \
+        -t "${IMAGE}" \
+        images/
+
+    for _ in {1..5}; do
+        docker push "${IMAGE}" && break
+        sleep 15
+    done
+
+    for _ in {1..5}; do
+        docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" -p "$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+        docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
+        docker push "quay.io/stackrox-io/apollo-ci:${TAG}" && break
+        sleep 15
+    done
+}
+
+build_and_push_image "$*"
