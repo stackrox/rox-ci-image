@@ -6,7 +6,7 @@ on:
       - synchronize
   push:
     branches:
-      - master
+      - main
     tags:
       - "*"
 env:
