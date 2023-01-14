@@ -9,13 +9,20 @@ DOCKER=docker
 endif
 QUAY_REPO=rhacs-eng
 
+ROCKSDB_IMAGE=quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG)
+
 .PHONY: rocksdb-image
 rocksdb-image:
-	$(DOCKER) build \
-	    -t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG) \
-		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
-		-f images/rocksdb.Dockerfile \
-		images/
+	@if docker manifest inspect $(ROCKSDB_IMAGE) >/dev/null 2>&1; then \
+		echo "Image $(ROCKSDB_IMAGE) already exists - no need to build it"; \
+	else \
+		echo "Image $(ROCKSDB_IMAGE) does not exist - building it"; \
+		$(DOCKER) build \
+			-t $(ROCKSDB_IMAGE) \
+			--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
+			-f images/rocksdb.Dockerfile \
+			images/; \
+	fi
 
 STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 
