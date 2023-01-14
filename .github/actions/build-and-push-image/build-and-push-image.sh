@@ -18,7 +18,7 @@ build_and_push_image() {
         # The rocksdb image might not exist locally if make decided to skip it.
         # Pull it in order to push with retag later.
         for _ in {1..5}; do
-            docker pull "${IMAGE}"
+            docker pull "${IMAGE}" && break
             sleep 15
         done
     fi
