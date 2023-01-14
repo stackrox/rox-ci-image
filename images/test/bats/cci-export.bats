@@ -11,12 +11,12 @@ load "${bats_helpers_root}/bats-support/load.bash"
 load "${bats_helpers_root}/bats-assert/load.bash"
 
 foo_printer() {
-  "$HOME/test/bats/foo-printer.sh" "${@}"
+  "bats/foo-printer.sh" "${@}"
 }
 
 setup() {
-  export _CERT="$HOME/test/bats/test-ca.crt"
-  export _FILE="$HOME/test/bats/FILE"
+  export _CERT="bats/test-ca.crt"
+  export _FILE="bats/FILE"
   # Create a file used in test-cases using subshell execution of 'cat'
   echo "1.2.3" > "${_FILE}"
   run test -f "${_FILE}"

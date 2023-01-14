@@ -5,4 +5,4 @@ COPY test/ .
 ENV CI=true
 ENV CIRCLECI=true
 
-CMD ["bats", "--print-output-on-failure", "--verbose-run", "test/bats/"]
+CMD ["bats", "--print-output-on-failure", "--verbose-run", "bats/"]
