@@ -133,6 +133,7 @@ jobs:
           docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
           BASE_TAG="$(scripts/get_tag.sh stackrox-test)"
 
+          set -x
           docker build \
             --build-arg BASE_TAG="$BASE_TAG" \
             -f images/test.cci-export.Dockerfile \
