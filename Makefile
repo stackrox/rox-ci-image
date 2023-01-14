@@ -53,7 +53,7 @@ test-cci-export:
 		-f images/test.cci-export.Dockerfile \
 		images/
 	$(DOCKER) run \
-		-it \
+		--rm \
 		test-cci-export
 
 .PHONY: collector-image
