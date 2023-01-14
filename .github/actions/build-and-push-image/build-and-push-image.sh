@@ -14,6 +14,15 @@ build_and_push_image() {
     TAG="$(scripts/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
+    if [[ "$image_flavor" == "rocksdb" ]]; then
+        # The rocksdb image might not exist locally if make decided to skip it.
+        # Pull it in order to push with retag later.
+        for _ in {1..5}; do
+            docker pull "${IMAGE}"
+            sleep 15
+        done
+    fi
+
     for _ in {1..5}; do
         docker push "${IMAGE}" && break
         sleep 15
