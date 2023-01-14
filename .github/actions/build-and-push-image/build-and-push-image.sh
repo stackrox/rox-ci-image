@@ -13,8 +13,8 @@ build_and_push_image() {
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
     if [[ "$image_flavor" == "rocksdb" ]]; then
-        if docker manifest inspect "$(IMAGE)" >/dev/null 2>&1; then
-            echo "Image $(ROCKSDB_IMAGE) already exists - no need to build it"
+        if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
+            echo "RocksDB $IMAGE already exists - no need to build it"
             exit 0
         fi
     fi

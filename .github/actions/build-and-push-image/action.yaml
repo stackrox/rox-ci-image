@@ -4,19 +4,11 @@ inputs:
   image-flavor:
     description: A flavor used to tag the apollo-ci image.
     required: true
-  dockerfile-path:
-    description: Path to the Dockerfile
-    required: true
-  builds-on:
-    description: The image flavor to build upon. Passed to the dockerfile as BASE_ARG.
-    default: ""
 runs:
   using: composite
   steps:
     - name: Build and push image
       run: |
         .github/actions/build-and-push-image/build-and-push-image.sh \
-          "${{ inputs.image-flavor }}" \
-          "${{ inputs.dockerfile-path }}" \
-          "${{ inputs.builds-on }}"
+          "${{ inputs.image-flavor }}"
       shell: bash

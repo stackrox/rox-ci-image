@@ -27,7 +27,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/rocksdb.Dockerfile
           image-flavor: "rocksdb"
 
   build-and-push-stackrox-build:
@@ -42,7 +41,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/stackrox-build.Dockerfile
           image-flavor: "stackrox-build"
 
   build-and-push-stackrox-test:
@@ -57,9 +55,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/stackrox-test.Dockerfile
           image-flavor: "stackrox-test"
-          builds-on: "stackrox-build"
 
   build-and-push-collector:
     runs-on: ubuntu-latest
@@ -71,7 +67,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/collector.Dockerfile
           image-flavor: "collector"
 
   build-and-push-scanner-build:
@@ -99,9 +94,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/scanner-test.Dockerfile
           image-flavor: "scanner-test"
-          builds-on: "scanner-build"
 
   build-and-push-jenkins-plugin:
     runs-on: ubuntu-latest
@@ -113,7 +106,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/jenkins-plugin.Dockerfile
           image-flavor: "jenkins-plugin"
 
   test-cci-export:
