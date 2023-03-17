@@ -91,7 +91,7 @@ RUN set -ex \
 
 # helm
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.3.0-linux-amd64.tar.gz \
+ && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz \
  && tar -xf helm.tgz \
  && install linux-amd64/helm /usr/local/bin \
  && rm -rf helm.tgz linux-amd64 \
