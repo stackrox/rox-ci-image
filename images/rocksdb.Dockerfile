@@ -19,7 +19,7 @@ RUN dnf update -y && \
     rm -rf /var/cache/dnf /var/cache/yum
 
 # This compiles RocksDB without BMI and AVX2 instructions
-ENV PORTABLE=1 TRY_SSE_ETC=0 TRY_SSE42="-msse4.2" TRY_PCLMUL="-mpclmul" CXXFLAGS="-fPIC"
+ENV PORTABLE=1 CXXFLAGS="-fPIC"
 
 ARG ROCKSDB_VERSION="v6.7.3"
 RUN mkdir -p /build && \
