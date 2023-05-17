@@ -10,7 +10,7 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
-ARG GOLANG_VERSION=1.19.4
+ARG GOLANG_VERSION=1.19.9
 ARG GOLANG_SHA256=c9c08f783325c4cf840a94333159cc937f05f75d36a8b307951d5bd959cf2ab8
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
