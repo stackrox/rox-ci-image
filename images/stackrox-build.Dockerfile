@@ -32,7 +32,7 @@ RUN dnf update -y && \
         yarn \
         zlib-devel \
         && \
-    dnf upgrade -y && \
+    dnf upgrade -y --exclude=nodejs && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
