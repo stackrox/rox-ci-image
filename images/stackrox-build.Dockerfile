@@ -16,7 +16,7 @@ RUN dnf update -y && \
         && \
     dnf config-manager --set-enabled powertools && \
     dnf update -y && \
-    wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
+    wget --quiet -O - https://rpm.nodesource.com/setup_16.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     dnf update -y && \
     dnf -y groupinstall "Development Tools" && \
@@ -26,13 +26,13 @@ RUN dnf update -y && \
         jq \
         libzstd-devel \
         lz4-devel \
-        nodejs \
+        nodejs-16.17.1-1nodesource \
         procps-ng \
         snappy-devel \
         yarn \
         zlib-devel \
         && \
-    dnf upgrade -y && \
+    dnf upgrade -y --exclude=nodejs && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
