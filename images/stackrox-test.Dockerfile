@@ -159,3 +159,8 @@ RUN set -ex \
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
+
+RUN groupadd testgroup && \
+    useradd --gid testgroup --shell /bin/bash --create-home testuser
+
+USER testuser
