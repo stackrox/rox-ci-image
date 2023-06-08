@@ -38,12 +38,12 @@ stackrox-test-image:
 		-f images/stackrox-test.Dockerfile \
 		images/
 
-STACKROX_TEST_GHA_TAG=$(shell scripts/get_tag.sh "stackrox-test-user")
+STACKROX_TEST_USER_TAG=$(shell scripts/get_tag.sh "stackrox-test-user")
 
 .PHONY: stackrox-test-user-image
 stackrox-test-user-image:
 	$(DOCKER) build \
-		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_GHA_TAG) \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_USER_TAG) \
 		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
 		-f images/stackrox-user.Dockerfile \
 		images/
