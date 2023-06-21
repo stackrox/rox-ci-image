@@ -10,34 +10,34 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf update -y && \
     dnf install -y \
-        dnf-plugins-core \
-        epel-release \
-        wget \
-        && \
+    dnf-plugins-core \
+    epel-release \
+    wget \
+    && \
     dnf config-manager --set-enabled powertools && \
     dnf update -y && \
-    wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
+    wget --quiet -O - https://rpm.nodesource.com/setup_16.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     dnf update -y && \
     dnf -y groupinstall "Development Tools" && \
     dnf install -y \
-        bzip2-devel \
-        git-core \
-        jq \
-        libzstd-devel \
-        lz4-devel \
-        nodejs \
-        procps-ng \
-        snappy-devel \
-        yarn \
-        zlib-devel \
-        && \
-    dnf upgrade -y && \
+    bzip2-devel \
+    git-core \
+    jq \
+    libzstd-devel \
+    lz4-devel \
+    nodejs-16.17.1-1nodesource \
+    procps-ng \
+    snappy-devel \
+    yarn \
+    zlib-devel \
+    && \
+    dnf upgrade -y --exclude=nodejs && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
-ARG GOLANG_VERSION=1.18.4
-ARG GOLANG_SHA256=c9b099b68d93f5c5c8a8844a89f8db07eaa58270e3a1e01804f17f4cf8df02f5
+ARG GOLANG_VERSION=1.20.4
+ARG GOLANG_SHA256=698ef3243972a51ddb4028e4a1ac63dc6d60821bf18e59a807e051fee0a385bd
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \

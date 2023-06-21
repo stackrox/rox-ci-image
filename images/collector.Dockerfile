@@ -5,9 +5,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ### cci-export support (and google-cloud-sdk repo)
 COPY ./static-contents/ /static-tmp
 RUN set -ex \
-  && find /static-tmp -type f -print0 | \
+    && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
-  && rm -r /static-tmp
+    && rm -r /static-tmp
 
 RUN dnf update -y && \
     dnf install -y epel-release dnf-plugins-core && \
@@ -15,18 +15,18 @@ RUN dnf update -y && \
     dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
     dnf -y groupinstall "Development Tools" && \
     dnf install -y \
-        clang-tools-extra \
-        cmake \
-        google-cloud-sdk \
-        jq \
-        procps-ng \
-        python38 \
-        wget \
-        docker-ce \
-        docker-ce-cli \
-        docker-ce-rootless-extras \
-        docker-scan-plugin \
-        && \
+    clang-tools-extra \
+    cmake \
+    google-cloud-sdk \
+    jq \
+    procps-ng \
+    python38 \
+    wget \
+    docker-ce \
+    docker-ce-cli \
+    docker-ce-rootless-extras \
+    docker-scan-plugin \
+    && \
     dnf upgrade -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
@@ -37,8 +37,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Install pip
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
 
-ARG GOLANG_VERSION=1.16.15
-ARG GOLANG_SHA256=77c782a633186d78c384f972fb113a43c24be0234c42fef22c2d8c4c4c8e7475
+ARG GOLANG_VERSION=1.20.4
+ARG GOLANG_SHA256=698ef3243972a51ddb4028e4a1ac63dc6d60821bf18e59a807e051fee0a385bd
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
@@ -50,11 +50,11 @@ RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
     chmod -R 777 "$GOPATH"
 
 RUN \
-# Install additional formatters/linters
+    # Install additional formatters/linters
     go install mvdan.cc/sh/v3/cmd/shfmt@v3.4.1 && \
     wget -qO- "https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz" | tar -xJv && \
     cp "shellcheck-stable/shellcheck" /usr/bin/ && \
-# Install hub-comment
+    # Install hub-comment
     wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 && \
     install hub-comment_linux_amd64 /usr/bin/hub-comment
 
