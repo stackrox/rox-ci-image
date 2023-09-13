@@ -61,7 +61,7 @@ ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Install bats
 RUN set -ex \
-  && npm install -g bats@1.10.0 bats-support@0.3.0 bats-assert@2.1.0 tap-junit \
+  && npm install -g bats@1.10.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
   && bats -v
 
 # Install docker binary
