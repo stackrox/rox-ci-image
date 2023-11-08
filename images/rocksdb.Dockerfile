@@ -5,7 +5,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf update -y && \
     dnf install -y epel-release dnf-plugins-core && \
-    dnf config-manager --set-enabled powertools && \
     dnf -y groupinstall "Development Tools" && \
     dnf install -y \
         bzip2-devel \
