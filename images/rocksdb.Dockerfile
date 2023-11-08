@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN dnf update -y && \
     dnf install -y epel-release dnf-plugins-core && \
     dnf -y groupinstall "Development Tools" && \
-    dnf install -y \
+    dnf --enablerepo=crb install -y \
         bzip2-devel \
         libzstd-devel \
         lz4-devel \
