@@ -65,8 +65,8 @@ ARG AUTOPEP8_VERSION=2.0.4
 ARG PYLINT_VERSION=3.0.2
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
-                  autopep8="${AUTOPEP8_VERSION}" \
-                  pylint="${PYLINT_VERSION}"
+                  autopep8=="${AUTOPEP8_VERSION}" \
+                  pylint=="${PYLINT_VERSION}"
 
 # Install bats
 RUN set -ex \
@@ -171,8 +171,8 @@ ARG AUTOPEP8_VERSION=2.0.4
 ARG PYLINT_VERSION=3.0.2
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
-                  autopep8="${AUTOPEP8_VERSION}" \
-                  pylint="${PYLINT_VERSION}"
+                  autopep8=="${AUTOPEP8_VERSION}" \
+                  pylint=="${PYLINT_VERSION}"
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
