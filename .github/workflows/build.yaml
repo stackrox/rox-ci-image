@@ -79,7 +79,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          dockerfile-path: images/scanner-build.Dockerfile
           image-flavor: "scanner-build"
 
   build-and-push-scanner-test:
