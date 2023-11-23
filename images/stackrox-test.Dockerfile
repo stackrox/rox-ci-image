@@ -61,11 +61,9 @@ ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Add python development tooling
 ARG PYCODESTYLE_VERSION=2.10.0
-ARG AUTOPEP8_VERSION=2.0.4
-ARG PYLINT_VERSION=3.0.2
+ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
-                  autopep8=="${AUTOPEP8_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
 
 # Install bats
@@ -167,11 +165,9 @@ RUN set -ex \
 
 # Add python development tooling
 ARG PYCODESTYLE_VERSION=2.10.0
-ARG AUTOPEP8_VERSION=2.0.4
-ARG PYLINT_VERSION=3.0.2
+ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
-                  autopep8=="${AUTOPEP8_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
 
 RUN \
