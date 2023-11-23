@@ -59,6 +59,15 @@ RUN gke-gcloud-auth-plugin --version
 # Update PATH for Postgres14
 ENV PATH=$PATH:/usr/pgsql-14/bin
 
+# Add python development tooling
+PYCODESTYLE_VERSION=2.11.1
+AUTOPEP8_VERSION=2.0.4
+PYLINT_VERSION=3.0.2
+RUN set -ex \
+  && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
+                  autopep8="${AUTOPEP8_VERSION}" \
+                  pylint="${PYLINT_VERSION}"
+
 # Install bats
 RUN set -ex \
   && npm install -g bats@1.10.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
@@ -155,6 +164,15 @@ RUN set -ex \
   && mv "vault" /usr/bin/vault \
   && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
   && vault --version
+
+# Add python development tooling
+PYCODESTYLE_VERSION=2.11.1
+AUTOPEP8_VERSION=2.0.4
+PYLINT_VERSION=3.0.2
+RUN set -ex \
+  && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
+                  autopep8="${AUTOPEP8_VERSION}" \
+                  pylint="${PYLINT_VERSION}"
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
