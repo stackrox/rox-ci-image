@@ -60,9 +60,9 @@ RUN gke-gcloud-auth-plugin --version
 ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Add python development tooling
-PYCODESTYLE_VERSION=2.11.1
-AUTOPEP8_VERSION=2.0.4
-PYLINT_VERSION=3.0.2
+ARG PYCODESTYLE_VERSION=2.11.1
+ARG AUTOPEP8_VERSION=2.0.4
+ARG PYLINT_VERSION=3.0.2
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   autopep8="${AUTOPEP8_VERSION}" \
@@ -166,9 +166,9 @@ RUN set -ex \
   && vault --version
 
 # Add python development tooling
-PYCODESTYLE_VERSION=2.11.1
-AUTOPEP8_VERSION=2.0.4
-PYLINT_VERSION=3.0.2
+ARG PYCODESTYLE_VERSION=2.11.1
+ARG AUTOPEP8_VERSION=2.0.4
+ARG PYLINT_VERSION=3.0.2
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   autopep8="${AUTOPEP8_VERSION}" \
