@@ -35,6 +35,7 @@ ARG OSSLS_SHA256=afdec2fa63b27ced4aeb3297399d45b0f06861e6ebc8cb2431b9653b7f11332
 RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
     echo "${OSSLS_SHA256} *ossls_linux_amd64" | sha256sum -c - && \
     install ossls_linux_amd64 /usr/bin/ossls && \
+    rm ossls_linux_amd64 && \
     ossls version
 
 WORKDIR /go/src/github.com/stackrox/scanner
