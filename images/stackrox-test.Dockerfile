@@ -40,6 +40,7 @@ RUN dnf update -y && \
         lz4 \
         openssl \
         parallel \
+        python3-devel \
         unzip \
         xmlstarlet \
         xz \
