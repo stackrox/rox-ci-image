@@ -40,6 +40,7 @@ RUN dnf update -y && \
         lz4 \
         openssl \
         parallel \
+        python3-devel \
         unzip \
         xmlstarlet \
         xz \
@@ -155,6 +156,13 @@ RUN set -ex \
   && mv "vault" /usr/bin/vault \
   && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
   && vault --version
+
+# Add python development tooling
+ARG PYCODESTYLE_VERSION=2.10.0
+ARG PYLINT_VERSION=2.13.9
+RUN set -ex \
+  && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
+                  pylint=="${PYLINT_VERSION}"
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
