@@ -60,13 +60,6 @@ RUN gke-gcloud-auth-plugin --version
 # Update PATH for Postgres14
 ENV PATH=$PATH:/usr/pgsql-14/bin
 
-# Add python development tooling
-ARG PYCODESTYLE_VERSION=2.10.0
-ARG PYLINT_VERSION=2.13.9
-RUN set -ex \
-  && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
-                  pylint=="${PYLINT_VERSION}"
-
 # Install bats
 RUN set -ex \
   && npm install -g bats@1.10.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
