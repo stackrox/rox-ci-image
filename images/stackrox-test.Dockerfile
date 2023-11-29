@@ -157,7 +157,9 @@ RUN set -ex \
   && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
   && vault --version
 
-# Add python development tooling
+# Add python development tooling. If these versions have to change check for
+# dependent repos. e.g. stackrox/stackrox has .openshift-ci/dev-requirements.txt
+# for local development style & lint.
 ARG PYCODESTYLE_VERSION=2.10.0
 ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
