@@ -23,8 +23,8 @@ RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
     chmod -R 777 "$GOPATH"
 
 # fetch
-ARG FETCH_VERSION=0.3.5
-ARG FETCH_SHA256=8d4d99e903b30dbd24290e9a056a982ea2326a05ded24c63be64df16e7e0d9f0
+ARG FETCH_VERSION=0.4.6
+ARG FETCH_SHA256=a67ed3141d6deb7e7841f40505cba11eb7a37abbab78374712a42373e7854209
 RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
     echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
     install fetch /usr/bin
