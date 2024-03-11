@@ -17,7 +17,7 @@ RUN dnf update -y && \
     dnf install -y \
         clang-tools-extra \
         cmake \
-        google-cloud-sdk \
+        google-cloud-cli \
         jq \
         procps-ng \
         python38 \

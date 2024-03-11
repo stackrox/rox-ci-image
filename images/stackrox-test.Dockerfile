@@ -28,12 +28,12 @@ RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/y
 
 # Install all the packages
 RUN dnf update -y && \
-    dnf install -y \
+    dnf install -y --best --allowerasing \
         expect \
         gcc \
         gcc-c++ \
-        google-cloud-sdk \
-        google-cloud-sdk-gke-gcloud-auth-plugin \
+        google-cloud-cli \
+        google-cloud-cli-gke-gcloud-auth-plugin \
         java-17-openjdk-devel \
         kubectl \
         lsof \
