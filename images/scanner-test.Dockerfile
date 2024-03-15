@@ -31,7 +31,7 @@ RUN set -ex \
 ENV BASH_ENV /etc/initial-bash.env
 
 # PostgreSQL environment.
-ENV PG_MAJOR=12
+ENV PG_MAJOR=15
 ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
 
 RUN dnf install -y \
@@ -63,8 +63,8 @@ RUN dnf install -y \
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN gke-gcloud-auth-plugin --version
 
-# Install docker binary
-ARG DOCKER_VERSION=20.10.6
+# Install docker 25.0.3
+ARG DOCKER_VERSION=25.0.3
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
@@ -76,36 +76,36 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
-# oc
+# Install oc 4.15.0-0.okd-2024-02-23-163410
 RUN set -ex \
- && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-client-linux-4.11.0-0.okd-2022-12-02-145640.tar.gz \
+ && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.15.0-0.okd-2024-02-23-163410/openshift-client-linux-4.15.0-0.okd-2024-02-23-163410.tar.gz \
  && mkdir "oc-dir" \
  && tar -C "oc-dir" -xf oc.tgz \
  && install oc-dir/oc /usr/local/bin \
  && rm -rf "oc-dir" oc.tgz \
  && command -v oc
 
-# helm
+# Install helm v3.14.2
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.3.0-linux-amd64.tar.gz \
+ && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.14.2-linux-amd64.tar.gz \
  && tar -xf helm.tgz \
  && install linux-amd64/helm /usr/local/bin \
  && rm -rf helm.tgz linux-amd64 \
  && command -v helm
 
-# Install yq v4.16.2
+# Install yq v4.42.1
 RUN set -ex \
-  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
-  && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" \
-  && mv yq_linux_amd64 /usr/bin/yq \
-  && chmod +x /usr/bin/yq
+  && wget --no-verbose https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 \
+  && sha256sum --check --status <<< "1a95960dddd426321354d58d2beac457717f7c49a9ec0806749a5a9e400eb45e  yq_linux_amd64" \
+  && install yq_linux_amd64 /usr/bin/yq \
+  && command -v yq
 
 # Install hub-comment
 RUN set -ex \
-  && wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
+  && wget --no-verbose https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
   && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
-  && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
-  && chmod +x /usr/bin/hub-comment
+  && install hub-comment_linux_amd64 /usr/bin/hub-comment \
+  && command -v hub-comment
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
