@@ -32,8 +32,8 @@ RUN dnf update -y && \
         expect \
         gcc \
         gcc-c++ \
-        google-cloud-sdk \
-        google-cloud-sdk-gke-gcloud-auth-plugin \
+        google-cloud-cli \
+        google-cloud-cli-gke-gcloud-auth-plugin \
         java-17-openjdk-devel \
         kubectl \
         lsof \

@@ -42,8 +42,8 @@ RUN dnf install -y \
         expect \
         gcc \
         gcc-c++ \
-        google-cloud-sdk \
-        google-cloud-sdk-gke-gcloud-auth-plugin \
+        google-cloud-cli \
+        google-cloud-cli-gke-gcloud-auth-plugin \
         jq \
         kubectl \
         lsof \
