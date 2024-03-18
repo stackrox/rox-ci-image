@@ -38,8 +38,8 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
-ARG GOLANG_VERSION=1.21.7
-ARG GOLANG_SHA256=13b76a9b2a26823e53062fa841b07087d48ae2ef2936445dc34c4ae03293702c
+ARG GOLANG_VERSION=1.21.8
+ARG GOLANG_SHA256=538b3b143dc7f32b093c8ffe0e050c260b57fc9d57a12c4140a639a8dd2b4e4f
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
