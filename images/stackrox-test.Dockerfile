@@ -134,8 +134,8 @@ RUN set -ex \
   && chmod +x /usr/bin/hub-comment
 
 # Install shellcheck
-ARG SHELLCHECK_VERSION=0.8.0
-ARG SHELLCHECK_SHA256=ab6ee1b178f014d1b86d1e24da20d1139656c8b0ed34d2867fbb834dad02bf0a
+ARG SHELLCHECK_VERSION=0.10.0
+ARG SHELLCHECK_SHA256=6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87
 RUN set -ex \
   && wget --quiet "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
   && sha256sum --check --status <<< "${SHELLCHECK_SHA256}  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
