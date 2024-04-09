@@ -12,13 +12,6 @@ build_and_push_image() {
     TAG="$(scripts/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
-    if [[ "$image_flavor" == "rocksdb" ]]; then
-        if docker manifest inspect "$IMAGE" >/dev/null 2>&1; then
-            echo "RocksDB $IMAGE already exists - no need to build it"
-            exit 0
-        fi
-    fi
-
     make "$image_flavor"-image
 
     retry 5 true docker push "${IMAGE}"

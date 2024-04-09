@@ -1,21 +1,10 @@
 ifeq ($(STACKROX_CENTOS_TAG),)
 STACKROX_CENTOS_TAG=$(shell cat STACKROX_CENTOS_TAG)
 endif
-ifeq ($(ROCKSDB_TAG),)
-ROCKSDB_TAG=$(shell scripts/get_tag.sh "rocksdb" "$(STACKROX_CENTOS_TAG)")
-endif
 ifeq ($(DOCKER),)
 DOCKER=docker
 endif
 QUAY_REPO=rhacs-eng
-
-.PHONY: rocksdb-image
-rocksdb-image:
-	$(DOCKER) build \
-		-t quay.io/$(QUAY_REPO)/apollo-ci:$(ROCKSDB_TAG) \
-		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
-		-f images/rocksdb.Dockerfile \
-		images/
 
 STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 
@@ -23,7 +12,6 @@ STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 stackrox-build-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
-		--build-arg ROCKSDB_TAG=$(ROCKSDB_TAG) \
 		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/stackrox-build.Dockerfile \
 		images/
