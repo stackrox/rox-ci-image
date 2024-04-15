@@ -23,15 +23,3 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == "something-$describe" ]]
 }
-
-@test "expects a centos tag for rocksdb" {
-  run scripts/get_tag.sh rocksdb
-  [ "$status" -eq 1 ]
-}
-
-@test 'uses HASH for rocksdb' {
-  local hash=$(git hash-object images/rocksdb.Dockerfile)
-  run scripts/get_tag.sh rocksdb stream99
-  [ "$status" -eq 0 ]
-  [[ "$output" == "rocksdb-stream99-$hash" ]]
-}

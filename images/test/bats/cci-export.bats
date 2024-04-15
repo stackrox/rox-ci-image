@@ -1,7 +1,6 @@
 #!/usr/bin/env bats
 
 # To run the test locally do:
-# make rocksdb-image
 # make stackrox-build-image
 # make stackrox-test-image
 # make test-cci-export

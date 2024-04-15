@@ -1,9 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
 ARG STACKROX_CENTOS_TAG
-ARG ROCKSDB_TAG
-FROM quay.io/rhacs-eng/apollo-ci:${ROCKSDB_TAG} as builder
-
 FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -65,12 +62,6 @@ RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --
     rm ossls_linux_amd64 && \
     ossls version
 
-COPY --from=builder /tmp/rocksdb/librocksdb.a /lib/rocksdb/librocksdb.a
-COPY --from=builder /tmp/rocksdb/include /lib/rocksdb/include
-COPY --from=builder /tmp/rocksdb/ldb /usr/local/bin/ldb
-
-ENV CGO_CFLAGS="-I/lib/rocksdb/include"
-ENV CGO_LDFLAGS="-L/lib/rocksdb"
 ENV CGO_ENABLED=1
 
 WORKDIR /go/src/github.com/stackrox/rox
