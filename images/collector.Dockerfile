@@ -37,8 +37,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 # Install pip
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
 
-ARG GOLANG_VERSION=1.20.3
-ARG GOLANG_SHA256=979694c2c25c735755bf26f4f45e19e64e4811d661dd07b8c010f7a8e18adfca
+ARG GOLANG_VERSION=1.20.12
+ARG GOLANG_SHA256=9c5d48c54dd8b0a3b2ef91b0f92a1190aa01f11d26e98033efa64c46a30bba7b
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
