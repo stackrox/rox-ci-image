@@ -1,7 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-ARG STACKROX_CENTOS_TAG
-FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
+FROM registry.access.redhat.com/ubi8:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

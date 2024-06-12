@@ -1,6 +1,6 @@
 # Provides the tooling required to run Scanner dockerized build targets.
 
-FROM quay.io/centos/centos:stream8
+FROM registry.access.redhat.com/ubi8:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

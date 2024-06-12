@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM registry.access.redhat.com/ubi8:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

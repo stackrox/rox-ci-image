@@ -1,6 +1,3 @@
-ifeq ($(STACKROX_CENTOS_TAG),)
-STACKROX_CENTOS_TAG=$(shell cat STACKROX_CENTOS_TAG)
-endif
 ifeq ($(DOCKER),)
 DOCKER=docker
 endif
@@ -12,7 +9,6 @@ STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 stackrox-build-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
-		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/stackrox-build.Dockerfile \
 		images/
 
@@ -22,7 +18,6 @@ STACKROX_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-test")
 stackrox-test-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
-		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
 		-f images/stackrox-test.Dockerfile \
 		images/
 
