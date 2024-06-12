@@ -1,7 +1,7 @@
 # Provides the tooling required to run Scanner dockerized build targets.
 
 ARG STACKROX_CENTOS_TAG
-FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
+FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
