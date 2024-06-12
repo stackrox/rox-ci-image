@@ -1,6 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-FROM centos:stream9
+FROM quay.io/centos/centos:stream9
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
