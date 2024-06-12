@@ -41,6 +41,7 @@ test-cci-export:
 collector-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "collector") \
+		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/collector.Dockerfile \
 		images/
 
@@ -48,6 +49,7 @@ collector-image:
 scanner-build-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "scanner-build") \
+		--build-arg STACKROX_CENTOS_TAG=$(STACKROX_CENTOS_TAG) \
 		-f images/scanner-build.Dockerfile \
 		images/
 
