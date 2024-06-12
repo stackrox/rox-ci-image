@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM quay.io/almalinuxorg/8-base:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

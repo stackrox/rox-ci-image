@@ -1,7 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-ARG STACKROX_CENTOS_TAG
-FROM quay.io/centos/centos:${STACKROX_CENTOS_TAG} as base
+FROM quay.io/almalinuxorg/8-base:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
