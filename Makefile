@@ -18,6 +18,7 @@ STACKROX_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-test")
 stackrox-test-image:
 	$(DOCKER) build \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
+		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
 		-f images/stackrox-test.Dockerfile \
 		images/
 
