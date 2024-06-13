@@ -41,6 +41,7 @@ RUN dnf update -y && \
         source-highlight && \
     dnf install -y \
         bzip2-devel \
+        gettext \
         git-core \
         jq \
         zstd \
