@@ -9,24 +9,44 @@ RUN touch /i-am-rox-ci-image
 RUN dnf update -y && \
     dnf install -y \
         dnf-plugins-core \
-        epel-release \
         wget \
         && \
-    dnf config-manager --set-enabled powertools && \
+    dnf config-manager --set-enabled ubi-8-codeready-builder-rpms && \
     dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     dnf update -y && \
-    dnf -y groupinstall "Development Tools" && \
+    # This set replaces centos:stream8 "Development Tools". It is possible
+    # rox-ci-image does not need all of these.
+    dnf install -y \
+        autoconf \
+        automake \
+        binutils \
+        gcc \
+        gcc-c++ \
+        gdb \
+        glibc-devel \
+        libtool \
+        make \
+        pkgconf \
+        pkgconf-m4 \
+        pkgconf-pkg-config \
+        redhat-rpm-config \
+        rpm-build \
+        strace \
+        ctags \
+        git \
+        perl-Fedora-VSP \
+        perl-generators \
+        source-highlight && \
     dnf install -y \
         bzip2-devel \
         git-core \
         jq \
-        libzstd-devel \
+        zstd \
         lz4-devel \
         nodejs \
         procps-ng \
-        snappy-devel \
         yarn \
         zlib-devel \
         && \
