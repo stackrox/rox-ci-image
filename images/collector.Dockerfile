@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream8
+FROM quay.io/centos/centos:stream9
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -11,7 +11,7 @@ RUN set -ex \
 
 RUN dnf update -y && \
     dnf install -y epel-release dnf-plugins-core && \
-    dnf config-manager --set-enabled powertools && \
+    dnf config-manager --set-enabled crb && \
     dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
     dnf -y groupinstall "Development Tools" && \
     dnf install -y \

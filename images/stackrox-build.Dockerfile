@@ -13,7 +13,7 @@ RUN dnf update -y && \
         epel-release \
         wget \
         && \
-    dnf config-manager --set-enabled powertools && \
+    dnf config-manager --set-enabled crb && \
     dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
