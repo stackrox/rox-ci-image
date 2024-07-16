@@ -20,7 +20,7 @@ RUN dnf update -y && \
         google-cloud-cli \
         jq \
         procps-ng \
-        python38 \
+        python3.12 \
         wget \
         docker-ce \
         docker-ce-cli \
