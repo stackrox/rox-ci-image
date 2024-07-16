@@ -10,8 +10,7 @@ RUN set -ex \
   && rm -r /static-tmp
 
 RUN dnf update -y && \
-    dnf install -y epel-release dnf-plugins-core && \
-    dnf config-manager --set-enabled crb && \
+    dnf install -y dnf-plugins-core && \
     dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
     dnf -y groupinstall "Development Tools" && \
     dnf install -y \
