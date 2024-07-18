@@ -30,6 +30,7 @@ RUN dnf update -y && \
         snappy-devel \
         yarn \
         zlib-devel \
+        glibc-static \
         && \
     dnf upgrade -y && \
     dnf clean all && \
