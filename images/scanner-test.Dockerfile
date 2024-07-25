@@ -34,9 +34,8 @@ ENV BASH_ENV /etc/initial-bash.env
 ENV PG_MAJOR=15
 ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
 
-RUN dnf install -y \
+RUN dnf install --disablerepo="*" -y \
         https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
- && dnf -qy module disable postgresql \
  && dnf update -y \
  && dnf install -y \
         expect \
@@ -49,7 +48,6 @@ RUN dnf install -y \
         lsof \
         lz4 \
         openssl \
-        postgresql${PG_MAJOR}-server \
         procps-ng \
         python3 \
         unzip \
