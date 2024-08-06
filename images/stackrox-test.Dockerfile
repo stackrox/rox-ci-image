@@ -27,8 +27,8 @@ ENV BASH_ENV /etc/initial-bash.env
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
 # Install all the packages
-RUN dnf update -y && \
-    dnf install -y \
+RUN dnf update -y \
+  && dnf install -y \
         expect \
         gcc \
         gcc-c++ \
@@ -44,11 +44,10 @@ RUN dnf update -y && \
         xmlstarlet \
         xz \
         zip \
-        && \
-	dnf remove -y java-1.8.0-openjdk-headless && \
-    dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib && \
-    dnf clean all && \
-    rm -rf /var/cache/dnf /var/cache/yum
+  && dnf remove -y java-1.8.0-openjdk-headless \
+  && dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib \
+  && dnf clean all \
+  && rm -rf /var/cache/dnf /var/cache/yum
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
