@@ -49,12 +49,13 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
+        postgresql-contrib-${PG_MAJOR} \
+        postgresql${PG_MAJOR}-server \
         procps-ng \
         python3 \
         unzip \
         xz \
         zip \
-        postgresql${PG_MAJOR}-server \
   && dnf clean all \
   && rm -rf /var/cache/dnf /var/cache/yum
 
