@@ -49,7 +49,7 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
-        postgresql-contrib-${PG_MAJOR} \
+        postgresql${PG_MAJOR}-contrib \
         postgresql${PG_MAJOR}-server \
         procps-ng \
         python3 \
