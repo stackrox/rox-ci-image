@@ -34,10 +34,10 @@ ENV BASH_ENV /etc/initial-bash.env
 ENV PG_MAJOR=15
 ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
 
-RUN dnf install -y \
-        https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
- && dnf -qy module disable postgresql \
- && dnf update -y \
+# Install Postgres repo
+RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+RUN dnf update -y \
  && dnf install -y \
         expect \
         gcc \
@@ -49,15 +49,15 @@ RUN dnf install -y \
         lsof \
         lz4 \
         openssl \
+        postgresql${PG_MAJOR}-contrib \
         postgresql${PG_MAJOR}-server \
         procps-ng \
         python3 \
         unzip \
         xz \
         zip \
-        && \
-    dnf clean all && \
-    rm -rf /var/cache/dnf /var/cache/yum
+  && dnf clean all \
+  && rm -rf /var/cache/dnf /var/cache/yum
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True

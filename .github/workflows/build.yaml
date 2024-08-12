@@ -42,6 +42,18 @@ jobs:
       - uses: ./.github/actions/build-and-push-image
         with:
           image-flavor: "stackrox-test"
+  
+  build-and-push-stackrox-ui-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: ./.github/actions/build-and-push-image
+        with:
+          image-flavor: "stackrox-ui-test"
 
   build-and-push-collector:
     runs-on: ubuntu-latest

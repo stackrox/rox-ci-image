@@ -8,8 +8,7 @@ build_and_push_image() {
     # Login may be required for pulling the base image for building (if used) and to avoid rate limits.
     docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-    STACKROX_CENTOS_TAG="$(cat STACKROX_CENTOS_TAG)"
-    TAG="$(scripts/get_tag.sh "$image_flavor" "${STACKROX_CENTOS_TAG}")"
+    TAG="$(scripts/get_tag.sh "$image_flavor")"
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
     make "$image_flavor"-image
