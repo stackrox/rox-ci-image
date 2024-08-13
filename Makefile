@@ -47,14 +47,6 @@ test-cci-export:
 		--rm \
 		test-cci-export
 
-.PHONY: collector-image
-collector-image:
-	$(DOCKER) build \
-		--platform linux/amd64 \
-		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "collector") \
-		-f images/collector.Dockerfile \
-		images/
-
 .PHONY: scanner-build-image
 scanner-build-image:
 	$(DOCKER) build \
