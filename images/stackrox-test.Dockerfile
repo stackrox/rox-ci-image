@@ -26,6 +26,10 @@ ENV BASH_ENV /etc/initial-bash.env
 # Install Postgres repo
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
+# Install Extra Packages repo
+# This is required to get the parallel package used by bats.
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
 # Install all the packages
 RUN dnf update -y \
   && dnf install -y \
@@ -39,6 +43,7 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
+        parallel \
         python3-devel \
         unzip \
         xmlstarlet \
