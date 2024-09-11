@@ -28,6 +28,7 @@ RUN dnf update -y  \
   && dnf install -y wget \
   && wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - \
   && wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo \
+  && dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
   && dnf --disablerepo=* -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
   && dnf -qy module disable postgresql
 
@@ -44,6 +45,7 @@ RUN dnf update -y \
     zstd \
     lz4-devel \
     nodejs \
+    parallel \
     procps-ng \
     yarn \
     zlib-devel \
