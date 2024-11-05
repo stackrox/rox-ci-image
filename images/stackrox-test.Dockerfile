@@ -39,7 +39,7 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
-        python3-devel \
+        python39-devel \
         unzip \
         xmlstarlet \
         xz \
