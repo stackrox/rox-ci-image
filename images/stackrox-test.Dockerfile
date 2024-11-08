@@ -45,7 +45,7 @@ RUN dnf update -y \
         xmlstarlet \
         xz \
         zip \
-  && dnf remove -y python36 java-1.8.0-openjdk-headless \
+  && dnf remove -y java-1.8.0-openjdk-headless \
   && dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib \
   && dnf clean all \
   && rm -rf /var/cache/dnf /var/cache/yum
@@ -75,8 +75,10 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
- # Symlink python to python3
-RUN ln -s /usr/bin/python3 /usr/bin/python
+ # Symlink python to python3.
+ # Explicitly set python3.9 to python3 instead of python3.6, latter is required for nodejs.
+RUN update-alternatives --set python3 /usr/bin/python3.9 \
+  && ln -s /usr/bin/python3 /usr/bin/python
 
 # oc
 RUN set -ex \
