@@ -159,7 +159,9 @@ RUN set -ex \
 ARG PYCODESTYLE_VERSION=2.10.0
 ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
-  && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
+  && python3 --version && python3 -m pip --version && pip --version \
+  && pip3 --version \
+  && python3 -m pip install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
 
 RUN \
