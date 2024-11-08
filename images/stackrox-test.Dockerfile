@@ -39,6 +39,7 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
+        python39 \
         python39-devel \
         unzip \
         xmlstarlet \
@@ -75,7 +76,7 @@ RUN set -ex \
  && (docker version --format '{{.Client.Version}}' || true)
 
  # Symlink python to python3
-#  RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # oc
 RUN set -ex \
