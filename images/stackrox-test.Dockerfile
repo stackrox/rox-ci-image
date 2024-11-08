@@ -75,7 +75,7 @@ RUN set -ex \
  && (docker version --format '{{.Client.Version}}' || true)
 
  # Symlink python to python3
- RUN ln -s /usr/bin/python3 /usr/bin/python
+#  RUN ln -s /usr/bin/python3 /usr/bin/python
 
 # oc
 RUN set -ex \
