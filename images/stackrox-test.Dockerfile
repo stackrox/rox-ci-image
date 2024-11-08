@@ -76,7 +76,7 @@ RUN set -ex \
  && (docker version --format '{{.Client.Version}}' || true)
 
  # Symlink python to python3.
- # Explicitly set python3.9 to python3 instead of python3.6, latter is required for nodejs.
+ # Explicitly set python3 to python3.9 instead of python3.6, the latter is required to keep for nodejs.
 RUN update-alternatives --set python3 /usr/bin/python3.9 \
   && ln -s /usr/bin/python3 /usr/bin/python
 
