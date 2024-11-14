@@ -35,6 +35,7 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
+# Install Go v1.22.5
 ARG GOLANG_VERSION=1.22.5
 ARG GOLANG_SHA256=904b924d435eaea086515bc63235b192ea441bd8c9b198c507e85009e6e4c7f0
 ENV GOPATH /go
@@ -47,14 +48,14 @@ RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
     chmod -R 777 "$GOPATH"
 
-# fetch
+# Install fetch v0.4.6
 ARG FETCH_VERSION=0.4.6
 ARG FETCH_SHA256=a67ed3141d6deb7e7841f40505cba11eb7a37abbab78374712a42373e7854209
 RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
     echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
     install fetch /usr/bin
 
-# ossls
+# Install ossls 0.11.1
 ARG OSSLS_VERSION=0.11.1
 ARG OSSLS_SHA256=f1bf3012961c1d90ba307a46263f29025028d35c209b9a65e5c7d502c470c95f
 RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \

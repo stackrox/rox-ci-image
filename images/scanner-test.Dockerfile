@@ -63,8 +63,8 @@ RUN dnf update -y \
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN gke-gcloud-auth-plugin --version
 
-# Install docker 25.0.3
-ARG DOCKER_VERSION=25.0.3
+# Install docker 27.3.1
+ARG DOCKER_VERSION=27.3.1
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
@@ -85,22 +85,22 @@ RUN set -ex \
  && rm -rf "oc-dir" oc.tgz \
  && command -v oc
 
-# Install helm v3.14.2
+# Install helm v3.16.2
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.14.2-linux-amd64.tar.gz \
+ && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.16.2-linux-amd64.tar.gz \
  && tar -xf helm.tgz \
  && install linux-amd64/helm /usr/local/bin \
  && rm -rf helm.tgz linux-amd64 \
  && command -v helm
 
-# Install yq v4.42.1
+# Install yq v4.44.3
 RUN set -ex \
-  && wget --no-verbose https://github.com/mikefarah/yq/releases/download/v4.42.1/yq_linux_amd64 \
-  && sha256sum --check --status <<< "1a95960dddd426321354d58d2beac457717f7c49a9ec0806749a5a9e400eb45e  yq_linux_amd64" \
+  && wget --no-verbose https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 \
+  && sha256sum --check --status <<< "a2c097180dd884a8d50c956ee16a9cec070f30a7947cf4ebf87d5f36213e9ed7  yq_linux_amd64" \
   && install yq_linux_amd64 /usr/bin/yq \
   && command -v yq
 
-# Install hub-comment
+# Install hub-comment 0.1.0-rc6
 RUN set -ex \
   && wget --no-verbose https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
   && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \

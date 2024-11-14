@@ -58,11 +58,11 @@ ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Install bats
 RUN set -ex \
-  && npm install -g bats@1.10.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
+  && npm install -g bats@1.11.0 bats-support@0.3.0 bats-assert@2.0.0 tap-junit \
   && bats -v
 
-# Install docker binary
-ARG DOCKER_VERSION=20.10.6
+# Install docker 27.3.1
+ARG DOCKER_VERSION=27.3.1
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
@@ -77,24 +77,24 @@ RUN set -ex \
  # Symlink python to python3
  RUN ln -s /usr/bin/python3 /usr/bin/python
 
-# oc
+# Install oc 4.15.0-0.okd-2024-02-23-163410
 RUN set -ex \
- && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2022-12-02-145640/openshift-client-linux-4.11.0-0.okd-2022-12-02-145640.tar.gz \
+ && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.15.0-0.okd-2024-02-23-163410/openshift-client-linux-4.15.0-0.okd-2024-02-23-163410.tar.gz \
  && mkdir "oc-dir" \
  && tar -C "oc-dir" -xf oc.tgz \
  && install oc-dir/oc /usr/local/bin \
  && rm -rf "oc-dir" oc.tgz \
  && command -v oc
 
-# helm
+# Install helm v3.16.2
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz \
+ && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.16.2-linux-amd64.tar.gz \
  && tar -xf helm.tgz \
  && install linux-amd64/helm /usr/local/bin \
  && rm -rf helm.tgz linux-amd64 \
  && command -v helm
 
-# Install gradle
+# Install gradle 7.5.1
 ARG GRADLE_VERSION=7.5.1
 ENV PATH=$PATH:/opt/gradle/bin
 RUN set -ex \
@@ -106,7 +106,7 @@ RUN set -ex \
  && rmdir gradle-${GRADLE_VERSION} \
  && command -v gradle
 
-# Install aws cli
+# Install aws cli 2.7.17
 RUN set -ex \
  && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.7.17.zip" \
  && unzip awscliv2.zip \
@@ -115,21 +115,21 @@ RUN set -ex \
  && rm -rf aws \
  && aws --version
 
-# Install yq v4.16.2
+# Install yq v4.44.3
 RUN set -ex \
-  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
-  && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" \
+  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64" \
+  && sha256sum --check --status <<< "a2c097180dd884a8d50c956ee16a9cec070f30a7947cf4ebf87d5f36213e9ed7  yq_linux_amd64" \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
-# Install hub-comment
+# Install hub-comment 0.1.0-rc6
 RUN set -ex \
   && wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
   && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
   && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
   && chmod +x /usr/bin/hub-comment
 
-# Install shellcheck
+# Install shellcheck 0.10.0
 ARG SHELLCHECK_VERSION=0.10.0
 ARG SHELLCHECK_SHA256=6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87
 RUN set -ex \
@@ -141,7 +141,7 @@ RUN set -ex \
   && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
   && shellcheck --version
 
-# Install hashicorp vault
+# Install hashicorp vault 1.12.1
 ARG VAULT_VERSION=1.12.1
 ARG VAULT_SHA256=839fa81eacd250e0b0298e518751a792cd5d7194650af78cf5da74d7b7b1e5fb
 RUN set -ex \
