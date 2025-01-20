@@ -34,7 +34,6 @@ RUN dnf update -y && \
         redhat-rpm-config \
         rpm-build \
         strace \
-        ctags \
         git \
         perl-Fedora-VSP \
         perl-generators \
