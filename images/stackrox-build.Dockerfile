@@ -1,6 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-FROM registry.access.redhat.com/ubi8:latest
+FROM registry.access.redhat.com/ubi9:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
