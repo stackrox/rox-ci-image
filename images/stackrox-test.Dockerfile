@@ -45,16 +45,15 @@ RUN dnf update -y \
         xz \
         zip \
   && dnf remove -y java-1.8.0-openjdk-headless \
+  && dnf --disablerepo="*" --enablerepo="pgdg13" install -y postgresql13 postgresql13-server postgresql13-contrib \
   && dnf --disablerepo="*" --enablerepo="pgdg14" install -y postgresql14 postgresql14-server postgresql14-contrib \
+  && dnf --disablerepo="*" --enablerepo="pgdg15" install -y postgresql15 postgresql15-server postgresql15-contrib \
   && dnf clean all \
   && rm -rf /var/cache/dnf /var/cache/yum
 
 # Use updated auth plugin for GCP
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN gke-gcloud-auth-plugin --version
-
-# Update PATH for Postgres14
-ENV PATH=$PATH:/usr/pgsql-14/bin
 
 # Install bats
 RUN set -ex \
