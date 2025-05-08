@@ -55,9 +55,9 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
+ARG GOLANG_VERSION=1.23.6
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
-ARG GOLANG_VERSION=1.23.6
 RUN set -e; case "$(uname -m)" in \
         "x86_64" ) GOLANG_ARCH="amd64" GOLANG_SHA256="9379441ea310de000f33a4dc767bd966e72ab2826270e038e78b2c53c2e7802d";; \
         "aarch64") GOLANG_ARCH="arm64" GOLANG_SHA256="561c780e8f4a8955d32bf72e46af0b5ee5e0debe1e4633df9a03781878219202";; \
