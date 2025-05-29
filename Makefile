@@ -9,6 +9,7 @@ TARGETARCH?=amd64
 .PHONY: stackrox-build-image
 stackrox-build-image:
 	$(DOCKER) build \
+		--progress=plain \
 		--platform linux/$(TARGETARCH) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG)-$(TARGETARCH) \
