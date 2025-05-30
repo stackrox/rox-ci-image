@@ -183,8 +183,8 @@ RUN set -ex; case "$TARGETARCH" in \
 # Add python development tooling. If these versions have to change check for
 # dependent repos. e.g. stackrox/stackrox has .openshift-ci/dev-requirements.txt
 # for local development style & lint.
-ARG PYCODESTYLE_VERSION=2.10.0
-ARG PYLINT_VERSION=2.13.9
+ARG PYCODESTYLE_VERSION=2.13.0
+ARG PYLINT_VERSION=3.3.7
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
