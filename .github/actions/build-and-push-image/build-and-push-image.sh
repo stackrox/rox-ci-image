@@ -4,14 +4,21 @@ set -euo pipefail
 
 build_and_push_image() {
     local image_flavor="$1"
+    local target_arch="$2"
+    local tag_suffix="-${target_arch}"
+
+    if [ -z $target_arch ]; then
+        target_arch="amd64"
+        tag_suffix=""
+    fi
 
     # Login may be required for pulling the base image for building (if used) and to avoid rate limits.
     docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
-    TAG="$(scripts/get_tag.sh "$image_flavor")"
+    TAG="$(scripts/get_tag.sh "$image_flavor")${tag_suffix}"
     IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
 
-    make "$image_flavor"-image
+    make TARGETARCH="$target_arch" "$image_flavor"-image
 
     retry 5 true docker push "${IMAGE}"
 
