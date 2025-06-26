@@ -10,7 +10,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Build and push x86_64 image
+    - name: Build and push ${{ inputs.arch }} image
       run: |
         .github/actions/build-and-push-image/build-and-push-image.sh \
           "${{ inputs.image-flavor }}" "${{ inputs.arch }}"
