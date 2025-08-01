@@ -92,13 +92,14 @@ RUN set -ex \
   && bats -v
 
 # Install oc
+ARG OC_VERSION=4.11.0-0.okd-2023-01-14-152430
 RUN set -e; \
     case "$TARGETARCH" in \
         "amd64") OC_ARCH="";; \
         "arm64") OC_ARCH="arm64-";; \
         *) echo "Unsupported $TARGETARCH"; exit 1;; \
     esac \
- && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/4.11.0-0.okd-2023-01-14-152430/openshift-client-linux-${OC_ARCH}4.11.0-0.okd-2023-01-14-152430.tar.gz \
+ && wget --no-verbose -O oc.tgz https://github.com/okd-project/okd/releases/download/${OC_VERSION}/openshift-client-linux-${OC_ARCH}${OC_VERSION}.tar.gz \
  && mkdir "oc-dir" \
  && tar -C "oc-dir" -xf oc.tgz \
  && install oc-dir/oc /usr/local/bin \
