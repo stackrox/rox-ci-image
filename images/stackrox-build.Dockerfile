@@ -61,8 +61,8 @@ ARG GOLANG_VERSION=1.24.4
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -e; case "$TARGETARCH" in \
-        "x86_64" ) GOLANG_ARCH="amd64" GOLANG_SHA256="77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717";; \
-        "aarch64") GOLANG_ARCH="arm64" GOLANG_SHA256="d5501ee5aca0f258d5fe9bfaed401958445014495dc115f202d43d5210b45241";; \
+        "amd64" ) GOLANG_SHA256="77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717";; \
+        "arm64")  GOLANG_SHA256="d5501ee5aca0f258d5fe9bfaed401958445014495dc115f202d43d5210b45241";; \
         *) echo "Unsupported $TARGETARCH"; exit 1;; \
     esac && \
     wget --no-verbose -O go.tgz "https://dl.google.com/go/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz" && \
