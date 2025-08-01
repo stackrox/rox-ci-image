@@ -55,31 +55,41 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/cache/yum
 
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 ARG GOLANG_VERSION=1.24.4
-ARG GOLANG_SHA256=77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
-    wget --no-verbose -O go.tgz "$url" && \
+RUN set -e; case "$(uname -m)" in \
+        "x86_64" ) GOLANG_ARCH="amd64" GOLANG_SHA256="77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717";; \
+        "aarch64") GOLANG_ARCH="arm64" GOLANG_SHA256="d5501ee5aca0f258d5fe9bfaed401958445014495dc115f202d43d5210b45241";; \
+        *) echo "Unsupported $(uname -m)"; exit 1;; \
+    esac && \
+    wget --no-verbose -O go.tgz "https://dl.google.com/go/go${GOLANG_VERSION}.linux-${GOLANG_ARCH}.tar.gz" && \
     echo "${GOLANG_SHA256} *go.tgz" | sha256sum -c - && \
     tar -C /usr/local -xzf go.tgz && \
     rm go.tgz && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
     chmod -R 777 "$GOPATH"
 
-ARG FETCH_VERSION=0.3.5
-ARG FETCH_SHA256=8d4d99e903b30dbd24290e9a056a982ea2326a05ded24c63be64df16e7e0d9f0
-RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
+ARG FETCH_VERSION=0.4.6
+RUN set -e; case "$(uname -m)" in \
+        "x86_64" ) FETCH_ARCH="amd64" FETCH_SHA256="a67ed3141d6deb7e7841f40505cba11eb7a37abbab78374712a42373e7854209";; \
+        "aarch64") FETCH_ARCH="arm64" FETCH_SHA256="4b9115a1f1a90c7088bff9ffc7d2de3547ef1d21709528e878af09a4c348dea3";; \
+        *) echo "Unsupported $(uname -m)"; exit 1;; \
+    esac && \
+    wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_${FETCH_ARCH} && \
     echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
     install fetch /usr/bin && \
     rm fetch
 
 ARG OSSLS_VERSION=0.11.1
-ARG OSSLS_SHA256=f1bf3012961c1d90ba307a46263f29025028d35c209b9a65e5c7d502c470c95f
-RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
-    echo "${OSSLS_SHA256} *ossls_linux_amd64" | sha256sum -c - && \
-    install ossls_linux_amd64 /usr/bin/ossls && \
-    rm ossls_linux_amd64 && \
+RUN set -e; case "$(uname -m)" in \
+        "x86_64" ) OSSLS_ARCH="amd64" OSSLS_SHA256="f1bf3012961c1d90ba307a46263f29025028d35c209b9a65e5c7d502c470c95f";; \
+        *) echo "Unsupported $(uname -m), skipping."; exit 0;; \
+    esac && \
+    fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_${OSSLS_ARCH}" . && \
+    echo "${OSSLS_SHA256} *ossls_linux_${OSSLS_ARCH}" | sha256sum -c - && \
+    install ossls_linux_${OSSLS_ARCH} /usr/bin/ossls && \
+    rm ossls_linux_${OSSLS_ARCH} && \
     ossls version
 
 ENV CGO_ENABLED=1
