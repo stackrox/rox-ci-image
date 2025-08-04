@@ -6,12 +6,7 @@ FROM docker:28.0.0 AS static-docker-source
 FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} AS base
 
 ARG TARGETARCH
-
-RUN case "$TARGETARCH" in \
-      amd64)  echo "TARGETARCH_ALT=x86_64" ;; \
-      arm64)  echo "TARGETARCH_ALT=aarch64" ;; \
-      *) echo "Unsupported $TARGETARCH"; exit 1;; \
-    esac > /arch.env
+ARG TARGETARCH_ALT
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=static-docker-source /usr/local/libexec/docker/cli-plugins/docker-buildx /usr/local/libexec/docker/cli-plugins/docker-buildx
@@ -38,7 +33,6 @@ ENV BASH_ENV /etc/initial-bash.env
 # Install cloud-sdk repo from https://cloud.google.com/sdk/docs/install#rpm, which
 # is not configured by default on arm64
 RUN set -ex \
-  && . /arch.env \
   && cat <<EOF > /etc/yum.repos.d/google-cloud-sdk.repo
 [google-cloud-cli]
 name=Google Cloud CLI
@@ -50,7 +44,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
 # Install Postgres repo
-RUN . /arch.env && dnf --disablerepo="*" install -y "https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-${TARGETARCH_ALT}/pgdg-redhat-repo-latest.noarch.rpm"
+RUN dnf --disablerepo="*" install -y "https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-${TARGETARCH_ALT}/pgdg-redhat-repo-latest.noarch.rpm"
 
 # Install all the packages
 RUN dnf update -y \
@@ -127,8 +121,7 @@ RUN set -ex \
  && command -v gradle
 
 # Install aws cli
-RUN . /arch.env \
- && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-${TARGETARCH_ALT}-2.7.17.zip" \
+RUN wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-${TARGETARCH_ALT}-2.7.17.zip" \
  && unzip awscliv2.zip \
  && ./aws/install \
  && rm awscliv2.zip \
@@ -153,7 +146,7 @@ RUN set -ex; case "$TARGETARCH" in \
 
 # Install shellcheck
 ARG SHELLCHECK_VERSION=0.10.0
-RUN set -ex; . /arch.env && case "$TARGETARCH" in \
+RUN set -ex; case "$TARGETARCH" in \
         "amd64") SHELLCHECK_SHA256="6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87";; \
         "arm64") SHELLCHECK_SHA256="324a7e89de8fa2aed0d0c28f3dab59cf84c6d74264022c00c22af665ed1a09bb";; \
         *) echo "Unsupported $TARGETARCH"; exit 1;; \

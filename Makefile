@@ -6,10 +6,17 @@ QUAY_REPO=rhacs-eng
 STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 TARGETARCH?=amd64
 
+ifeq ($(TARGETARCH),amd64)
+  TARGETARCH_ALT = x86_64
+else ifeq ($(TARGETARCH),arm64)
+  TARGETARCH_ALT = aarch64
+else
+  TARGETARCH_ALT = $(TARGETARCH)
+endif
+
 .PHONY: stackrox-build-image
 stackrox-build-image:
 	$(DOCKER) build \
-		--progress=plain \
 		--platform linux/$(TARGETARCH) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG)-$(TARGETARCH) \
@@ -25,6 +32,7 @@ stackrox-test-image:
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG)-$(TARGETARCH) \
 		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG)-$(TARGETARCH) \
+		--build-arg TARGETARCH_ALT=$(TARGETARCH_ALT) \
 		-f images/stackrox-test.Dockerfile \
 		images/
 
