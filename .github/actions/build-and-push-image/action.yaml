@@ -4,11 +4,14 @@ inputs:
   image-flavor:
     description: A flavor used to tag the apollo-ci image.
     required: true
+  arch:
+    description: Arch for image build (amd64 or arm64)
+    required: true
 runs:
   using: composite
   steps:
-    - name: Build and push image
+    - name: Build and push ${{ inputs.arch }} image
       run: |
         .github/actions/build-and-push-image/build-and-push-image.sh \
-          "${{ inputs.image-flavor }}"
+          "${{ inputs.image-flavor }}" "${{ inputs.arch }}"
       shell: bash

@@ -18,7 +18,15 @@ env:
 jobs:
 
   build-and-push-stackrox-build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,9 +36,18 @@ jobs:
       - uses: ./.github/actions/build-and-push-image
         with:
           image-flavor: "stackrox-build"
+          arch: ${{ matrix.arch }}
 
   build-and-push-stackrox-test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     needs:
       - build-and-push-stackrox-build
     steps:
@@ -42,7 +59,54 @@ jobs:
       - uses: ./.github/actions/build-and-push-image
         with:
           image-flavor: "stackrox-test"
-  
+          arch: ${{ matrix.arch }}
+
+  build-and-push-multiarch:
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-stackrox-build
+      - build-and-push-stackrox-test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Login to quay.io/stackrox-io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_STACKROX_IO_RW_USERNAME }}
+          password: ${{ secrets.QUAY_STACKROX_IO_RW_PASSWORD }}
+
+      - uses: ./.github/actions/create-multiarch-manifest
+        with:
+          base-image: quay.io/stackrox-io/apollo-ci
+          image-flavor: stackrox-build
+
+      - uses: ./.github/actions/create-multiarch-manifest
+        with:
+          base-image: quay.io/stackrox-io/apollo-ci
+          image-flavor: stackrox-test
+
+      - name: Login to quay.io/rhacs-eng
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_RHACS_ENG_RW_USERNAME }}
+          password: ${{ secrets.QUAY_RHACS_ENG_RW_PASSWORD }}
+
+      - uses: ./.github/actions/create-multiarch-manifest
+        with:
+          base-image: quay.io/rhacs-eng/apollo-ci
+          image-flavor: stackrox-build
+
+      - uses: ./.github/actions/create-multiarch-manifest
+        with:
+          base-image: quay.io/rhacs-eng/apollo-ci
+          image-flavor: stackrox-test
+
   build-and-push-stackrox-ui-test:
     runs-on: ubuntu-latest
     steps:
