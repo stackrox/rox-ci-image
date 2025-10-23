@@ -81,12 +81,14 @@ jobs:
           docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
           make test-cci-export
 
-  print-built-images:
+  comment-built-images:
     runs-on: ubuntu-latest
     needs:
       - build-and-push-builder-images
       - build-and-push-test-images
     steps:
+      - run: echo '${{ toJSON(needs.build-and-push-builder-images.outputs) }}'
+      - run: echo '${{ toJSON(needs.build-and-push-test-images.outputs) }}'
       - name: Comment PR with built images
         uses: thollander/actions-comment-pull-request@v3
         with:

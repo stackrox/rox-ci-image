@@ -14,7 +14,9 @@ build_and_push_image() {
 
     retry 5 true docker push "${IMAGE}"
 
+    set -x
     echo "${image_flavor}=${IMAGE}" >> "${GITHUB_OUTPUT}"
+    set +x
 
     # TODO: move all usages of apollo-ci images to quay.io/rhacs-eng/apollo-ci.
     docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
