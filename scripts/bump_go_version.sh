@@ -69,12 +69,19 @@ fi
 
 info "Found SHA256: $SHA256"
 
-# Files to update
-DOCKERFILES=(
-    "images/stackrox-build.Dockerfile"
-    "images/stackrox-ui-test.Dockerfile"
-    "images/scanner-build.Dockerfile"
-)
+# Find all Dockerfiles that contain GOLANG_VERSION
+info "Finding Dockerfiles with GOLANG_VERSION..."
+mapfile -t DOCKERFILES < <(grep -rl "ARG GOLANG_VERSION=" images/ 2>/dev/null | sort)
+
+if [ ${#DOCKERFILES[@]} -eq 0 ]; then
+    error "No Dockerfiles found with GOLANG_VERSION argument"
+    exit 1
+fi
+
+info "Found ${#DOCKERFILES[@]} Dockerfile(s) to update:"
+for dockerfile in "${DOCKERFILES[@]}"; do
+    info "  - $dockerfile"
+done
 
 # Update each Dockerfile
 info "Updating Dockerfiles..."
@@ -158,7 +165,7 @@ PR_BODY="This PR updates the Go version to ${TARGET_VERSION} across all Docker i
 - Source: https://go.dev/dl/
 
 ## Affected Files
-$(for dockerfile in "${DOCKERFILES[@]}"; do echo "- \`$dockerfile\`"; done)"
+$(printf '%s\n' "${DOCKERFILES[@]}" | sed 's/^/- `/' | sed 's/$/`/')"
 
 if command -v gh &> /dev/null; then
     PR_URL=$(gh pr create --title "$PR_TITLE" --body "$PR_BODY" --web 2>&1 | tee /dev/tty | grep -o 'https://github.com/[^[:space:]]*' || true)
