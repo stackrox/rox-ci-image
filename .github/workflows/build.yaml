@@ -110,13 +110,15 @@ jobs:
         id: build-message
         run: |
           echo "message<<EOF" >> $GITHUB_OUTPUT
-          echo "Built images:" >> $GITHUB_OUTPUT
+          echo "## Built Images" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
+          echo "| Image Flavor | Image Tag |" >> $GITHUB_OUTPUT
+          echo "|--------------|-----------|" >> $GITHUB_OUTPUT
           for file in image-info/*.txt; do
             if [ -f "$file" ]; then
               flavor=$(basename "$file" .txt)
               image=$(cat "$file")
-              echo "- **${flavor}**: \`${image}\`" >> $GITHUB_OUTPUT
+              echo "| ${flavor} | \`${image}\` |" >> $GITHUB_OUTPUT
             fi
           done
           echo "EOF" >> $GITHUB_OUTPUT
