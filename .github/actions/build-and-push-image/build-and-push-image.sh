@@ -16,7 +16,7 @@ build_and_push_image() {
 
     echo "image-tag=${IMAGE}" >> "${GITHUB_OUTPUT}"
 
-    # TODO: move all usages of apollo-ci images to quay.io/rhacs-eng/apollo-ci.
+    # TODO: move all usages of apollo-ci images to quay.io/rhacs-eng/apollo-ci or quay.io/stackrox-io/apollo-ci.
     docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
     docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
 
