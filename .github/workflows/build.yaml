@@ -26,6 +26,7 @@ jobs:
           - stackrox-build
           - stackrox-ui-test
           - jenkins-plugin
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,7 +35,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          image-flavor: "{{ matrix.image-flavor }}"
+          image-flavor: "${{ matrix.image-flavor }}"
 
   build-and-push-test-images:
     needs: build-and-push-builder-images
@@ -44,6 +45,7 @@ jobs:
         image-flavor:
           - stackrox-test
           - scanner-test
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,7 +54,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
         with:
-          image-flavor: "{{ matrix.image-flavor }}"
+          image-flavor: "${{ matrix.image-flavor }}"
 
   test-cci-export:
     runs-on: ubuntu-latest
