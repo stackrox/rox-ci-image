@@ -128,4 +128,7 @@ jobs:
           comment-tag: built-images
       - name: Print the comment message to step summary
         run: |
-          echo "::step-summary::${{ steps.build-message.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          # Need to cat here, because echo would interpret the backticks in the message as commands.
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ${{ steps.build-message.outputs.message }}
+          EOF
