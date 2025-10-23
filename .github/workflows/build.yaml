@@ -110,7 +110,7 @@ jobs:
         id: build-message
         run: |
           echo "message<<EOF" >> $GITHUB_OUTPUT
-          echo "## Built Images" >> $GITHUB_OUTPUT
+          echo "## Build Images" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "| Image Flavor | Image Tag |" >> $GITHUB_OUTPUT
           echo "|--------------|-----------|" >> $GITHUB_OUTPUT
