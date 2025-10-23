@@ -18,6 +18,11 @@ env:
 jobs:
 
   build-and-push-builder-images:
+    outputs:
+      scanner-build: ${{ steps.build-and-push-image.outputs.scanner-build }}
+      stackrox-build: ${{ steps.build-and-push-image.outputs.stackrox-build }}
+      stackrox-ui-test: ${{ steps.build-and-push-image.outputs.stackrox-ui-test }}
+      jenkins-plugin: ${{ steps.build-and-push-image.outputs.jenkins-plugin }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,11 +39,15 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
+        id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
 
   build-and-push-test-images:
     needs: build-and-push-builder-images
+    outputs:
+      stackrox-test: ${{ steps.build-and-push-image.outputs.stackrox-test }}
+      scanner-test: ${{ steps.build-and-push-image.outputs.scanner-test }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,6 +62,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: ./.github/actions/build-and-push-image
+        id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
 
@@ -77,6 +87,15 @@ jobs:
       - build-and-push-builder-images
       - build-and-push-test-images
     steps:
-      - name: Print tags
-        run: |
-          echo "hello world"
+      - name: Comment PR with built images
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            Built images:
+              - scanner-build: `${{ needs.build-and-push-builder-images.outputs.scanner-build }}`
+              - stackrox-build: `${{ needs.build-and-push-builder-images.outputs.stackrox-build }}`
+              - stackrox-ui-test: `${{ needs.build-and-push-builder-images.outputs.stackrox-ui-test }}`
+              - jenkins-plugin: `${{ needs.build-and-push-builder-images.outputs.jenkins-plugin }}`
+              - stackrox-test: `${{ needs.build-and-push-test-images.outputs.stackrox-test }}`
+              - scanner-test: `${{ needs.build-and-push-test-images.outputs.scanner-test }}`
+          comment-tag: built-images
