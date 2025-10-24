@@ -1,7 +1,7 @@
 ifeq ($(DOCKER),)
 DOCKER=docker
 endif
-QUAY_REPO=rhacs-eng
+QUAY_REPO=stackrox-io
 
 STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 
