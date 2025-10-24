@@ -79,10 +79,6 @@ function update_dockerfiles() {
     done
 
     info "All files updated successfully!"
-
-    # Show the changes
-    info "Changes made:"
-    git diff
 }
 
 function create_pr() {
@@ -124,17 +120,17 @@ function create_pr() {
     PR_TITLE="chore(go): Bump Go version to ${TARGET_VERSION}"
     PR_BODY="This PR updates the Go version to ${TARGET_VERSION} across all Docker images.
 
-    ## Changes
-    - Updated \`GOLANG_VERSION\` to ${TARGET_VERSION}
-    - Updated \`GOLANG_SHA256\` to ${SHA256}
+## Changes
+- Updated \`GOLANG_VERSION\` to ${TARGET_VERSION}
+- Updated \`GOLANG_SHA256\` to ${SHA256}
 
-    ## Verification
-    - Archive: \`go${TARGET_VERSION}.linux-amd64.tar.gz\`
-    - SHA256: \`${SHA256}\`
-    - Source: https://go.dev/dl/
+## Verification
+- Archive: \`go${TARGET_VERSION}.linux-amd64.tar.gz\`
+- SHA256: \`${SHA256}\`
+- Source: https://go.dev/dl/
 
-    ## Affected Files
-    $(printf '%s\n' "${DOCKERFILES[@]}" | sed 's/^/- `/' | sed 's/$/`/')"
+## Affected Files
+$(printf '%s\n' "${DOCKERFILES[@]}" | sed 's/^/- `/' | sed 's/$/`/')"
 
     PR_URL=$(gh pr create --title "$PR_TITLE" --body "$PR_BODY" --draft)
 
