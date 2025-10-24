@@ -65,10 +65,10 @@ setup() {
 }
 
 @test "cci-export should escape special characters in values" {
-  run cci-export FOO 'quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
+  run cci-export FOO 'quay.io/stackrox-"io"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   assert_success
   run foo_printer
-  assert_output 'FOO: quay.io/rhacs-"eng"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
+  assert_output 'FOO: quay.io/stackrox-"io"/super $canner:2.21.0-15-{{g44}(8f)2dc8fa}'
   refute_output "FOO: "
 }
 

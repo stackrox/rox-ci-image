@@ -2,7 +2,7 @@
 # binaries and images. Builds upon scanner-build.Dockerfile.
 
 ARG BASE_TAG
-FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG} as base
+FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG} as base
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
