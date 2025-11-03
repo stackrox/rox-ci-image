@@ -36,6 +36,4 @@ To bump the Go version across all Docker images in this repository, use the auto
 
 - Clean git working tree (no uncommitted changes)
 - Push access to the repository
-- (Optional) [GitHub CLI](https://cli.github.com/) for automatic PR creation
-
-If GitHub CLI is not installed, the script will provide a link to manually create the PR.
+- [GitHub CLI](https://cli.github.com/) installed and authenticated

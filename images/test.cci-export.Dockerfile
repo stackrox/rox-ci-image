@@ -1,5 +1,5 @@
 ARG BASE_TAG
-FROM quay.io/rhacs-eng/apollo-ci:${BASE_TAG}
+FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG}
 
 COPY test/ .
 ENV CI=true
