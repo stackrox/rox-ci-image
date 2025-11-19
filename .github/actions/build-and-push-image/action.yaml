@@ -4,10 +4,15 @@ inputs:
   image-flavor:
     description: A flavor used to tag the apollo-ci image.
     required: true
+outputs:
+  image-tag:
+    description: The full image tag that was built and pushed
+    value: ${{ steps.build-and-push.outputs.image-tag }}
 runs:
   using: composite
   steps:
     - name: Build and push image
+      id: build-and-push
       run: |
         .github/actions/build-and-push-image/build-and-push-image.sh \
           "${{ inputs.image-flavor }}"

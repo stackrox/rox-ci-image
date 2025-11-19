@@ -5,20 +5,16 @@ set -euo pipefail
 build_and_push_image() {
     local image_flavor="$1"
 
-    # Login may be required for pulling the base image for building (if used) and to avoid rate limits.
-    docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
+    docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
 
-    TAG="$(scripts/get_tag.sh "$image_flavor")"
-    IMAGE="quay.io/rhacs-eng/apollo-ci:${TAG}"
+    TAG="$(scripts/get_tag.sh "${image_flavor}")"
+    IMAGE="quay.io/stackrox-io/apollo-ci:${TAG}"
 
-    make "$image_flavor"-image
+    make "${image_flavor}-image"
 
     retry 5 true docker push "${IMAGE}"
 
-    docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
-    docker tag "${IMAGE}" "quay.io/stackrox-io/apollo-ci:${TAG}"
-
-    retry 5 true docker push "quay.io/stackrox-io/apollo-ci:${TAG}"
+    echo "image-tag=${IMAGE}" >> "${GITHUB_OUTPUT}"
 }
 
 # retry() - retry a command up to a specific numer of times until it exits
