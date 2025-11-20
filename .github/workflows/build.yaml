@@ -157,7 +157,6 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "scanner-test"
-          arch: "amd64"
       - name: Save image info
         run: |
           mkdir -p image-info
