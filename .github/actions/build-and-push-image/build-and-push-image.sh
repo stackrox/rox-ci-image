@@ -7,7 +7,7 @@ build_and_push_image() {
     local target_arch="$2"
     local tag_suffix=""
 
-    # Default to amd64 if no architecture specified (backward compatibility)
+    # Default to amd64 if no architecture specified and do not add arch suffix.
     if [ -z "${target_arch}" ]; then
         target_arch="amd64"
     else

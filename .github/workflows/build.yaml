@@ -132,7 +132,6 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
-          arch: "amd64"
       - name: Save image info
         run: |
           mkdir -p image-info

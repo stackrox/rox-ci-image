@@ -5,8 +5,8 @@ inputs:
     description: A flavor used to tag the apollo-ci image.
     required: true
   arch:
-    description: Arch for image build (amd64 or arm64)
-    required: true
+    description: Arch for image build (amd64 or arm64). Leave empty for single-arch amd64 mode without suffix.
+    required: false
 outputs:
   image-tag:
     description: The full image tag that was built and pushed
