@@ -25,16 +25,30 @@ function update_dockerfiles() {
 
     # Extract SHA256 for linux-amd64
     # The HTML structure looks like: <tr>...<td>go1.24.6.linux-amd64.tar.gz</td>...<tt>SHA256_HASH</tt>...</tr>
-    SHA256=$(echo "$GO_DL_PAGE" | grep -A 50 "go${TARGET_VERSION}.linux-amd64.tar.gz" | sed -n 's/.*<tt>\([a-f0-9]\{64\}\)<\/tt>.*/\1/p' | head -1)
+    SHA256_AMD64=$(echo "$GO_DL_PAGE" | grep -A 50 "go${TARGET_VERSION}.linux-amd64.tar.gz" | sed -n 's/.*<tt>\([a-f0-9]\{64\}\)<\/tt>.*/\1/p' | head -1)
 
-    if [ -z "$SHA256" ]; then
-        error "Failed to retrieve SHA256 checksum for Go version $TARGET_VERSION"
+    # Extract SHA256 for linux-arm64
+    SHA256_ARM64=$(echo "$GO_DL_PAGE" | grep -A 50 "go${TARGET_VERSION}.linux-arm64.tar.gz" | sed -n 's/.*<tt>\([a-f0-9]\{64\}\)<\/tt>.*/\1/p' | head -1)
+
+    if [ -z "$SHA256_AMD64" ]; then
+        error "Failed to retrieve SHA256 checksum for Go version $TARGET_VERSION (amd64)"
         error "Please verify the version exists at https://go.dev/dl/"
         error "Note: Archived versions may be further down the page"
         exit 1
     fi
 
-    info "Found SHA256: $SHA256"
+    if [ -z "$SHA256_ARM64" ]; then
+        error "Failed to retrieve SHA256 checksum for Go version $TARGET_VERSION (arm64)"
+        error "Please verify the version exists at https://go.dev/dl/"
+        error "Note: Archived versions may be further down the page"
+        exit 1
+    fi
+
+    info "Found SHA256 (amd64): $SHA256_AMD64"
+    info "Found SHA256 (arm64): $SHA256_ARM64"
+
+    # For backwards compatibility, keep SHA256 as the amd64 value
+    SHA256="$SHA256_AMD64"
 
     # Find all Dockerfiles that contain GOLANG_VERSION
     info "Finding Dockerfiles with GOLANG_VERSION..."
@@ -67,11 +81,16 @@ function update_dockerfiles() {
             warning "    GOLANG_VERSION not found in $dockerfile"
         fi
 
-        # Update GOLANG_SHA256
-        if grep -q "ARG GOLANG_SHA256=" "$dockerfile"; then
-            sed -i.bak "s/ARG GOLANG_SHA256=.*/ARG GOLANG_SHA256=${SHA256}/" "$dockerfile"
-        else
-            warning "    GOLANG_SHA256 not found in $dockerfile"
+        # Update GOLANG_SHA256_AMD64
+        if grep -q "ARG GOLANG_SHA256_AMD64=" "$dockerfile"; then
+            sed -i.bak "s/ARG GOLANG_SHA256_AMD64=.*/ARG GOLANG_SHA256_AMD64=${SHA256_AMD64}/" "$dockerfile"
+            info "    Updated GOLANG_SHA256_AMD64"
+        fi
+
+        # Update GOLANG_SHA256_ARM64 (if present)
+        if grep -q "ARG GOLANG_SHA256_ARM64=" "$dockerfile"; then
+            sed -i.bak "s/ARG GOLANG_SHA256_ARM64=.*/ARG GOLANG_SHA256_ARM64=${SHA256_ARM64}/" "$dockerfile"
+            info "    Updated GOLANG_SHA256_ARM64"
         fi
 
         # Remove backup files
@@ -98,11 +117,13 @@ function create_pr() {
     # Commit the changes
     COMMIT_MSG="Bump Go version to ${TARGET_VERSION}
 
-    Updates GOLANG_VERSION and GOLANG_SHA256 across all Docker images.
+Updates GOLANG_VERSION and SHA256 values across all Docker images.
 
-    - GOLANG_VERSION: ${TARGET_VERSION}
-    - GOLANG_SHA256: ${SHA256}
-    - Archive: go${TARGET_VERSION}.linux-amd64.tar.gz"
+- GOLANG_VERSION: ${TARGET_VERSION}
+- GOLANG_SHA256_AMD64: ${SHA256_AMD64}
+- GOLANG_SHA256_ARM64: ${SHA256_ARM64}
+
+Archives: go${TARGET_VERSION}.linux-{amd64,arm64}.tar.gz"
 
     info "Committing changes..."
     git commit -m "$COMMIT_MSG"
@@ -122,11 +143,13 @@ function create_pr() {
 
 ## Changes
 - Updated \`GOLANG_VERSION\` to ${TARGET_VERSION}
-- Updated \`GOLANG_SHA256\` to ${SHA256}
+- Updated \`GOLANG_SHA256_AMD64\` to ${SHA256_AMD64}
+- Updated \`GOLANG_SHA256_ARM64\` to ${SHA256_ARM64} (where applicable)
 
 ## Verification
-- Archive: \`go${TARGET_VERSION}.linux-amd64.tar.gz\`
-- SHA256: \`${SHA256}\`
+- Archives: \`go${TARGET_VERSION}.linux-{amd64,arm64}.tar.gz\`
+- SHA256 (amd64): \`${SHA256_AMD64}\`
+- SHA256 (arm64): \`${SHA256_ARM64}\`
 - Source: https://go.dev/dl/
 
 ## Affected Files
