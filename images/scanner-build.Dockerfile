@@ -36,12 +36,12 @@ RUN dnf update -y && \
     rm -rf /var/cache/dnf /var/cache/yum
 
 ARG GOLANG_VERSION=1.24.4
-ARG GOLANG_SHA256=77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717
+ARG GOLANG_SHA256_AMD64=77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
     wget --no-verbose -O go.tgz "$url" && \
-    echo "${GOLANG_SHA256} *go.tgz" | sha256sum -c - && \
+    echo "${GOLANG_SHA256_AMD64} *go.tgz" | sha256sum -c - && \
     tar -C /usr/local -xzf go.tgz && \
     rm go.tgz && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \

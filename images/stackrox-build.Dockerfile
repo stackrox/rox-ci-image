@@ -58,11 +58,13 @@ RUN dnf update -y && \
     rm -rf /var/cache/dnf /var/cache/yum
 
 ARG GOLANG_VERSION=1.24.4
+ARG GOLANG_SHA256_AMD64=77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717
+ARG GOLANG_SHA256_ARM64=d5501ee5aca0f258d5fe9bfaed401958445014495dc115f202d43d5210b45241
 ENV GOPATH=/go
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 RUN set -e; case "$TARGETARCH" in \
-        "amd64" ) GOLANG_SHA256="77e5da33bb72aeaef1ba4418b6fe511bc4d041873cbf82e5aa6318740df98717";; \
-        "arm64")  GOLANG_SHA256="d5501ee5aca0f258d5fe9bfaed401958445014495dc115f202d43d5210b45241";; \
+        "amd64" ) GOLANG_SHA256="$GOLANG_SHA256_AMD64";; \
+        "arm64")  GOLANG_SHA256="$GOLANG_SHA256_ARM64";; \
         *) echo "Unsupported $TARGETARCH"; exit 1;; \
     esac && \
     wget --no-verbose -O go.tgz "https://dl.google.com/go/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz" && \
