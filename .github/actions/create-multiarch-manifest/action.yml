@@ -19,10 +19,17 @@ inputs:
     description:
       Architectures to be included in the final manifest, separated by a space
     default: 'amd64 arm64'
+outputs:
+  image-tag:
+    description:
+      The full multiarch manifest tag that was created and pushed
+    value: ${{ steps.create-and-push-manifest.outputs.image-tag}}
+
 runs:
   using: composite
   steps:
-    - shell: bash
+    - id: create-and-push-manifest
+      shell: bash
       run: |
         image_flavor="${{ inputs.image-flavor }}"
         tag="$(scripts/get_tag.sh ${image_flavor})"
@@ -32,6 +39,10 @@ runs:
           images+=("${{ inputs.base-image }}:${tag}-${arch}${{ inputs.suffix }}")
         done
 
-        docker manifest create "${{ inputs.base-image }}:${tag}${{ inputs.suffix }}" "${images[@]}"
-        docker manifest push "${{ inputs.base-image }}:${tag}${{ inputs.suffix }}"
+        image_tag="${{ inputs.base-image }}:${tag}${{ inputs.suffix }}"
+
+        docker manifest create "${image_tag}" "${images[@]}"
+        docker manifest push "${image_tag}"
+
+        echo "image-tag=${image_tag}" >> "${GITHUB_OUTPUT}"
 

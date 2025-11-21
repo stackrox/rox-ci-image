@@ -15,8 +15,7 @@ env:
 
 jobs:
 
-  # Multi-architecture builds for core StackRox images
-  build-and-push-stackrox-build:
+  multiarch-build-images:
     strategy:
       fail-fast: false
       matrix:
@@ -28,7 +27,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -37,18 +36,12 @@ jobs:
         with:
           image-flavor: "stackrox-build"
           arch: ${{ matrix.arch }}
-      - name: Save image info
-        run: |
-          mkdir -p image-info
-          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/stackrox-build-${{ matrix.arch }}.txt"
-      - name: Upload image info
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/save-image-info
         with:
-          name: image-info-stackrox-build-${{ matrix.arch }}
-          path: image-info/stackrox-build-${{ matrix.arch }}.txt
-          retention-days: 1
+          image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
+          name: stackrox-build-${{ matrix.arch }}
 
-  build-and-push-stackrox-test:
+  multiarch-test-images:
     strategy:
       fail-fast: false
       matrix:
@@ -59,10 +52,10 @@ jobs:
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
     needs:
-      - build-and-push-stackrox-build
+      - multiarch-build-images
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -71,26 +64,19 @@ jobs:
         with:
           image-flavor: "stackrox-test"
           arch: ${{ matrix.arch }}
-      - name: Save image info
-        run: |
-          mkdir -p image-info
-          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/stackrox-test-${{ matrix.arch }}.txt"
-      - name: Upload image info
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/save-image-info
         with:
-          name: image-info-stackrox-test-${{ matrix.arch }}
-          path: image-info/stackrox-test-${{ matrix.arch }}.txt
-          retention-days: 1
+          image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
+          name: stackrox-test-${{ matrix.arch }}
 
-  # Create multi-architecture manifests
-  build-and-push-multiarch:
+  multiarch-manifests:
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-stackrox-build
-      - build-and-push-stackrox-test
+      - multiarch-build-images
+      - multiarch-test-images
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -103,17 +89,26 @@ jobs:
           password: ${{ secrets.QUAY_STACKROX_IO_RW_PASSWORD }}
 
       - uses: ./.github/actions/create-multiarch-manifest
+        id: stackrox-build-manifest
         with:
           base-image: quay.io/stackrox-io/apollo-ci
           image-flavor: stackrox-build
+      - uses: ./.github/actions/save-image-info
+        with:
+          image-tag: ${{ steps.stackrox-build-manifest.outputs.image-tag }}
+          name: stackrox-build-multiarch
 
       - uses: ./.github/actions/create-multiarch-manifest
+        id: stackrox-test-manifest
         with:
           base-image: quay.io/stackrox-io/apollo-ci
           image-flavor: stackrox-test
+      - uses: ./.github/actions/save-image-info
+        with:
+          image-tag: ${{ steps.stackrox-test-manifest.outputs.image-tag }}
+          name: stackrox-test-multiarch
 
-  # Single-architecture builds for other images
-  build-and-push-single-arch-images:
+  amd64-build-images:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -124,7 +119,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -132,24 +127,18 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
-      - name: Save image info
-        run: |
-          mkdir -p image-info
-          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/${{ matrix.image-flavor }}.txt"
-      - name: Upload image info
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/save-image-info
         with:
-          name: image-info-${{ matrix.image-flavor }}
-          path: image-info/${{ matrix.image-flavor }}.txt
-          retention-days: 1
+          image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
+          name: ${{ matrix.image-flavor }}
 
-  build-and-push-scanner-test:
+  amd64-test-images:
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-single-arch-images
+      - amd64-build-images
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -157,25 +146,19 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "scanner-test"
-      - name: Save image info
-        run: |
-          mkdir -p image-info
-          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/scanner-test.txt"
-      - name: Upload image info
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/save-image-info
         with:
-          name: image-info-scanner-test
-          path: image-info/scanner-test.txt
-          retention-days: 1
+          image-tag: ${{ steps.build-and-push-image.outputs.image-tag }}
+          name: scanner-test
 
   test-cci-export:
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-single-arch-images
-      - build-and-push-scanner-test
+      - amd64-build-images
+      - amd64-test-images
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -187,11 +170,11 @@ jobs:
   comment-build-images:
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-stackrox-build
-      - build-and-push-stackrox-test
-      - build-and-push-multiarch
-      - build-and-push-single-arch-images
-      - build-and-push-scanner-test
+      - multiarch-build-images
+      - multiarch-test-images
+      - multiarch-manifests
+      - amd64-build-images
+      - amd64-test-images
     steps:
       - name: Download all image info artifacts
         uses: actions/download-artifact@v4
