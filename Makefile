@@ -41,8 +41,10 @@ STACKROX_UI_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-ui-test")
 .PHONY: stackrox-ui-test-image
 stackrox-ui-test-image:
 	$(DOCKER) build \
-		--platform linux/amd64 \
+		--platform linux/$(TARGETARCH) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_UI_TEST_TAG) \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_UI_TEST_TAG)-$(TARGETARCH) \
+		--build-arg TARGETARCH_ALT=$(TARGETARCH_ALT) \
 		--build-arg BASE_TAG=$(STACKROX_UI_TEST_TAG) \
 		-f images/stackrox-ui-test.Dockerfile \
 		images/
