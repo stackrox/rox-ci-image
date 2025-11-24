@@ -94,6 +94,7 @@ jobs:
     needs:
       - multiarch-build-images
       - multiarch-test-images
+      - multiarch-ui-test-images
     steps:
       - name: Checkout
         uses: actions/checkout@v4
