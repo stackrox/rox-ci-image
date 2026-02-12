@@ -112,7 +112,7 @@ RUN set -ex \
   && bats -v
 
 # Install docker binary
-ARG DOCKER_VERSION=20.10.6
+ARG DOCKER_VERSION=29.2.1
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
