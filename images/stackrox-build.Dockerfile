@@ -1,6 +1,6 @@
 # Provides the tooling required to run StackRox dockerized build targets.
 
-FROM registry.access.redhat.com/ubi8:latest
+FROM registry.access.redhat.com/ubi9:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -11,7 +11,7 @@ RUN dnf update -y && \
         dnf-plugins-core \
         wget \
         && \
-    dnf config-manager --set-enabled ubi-8-codeready-builder-rpms && \
+    dnf config-manager --set-enabled ubi-9-codeready-builder-rpms && \
     dnf update -y && \
     wget --quiet -O - https://rpm.nodesource.com/setup_lts.x | bash - && \
     wget --quiet -O - https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
@@ -34,7 +34,6 @@ RUN dnf update -y && \
         redhat-rpm-config \
         rpm-build \
         strace \
-        ctags \
         git \
         perl-Fedora-VSP \
         perl-generators \
