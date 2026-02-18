@@ -2,6 +2,8 @@
 
 FROM registry.access.redhat.com/ubi8:latest
 
+ARG TARGETARCH
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN touch /i-am-rox-ci-image
@@ -56,27 +58,37 @@ RUN dnf update -y && \
     rm -rf /var/cache/dnf /var/cache/yum
 
 ARG GOLANG_VERSION=1.25.3
-ARG GOLANG_SHA256=0335f314b6e7bfe08c3d0cfaa7c19db961b7b99fb20be62b0a826c992ad14e0f
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
-    wget --no-verbose -O go.tgz "$url" && \
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
+RUN set -e; case "$TARGETARCH" in \
+        "amd64" ) GOLANG_SHA256="0335f314b6e7bfe08c3d0cfaa7c19db961b7b99fb20be62b0a826c992ad14e0f";; \
+        "arm64")  GOLANG_SHA256="1d42ebc84999b5e2069f5e31b67d6fc5d67308adad3e178d5a2ee2c9ff2001f5";; \
+        *) echo "Unsupported $TARGETARCH"; exit 1;; \
+    esac && \
+    wget --no-verbose -O go.tgz "https://dl.google.com/go/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz" && \
     echo "${GOLANG_SHA256} *go.tgz" | sha256sum -c - && \
     tar -C /usr/local -xzf go.tgz && \
     rm go.tgz && \
     mkdir -p "$GOPATH/src" "$GOPATH/bin" && \
     chmod -R 777 "$GOPATH"
 
-ARG FETCH_VERSION=0.3.5
-ARG FETCH_SHA256=8d4d99e903b30dbd24290e9a056a982ea2326a05ded24c63be64df16e7e0d9f0
-RUN wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_amd64 && \
+ARG FETCH_VERSION=0.4.6
+RUN set -e; case "$TARGETARCH" in \
+        "amd64" ) FETCH_SHA256="a67ed3141d6deb7e7841f40505cba11eb7a37abbab78374712a42373e7854209";; \
+        "arm64")  FETCH_SHA256="4b9115a1f1a90c7088bff9ffc7d2de3547ef1d21709528e878af09a4c348dea3";; \
+        *) echo "Unsupported $TARGETARCH"; exit 1;; \
+    esac && \
+    wget --no-verbose -O fetch https://github.com/gruntwork-io/fetch/releases/download/v${FETCH_VERSION}/fetch_linux_${TARGETARCH} && \
     echo "${FETCH_SHA256} fetch" | sha256sum -c - && \
     install fetch /usr/bin && \
     rm fetch
 
 ARG OSSLS_VERSION=0.11.1
-ARG OSSLS_SHA256=f1bf3012961c1d90ba307a46263f29025028d35c209b9a65e5c7d502c470c95f
-RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
+RUN set -e; case "$TARGETARCH" in \
+        "amd64" ) OSSLS_SHA256="f1bf3012961c1d90ba307a46263f29025028d35c209b9a65e5c7d502c470c95f";; \
+        *) echo "Unsupported $TARGETARCH, skipping."; exit 0;; \
+    esac && \
+    fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --release-asset="ossls_linux_amd64" . && \
     echo "${OSSLS_SHA256} *ossls_linux_amd64" | sha256sum -c - && \
     install ossls_linux_amd64 /usr/bin/ossls && \
     rm ossls_linux_amd64 && \

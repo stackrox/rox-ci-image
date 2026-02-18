@@ -1,0 +1,23 @@
+name: Save image info
+description: Save image tag to artifact for later reference
+inputs:
+  image-tag:
+    description: The image tag to save
+    required: true
+  name:
+    description: Base name for both artifact and file (e.g., 'stackrox-build-amd64')
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Save image info
+      run: |
+        mkdir -p image-info
+        echo "${{ inputs.image-tag }}" > "image-info/${{ inputs.name }}.txt"
+      shell: bash
+    - name: Upload image info
+      uses: actions/upload-artifact@v4
+      with:
+        name: image-info-${{ inputs.name }}
+        path: image-info/${{ inputs.name }}.txt
+        retention-days: 1
