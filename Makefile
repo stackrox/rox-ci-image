@@ -13,6 +13,14 @@ stackrox-build-image:
 		-f images/stackrox-build.Dockerfile \
 		images/
 
+.PHONY: stackrox-build-image-arm64
+stackrox-build-image-arm64:
+	$(DOCKER) build \
+		--platform linux/arm64 \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG)-arm64 \
+		-f images/stackrox-build.Dockerfile \
+		images/
+
 STACKROX_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-test")
 
 .PHONY: stackrox-test-image
@@ -21,6 +29,15 @@ stackrox-test-image:
 		--platform linux/amd64 \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
 		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
+		-f images/stackrox-test.Dockerfile \
+		images/
+
+.PHONY: stackrox-test-image-arm64
+stackrox-test-image-arm64:
+	$(DOCKER) build \
+		--platform linux/arm64 \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG)-arm64 \
+		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG)-arm64 \
 		-f images/stackrox-test.Dockerfile \
 		images/
 

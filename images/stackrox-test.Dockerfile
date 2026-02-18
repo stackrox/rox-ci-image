@@ -4,6 +4,8 @@
 ARG BASE_TAG
 FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG} as base
 
+ARG TARGETARCH
+
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
 # CMD/ENTRYPOINT.
@@ -24,7 +26,12 @@ RUN set -ex \
 ENV BASH_ENV /etc/initial-bash.env
 
 # Install Postgres repo
-RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+RUN set -ex && \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+        dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-aarch64/pgdg-redhat-repo-latest.noarch.rpm; \
+    else \
+        dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm; \
+    fi
 
 # Install all the packages
 RUN dnf update -y \
@@ -63,10 +70,10 @@ RUN set -ex \
 # Install docker binary
 ARG DOCKER_VERSION=29.2.1
 RUN set -ex \
- && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
+ && if [ "$TARGETARCH" = "arm64" ]; then DOCKER_ARCH=aarch64; else DOCKER_ARCH=x86_64; fi \
+ && DOCKER_URL="https://download.docker.com/linux/static/stable/${DOCKER_ARCH}/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
  && wget --no-verbose -O /tmp/docker.tgz "${DOCKER_URL}" \
- && ls -lha /tmp/docker.tgz \
  && tar -xz -C /tmp -f /tmp/docker.tgz \
  && install /tmp/docker/docker /usr/local/bin \
  && rm -rf /tmp/docker /tmp/docker.tgz \
@@ -87,10 +94,11 @@ RUN set -ex \
 
 # helm
 RUN set -ex \
- && wget --no-verbose -O helm.tgz https://get.helm.sh/helm-v3.11.2-linux-amd64.tar.gz \
+ && if [ "$TARGETARCH" = "arm64" ]; then helm_arch=arm64; else helm_arch=amd64; fi \
+ && wget --no-verbose -O helm.tgz "https://get.helm.sh/helm-v3.11.2-linux-${helm_arch}.tar.gz" \
  && tar -xf helm.tgz \
- && install linux-amd64/helm /usr/local/bin \
- && rm -rf helm.tgz linux-amd64 \
+ && install "linux-${helm_arch}/helm" /usr/local/bin \
+ && rm -rf helm.tgz "linux-${helm_arch}" \
  && command -v helm
 
 # Install gradle
@@ -107,7 +115,8 @@ RUN set -ex \
 
 # Install aws cli
 RUN set -ex \
- && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.7.17.zip" \
+ && if [ "$TARGETARCH" = "arm64" ]; then aws_arch=aarch64; else aws_arch=x86_64; fi \
+ && wget --no-verbose -O "awscliv2.zip" "https://awscli.amazonaws.com/awscli-exe-linux-${aws_arch}-2.7.17.zip" \
  && unzip awscliv2.zip \
  && ./aws/install \
  && rm awscliv2.zip \
@@ -115,41 +124,50 @@ RUN set -ex \
  && aws --version
 
 # Install yq v4.16.2
+ARG YQ_AMD64_SHA256=5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d
+ARG YQ_ARM64_SHA256=eef1f9db6e10fd5fe8c10ef974d38db49f27095cea0759e7de9b2f202ed498ca
 RUN set -ex \
-  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
-  && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" \
-  && mv yq_linux_amd64 /usr/bin/yq \
+  && if [ "$TARGETARCH" = "arm64" ]; then yq_bin=yq_linux_arm64; yq_sha="${YQ_ARM64_SHA256}"; else yq_bin=yq_linux_amd64; yq_sha="${YQ_AMD64_SHA256}"; fi \
+  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/${yq_bin}" \
+  && echo "${yq_sha}  ${yq_bin}" | sha256sum -c - \
+  && mv "${yq_bin}" /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
 # Install hub-comment
 RUN set -ex \
-  && wget --quiet https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
-  && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
-  && mv hub-comment_linux_amd64 /usr/bin/hub-comment \
-  && chmod +x /usr/bin/hub-comment
+  && if [ "$TARGETARCH" = "arm64" ]; then \
+       go install "github.com/joshdk/hub-comment@v0.1.0-rc6" && mv "$GOPATH/bin/hub-comment" /usr/bin/hub-comment; \
+     else \
+       wget --quiet -O hub-comment_linux_amd64 https://github.com/joshdk/hub-comment/releases/download/0.1.0-rc6/hub-comment_linux_amd64 \
+       && sha256sum --check --status <<< "2a2640f44737873dfe30da0d5b8453419d48a494f277a70fd9108e4204fc4a53  hub-comment_linux_amd64" \
+       && mv hub-comment_linux_amd64 /usr/bin/hub-comment && chmod +x /usr/bin/hub-comment; \
+     fi
 
 # Install shellcheck
 ARG SHELLCHECK_VERSION=0.10.0
 ARG SHELLCHECK_SHA256=6c881ab0698e4e6ea235245f22832860544f17ba386442fe7e9d629f8cbedf87
+ARG SHELLCHECK_SHA256_ARM64=324a7e89de8fa2aed0d0c28f3dab59cf84c6d74264022c00c22af665ed1a09bb
 RUN set -ex \
-  && wget --quiet "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
-  && sha256sum --check --status <<< "${SHELLCHECK_SHA256}  shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
-  && tar -xJf "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+  && if [ "$TARGETARCH" = "arm64" ]; then arch=aarch64; pkg="shellcheck-v${SHELLCHECK_VERSION}.linux.${arch}.tar.xz"; sha="${SHELLCHECK_SHA256_ARM64}"; else arch=x86_64; pkg="shellcheck-v${SHELLCHECK_VERSION}.linux.${arch}.tar.xz"; sha="${SHELLCHECK_SHA256}"; fi \
+  && wget --quiet "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/${pkg}" \
+  && echo "${sha}  ${pkg}" | sha256sum -c - \
+  && tar -xJf "${pkg}" \
   && cp "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/bin/shellcheck \
-  && rm "shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
-  && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
+  && rm -f "${pkg}" && rm -rf "shellcheck-v${SHELLCHECK_VERSION}" \
   && shellcheck --version
 
 # Install hashicorp vault
 ARG VAULT_VERSION=1.12.1
 ARG VAULT_SHA256=839fa81eacd250e0b0298e518751a792cd5d7194650af78cf5da74d7b7b1e5fb
+ARG VAULT_SHA256_ARM64=f583cdd21ed1fdc99ec50f5400e79ebc723ed3ce92d2d1d42490cff9143ed693
 RUN set -ex \
-  && wget --quiet "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip" \
-  && sha256sum --check --status <<< "${VAULT_SHA256}  vault_${VAULT_VERSION}_linux_amd64.zip" \
-  && unzip "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && if [ "$TARGETARCH" = "arm64" ]; then vault_arch=arm64; vault_sha="${VAULT_SHA256_ARM64}"; else vault_arch=amd64; vault_sha="${VAULT_SHA256}"; fi \
+  && wget --quiet "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_${vault_arch}.zip" \
+  && echo "${vault_sha}  vault_${VAULT_VERSION}_linux_${vault_arch}.zip" | sha256sum -c - \
+  && unzip "vault_${VAULT_VERSION}_linux_${vault_arch}.zip" \
   && strip "vault" \
   && mv "vault" /usr/bin/vault \
-  && rm "vault_${VAULT_VERSION}_linux_amd64.zip" \
+  && rm "vault_${VAULT_VERSION}_linux_${vault_arch}.zip" \
   && vault --version
 
 # Add python development tooling. If these versions have to change check for

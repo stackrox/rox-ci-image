@@ -76,6 +76,69 @@ jobs:
           path: image-info/${{ matrix.image-flavor }}.txt
           retention-days: 1
 
+  build-and-push-builder-images-arm64:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image-flavor:
+          - stackrox-build
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - uses: ./.github/actions/build-and-push-image
+        id: build-and-push-image
+        with:
+          image-flavor: "${{ matrix.image-flavor }}"
+          arch: arm64
+      - name: Save image info
+        run: |
+          mkdir -p image-info
+          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/${{ matrix.image-flavor }}-arm64.txt"
+      - name: Upload image info
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-info-${{ matrix.image-flavor }}-arm64
+          path: image-info/${{ matrix.image-flavor }}-arm64.txt
+          retention-days: 1
+
+  build-and-push-test-images-arm64:
+    needs: build-and-push-builder-images-arm64
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image-flavor:
+          - stackrox-test
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - uses: ./.github/actions/build-and-push-image
+        id: build-and-push-image
+        with:
+          image-flavor: "${{ matrix.image-flavor }}"
+          arch: arm64
+      - name: Save image info
+        run: |
+          mkdir -p image-info
+          echo "${{ steps.build-and-push-image.outputs.image-tag }}" > "image-info/${{ matrix.image-flavor }}-arm64.txt"
+      - name: Upload image info
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-info-${{ matrix.image-flavor }}-arm64
+          path: image-info/${{ matrix.image-flavor }}-arm64.txt
+          retention-days: 1
+
   test-cci-export:
     runs-on: ubuntu-latest
     needs:
@@ -97,6 +160,8 @@ jobs:
     needs:
       - build-and-push-builder-images
       - build-and-push-test-images
+      - build-and-push-builder-images-arm64
+      - build-and-push-test-images-arm64
     steps:
       - name: Download all image info artifacts
         uses: actions/download-artifact@v4

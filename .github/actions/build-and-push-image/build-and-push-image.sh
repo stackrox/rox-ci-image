@@ -4,13 +4,18 @@ set -euo pipefail
 
 build_and_push_image() {
     local image_flavor="$1"
+    local arch="${2:-amd64}"
 
     docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
 
     TAG="$(scripts/get_tag.sh "${image_flavor}")"
+    if [[ "${arch}" == "arm64" ]]; then
+        TAG="${TAG}-arm64"
+        make "${image_flavor}-image-arm64"
+    else
+        make "${image_flavor}-image"
+    fi
     IMAGE="quay.io/stackrox-io/apollo-ci:${TAG}"
-
-    make "${image_flavor}-image"
 
     retry 5 true docker push "${IMAGE}"
 
