@@ -63,8 +63,8 @@ RUN dnf update -y \
 ENV USE_GKE_GCLOUD_AUTH_PLUGIN=True
 RUN gke-gcloud-auth-plugin --version
 
-# Install docker 25.0.3
-ARG DOCKER_VERSION=25.0.3
+# Install docker 29.2.1
+ARG DOCKER_VERSION=29.2.1
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
