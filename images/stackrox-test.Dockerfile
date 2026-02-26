@@ -39,7 +39,8 @@ RUN dnf update -y \
         lsof \
         lz4 \
         openssl \
-        python3-devel \
+        python39 \
+        python39-devel \
         unzip \
         xmlstarlet \
         xz \
@@ -73,8 +74,10 @@ RUN set -ex \
  && command -v docker \
  && (docker version --format '{{.Client.Version}}' || true)
 
- # Symlink python to python3
- RUN ln -s /usr/bin/python3 /usr/bin/python
+ # Symlink python to python3.
+ # Explicitly set python3 to python3.9 instead of python3.6, the latter is required to keep for nodejs.
+RUN update-alternatives --set python3 /usr/bin/python3.9 \
+  && ln -s /usr/bin/python3 /usr/bin/python
 
 # oc
 RUN set -ex \
