@@ -2,6 +2,10 @@
 # binaries and images. Builds upon stackrox-build.Dockerfile.
 
 ARG BASE_TAG
+ARG ROXIE_VERSION=0.1.2
+ARG ROXIE_CHECKSUM=sha256:808acf790369f3cb5744c5c03a4f97e2c57e8e752ae2bce952515bed3fdfd00d
+FROM quay.io/rhacs-eng/roxie:v${ROXIE_VERSION}@${ROXIE_CHECKSUM} AS roxie-installer
+
 FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG} as base
 
 # This line makes sure that piped commands in RUN instructions exit early.
@@ -160,6 +164,9 @@ ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
+
+# Install roxie.
+COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
