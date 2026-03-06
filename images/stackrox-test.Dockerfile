@@ -161,6 +161,16 @@ RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
 
+# Install roxie
+ARG ROXIE_VERSION=0.1.0-test1
+ARG ROXIE_SHA256=17a48c86379cbaa8dba284de79418c815f4c6647d8dda8c12de559d12ea9f8ad
+ARG ROXIE_FILENAME=roxie-linux-amd64
+RUN set -ex \
+  && wget --no-verbose "https://github.com/stackrox/roxie/releases/download/v${ROXIE_VERSION}/${ROXIE_FILENAME}" \
+  && sha256sum --check --status <<< "${ROXIE_SHA256}  ${ROXIE_FILENAME}" \
+  && mv ${ROXIE_FILENAME} /usr/bin/roxie \
+  && chmod +x /usr/bin/roxie
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
