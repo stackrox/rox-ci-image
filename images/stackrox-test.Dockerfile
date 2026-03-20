@@ -2,7 +2,10 @@
 # binaries and images. Builds upon stackrox-build.Dockerfile.
 
 ARG BASE_TAG
+ARG ROXIE_VERSION=0.1.1
+FROM quay.io/rhacs-eng/roxie:v${ROXIE_VERSION} as roxie-installer
 FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG} as base
+
 
 # This line makes sure that piped commands in RUN instructions exit early.
 # This should not affect use in CircleCI because Circle doesn't use
@@ -160,6 +163,11 @@ ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
+
+# Install roxie.
+# We pull it out of an image from quay, because the GitHub repo is private
+# and we already have quay credentials in place.
+COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
