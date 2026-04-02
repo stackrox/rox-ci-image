@@ -5,12 +5,16 @@ set -euo pipefail
 build_and_push_image() {
     local image_flavor="$1"
 
-    docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+    # For retrieving private images from quay.io/rhacs-eng (roxie).
+    docker login -u "$QUAY_RHACS_ENG_RW_USERNAME" --password-stdin <<<"$QUAY_RHACS_ENG_RW_PASSWORD" quay.io
 
     TAG="$(scripts/get_tag.sh "${image_flavor}")"
     IMAGE="quay.io/stackrox-io/apollo-ci:${TAG}"
 
     make "${image_flavor}-image"
+
+    # For pushing to quay.io/stackrox-io/apollo-ci.
+    docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
 
     retry 5 true docker push "${IMAGE}"
 
