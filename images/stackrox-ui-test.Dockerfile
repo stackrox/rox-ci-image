@@ -1,5 +1,9 @@
 # Provides the tooling required run UI tests against the StackRox images.
 
+ARG ROXIE_VERSION=0.1.2
+ARG ROXIE_CHECKSUM=sha256:808acf790369f3cb5744c5c03a4f97e2c57e8e752ae2bce952515bed3fdfd00d
+FROM quay.io/rhacs-eng/roxie:v${ROXIE_VERSION}@${ROXIE_CHECKSUM} AS roxie-installer
+
 FROM quay.io/centos/centos:stream9
 
 # This line makes sure that piped commands in RUN instructions exit early.
@@ -72,8 +76,8 @@ RUN dnf update -y \
   && dnf clean all \
   && rm -rf /var/cache/dnf /var/cache/yum
 
-ARG GOLANG_VERSION=1.25.3
-ARG GOLANG_SHA256=0335f314b6e7bfe08c3d0cfaa7c19db961b7b99fb20be62b0a826c992ad14e0f
+ARG GOLANG_VERSION=1.25.7
+ARG GOLANG_SHA256=12e6d6a191091ae27dc31f6efc630e3a3b8ba409baf3573d955b196fdf086005
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 RUN url="https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz" && \
@@ -112,7 +116,7 @@ RUN set -ex \
   && bats -v
 
 # Install docker binary
-ARG DOCKER_VERSION=20.10.6
+ARG DOCKER_VERSION=29.2.1
 RUN set -ex \
  && DOCKER_URL="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
  && echo Docker URL: $DOCKER_URL \
@@ -211,6 +215,9 @@ ARG PYLINT_VERSION=2.13.9
 RUN set -ex \
   && pip3 install pycodestyle=="${PYCODESTYLE_VERSION}" \
                   pylint=="${PYLINT_VERSION}"
+
+# Install roxie.
+COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
 RUN \
 	mv /bin/bash /bin/real-bash && \
