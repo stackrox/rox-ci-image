@@ -1,12 +1,12 @@
 # Provides the tooling required to run Scanner dockerized build targets.
 
-FROM registry.access.redhat.com/ubi8:latest
+FROM registry.access.redhat.com/ubi9:latest
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN dnf update -y && \
     dnf install -y dnf-plugins-core wget && \
-    dnf config-manager --set-enabled ubi-8-codeready-builder-rpms && \
+    dnf config-manager --set-enabled ubi-9-codeready-builder-rpms && \
     dnf update -y && \
     # This set replaces centos:stream8 "Development Tools". It is possible
     # rox-ci-image does not need all of these.
@@ -26,7 +26,6 @@ RUN dnf update -y && \
         redhat-rpm-config \
         rpm-build \
         strace \
-        ctags \
         git \
         perl-Fedora-VSP \
         perl-generators \
