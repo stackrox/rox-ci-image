@@ -37,6 +37,13 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
+      - name: Push latest tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
+          LATEST_IMAGE="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-latest"
+          docker tag "${IMAGE}" "${LATEST_IMAGE}"
+          docker push "${LATEST_IMAGE}"
       - name: Save image info
         run: |
           mkdir -p image-info
@@ -67,6 +74,13 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
+      - name: Push latest tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
+          LATEST_IMAGE="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-latest"
+          docker tag "${IMAGE}" "${LATEST_IMAGE}"
+          docker push "${LATEST_IMAGE}"
       - name: Save image info
         run: |
           mkdir -p image-info
