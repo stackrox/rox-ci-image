@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to promote (e.g. 0.5.7)"
-        required: true
+        description: "Version to promote (e.g. 0.5.7). Defaults to 'latest'."
+        required: false
+        default: "latest"
 
 env:
   QUAY_STACKROX_IO_RW_USERNAME: ${{ secrets.QUAY_STACKROX_IO_RW_USERNAME }}
