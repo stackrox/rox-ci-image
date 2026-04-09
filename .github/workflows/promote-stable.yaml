@@ -1,6 +1,9 @@
 name: Promote to stable
 
 on:
+  push:
+    tags:
+      - "test-stable"
   workflow_dispatch:
     inputs:
       version:
@@ -22,6 +25,7 @@ jobs:
       - name: Retag all flavors as stable
         run: |
           VERSION="${{ inputs.version }}"
+          VERSION="${VERSION:-latest}"
           for flavor in scanner-build scanner-test stackrox-build stackrox-test stackrox-ui-test jenkins-plugin; do
             SRC="quay.io/stackrox-io/apollo-ci:${flavor}-${VERSION}"
             DST="quay.io/stackrox-io/apollo-ci:${flavor}-stable"
