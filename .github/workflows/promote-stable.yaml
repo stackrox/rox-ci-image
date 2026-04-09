@@ -14,25 +14,16 @@ env:
 jobs:
   promote-stable:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image-flavor:
-          - scanner-build
-          - scanner-test
-          - stackrox-build
-          - stackrox-test
-          - stackrox-ui-test
-          - jenkins-plugin
-      fail-fast: false
     steps:
       - name: Log in to Quay
         run: |
           docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
-      - name: Retag as stable
+      - name: Retag all flavors as stable
         run: |
-          SRC="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-${{ inputs.version }}"
-          DST="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-stable"
-          docker pull "${SRC}"
-          docker tag "${SRC}" "${DST}"
-          docker push "${DST}"
-          echo "Promoted ${SRC} → ${DST}"
+          VERSION="${{ inputs.version }}"
+          for flavor in scanner-build scanner-test stackrox-build stackrox-test stackrox-ui-test jenkins-plugin; do
+            SRC="quay.io/stackrox-io/apollo-ci:${flavor}-${VERSION}"
+            DST="quay.io/stackrox-io/apollo-ci:${flavor}-stable"
+            echo "Promoting ${SRC} → ${DST}"
+            docker buildx imagetools create --tag "${DST}" "${SRC}"
+          done
