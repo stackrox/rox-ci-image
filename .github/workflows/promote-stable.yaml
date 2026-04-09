@@ -1,9 +1,6 @@
 name: Promote to stable
 
 on:
-  push:
-    tags:
-      - "test-stable"
   workflow_dispatch:
     inputs:
       version:
