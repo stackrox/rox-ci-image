@@ -37,6 +37,23 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
+      - name: Push latest tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if ! git merge-base --is-ancestor "${{ github.sha }}" origin/main; then
+            echo "Skipping latest push: tagged commit is not on main"
+            exit 0
+          fi
+          CURRENT="${{ github.ref_name }}"
+          LATEST="$(git tag --merged origin/main --sort=-version:refname | head -1)"
+          if [[ "${CURRENT}" != "${LATEST}" ]]; then
+            echo "Skipping latest push: ${CURRENT} is not the highest version tag on main (${LATEST} is)"
+            exit 0
+          fi
+          IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
+          LATEST_IMAGE="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-latest"
+          docker tag "${IMAGE}" "${LATEST_IMAGE}"
+          docker push "${LATEST_IMAGE}"
       - name: Save image info
         run: |
           mkdir -p image-info
@@ -67,6 +84,23 @@ jobs:
         id: build-and-push-image
         with:
           image-flavor: "${{ matrix.image-flavor }}"
+      - name: Push latest tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if ! git merge-base --is-ancestor "${{ github.sha }}" origin/main; then
+            echo "Skipping latest push: tagged commit is not on main"
+            exit 0
+          fi
+          CURRENT="${{ github.ref_name }}"
+          LATEST="$(git tag --merged origin/main --sort=-version:refname | head -1)"
+          if [[ "${CURRENT}" != "${LATEST}" ]]; then
+            echo "Skipping latest push: ${CURRENT} is not the highest version tag on main (${LATEST} is)"
+            exit 0
+          fi
+          IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
+          LATEST_IMAGE="quay.io/stackrox-io/apollo-ci:${{ matrix.image-flavor }}-latest"
+          docker tag "${IMAGE}" "${LATEST_IMAGE}"
+          docker push "${LATEST_IMAGE}"
       - name: Save image info
         run: |
           mkdir -p image-info
