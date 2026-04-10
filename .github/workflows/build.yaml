@@ -47,7 +47,7 @@ jobs:
           CURRENT="${{ github.ref_name }}"
           LATEST="$(git tag --merged origin/main --sort=-version:refname | head -1)"
           if [[ "${CURRENT}" != "${LATEST}" ]]; then
-            echo "Skipping latest push: ${CURRENT} is not the newest tag on main (${LATEST} is)"
+            echo "Skipping latest push: ${CURRENT} is not the highest version tag on main (${LATEST} is)"
             exit 0
           fi
           IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
@@ -94,7 +94,7 @@ jobs:
           CURRENT="${{ github.ref_name }}"
           LATEST="$(git tag --merged origin/main --sort=-version:refname | head -1)"
           if [[ "${CURRENT}" != "${LATEST}" ]]; then
-            echo "Skipping latest push: ${CURRENT} is not the newest tag on main (${LATEST} is)"
+            echo "Skipping latest push: ${CURRENT} is not the highest version tag on main (${LATEST} is)"
             exit 0
           fi
           IMAGE="${{ steps.build-and-push-image.outputs.image-tag }}"
