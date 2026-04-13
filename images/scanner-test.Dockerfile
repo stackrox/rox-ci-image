@@ -117,6 +117,8 @@ RUN { \
     echo "oc=$(oc version --client | head -1)"; \
     echo "docker=$(docker version --format '{{.Client.Version}}' 2>/dev/null || echo unknown)"; \
     echo "kubectl=$(kubectl version --client -o json 2>/dev/null | grep gitVersion || echo unknown)"; \
+    echo "yq=$(yq --version)"; \
+    echo "gcloud=$(gcloud version 2>/dev/null | head -1 || echo unknown)"; \
     } > /i-am-rox-ci-image
 
 RUN \

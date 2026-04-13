@@ -175,10 +175,15 @@ RUN { \
     echo "go=$(go version | awk '{print $3}')"; \
     echo "helm=$(helm version --short)"; \
     echo "oc=$(oc version --client | head -1)"; \
+    echo "gradle=$(gradle --version | grep '^Gradle' || echo unknown)"; \
+    echo "aws=$(aws --version)"; \
     echo "docker=$(docker version --format '{{.Client.Version}}' 2>/dev/null || echo unknown)"; \
     echo "kubectl=$(kubectl version --client -o json 2>/dev/null | grep gitVersion || echo unknown)"; \
     echo "vault=$(vault --version)"; \
     echo "shellcheck=$(shellcheck --version | grep version: | head -1)"; \
+    echo "yq=$(yq --version)"; \
+    echo "gcloud=$(gcloud version 2>/dev/null | head -1 || echo unknown)"; \
+    echo "roxie=$(roxie version 2>/dev/null || echo unknown)"; \
     } > /i-am-rox-ci-image
 
 RUN \
