@@ -115,10 +115,10 @@ RUN { \
     echo "go=$(go version)"; \
     echo "helm=$(helm version --short)"; \
     echo "oc=$(oc version --client)"; \
-    echo "docker=$(docker version 2>/dev/null || echo unknown)"; \
-    echo "kubectl=$(kubectl version --client 2>/dev/null || echo unknown)"; \
+    echo "docker=$(docker version)"; \
+    echo "kubectl=$(kubectl version --client)"; \
     echo "yq=$(yq --version)"; \
-    echo "gcloud=$(gcloud version 2>/dev/null || echo unknown)"; \
+    echo "gcloud=$(gcloud version)"; \
     } > /i-am-rox-ci-image
 
 RUN \

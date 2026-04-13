@@ -178,13 +178,13 @@ RUN { \
     echo "java=$(java -version 2>&1)"; \
     echo "gradle=$(gradle --version)"; \
     echo "aws=$(aws --version)"; \
-    echo "docker=$(docker version 2>/dev/null || echo unknown)"; \
-    echo "kubectl=$(kubectl version --client 2>/dev/null || echo unknown)"; \
+    echo "docker=$(docker version)"; \
+    echo "kubectl=$(kubectl version --client)"; \
     echo "vault=$(vault --version)"; \
     echo "shellcheck=$(shellcheck --version)"; \
     echo "yq=$(yq --version)"; \
-    echo "gcloud=$(gcloud version 2>/dev/null || echo unknown)"; \
-    echo "roxie=$(roxie version 2>/dev/null || echo unknown)"; \
+    echo "gcloud=$(gcloud version)"; \
+    echo "roxie=$(roxie version)"; \
     } > /i-am-rox-ci-image
 
 RUN \
