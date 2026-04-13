@@ -88,9 +88,9 @@ ARG ROX_CI_IMAGE_REVISION=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
-    echo "go=$(go version | awk '{print $3}')"; \
-    echo "gcc=$(gcc --version | head -1)"; \
-    echo "make=$(make --version | head -1)"; \
+    echo "go=$(go version)"; \
+    echo "gcc=$(gcc --version)"; \
+    echo "make=$(make --version)"; \
     } > /i-am-rox-ci-image
 
 WORKDIR /go/src/github.com/stackrox/rox

@@ -172,18 +172,18 @@ ARG ROX_CI_IMAGE_REVISION=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
-    echo "go=$(go version | awk '{print $3}')"; \
+    echo "go=$(go version)"; \
     echo "helm=$(helm version --short)"; \
-    echo "oc=$(oc version --client | head -1)"; \
-    echo "java=$(java -version 2>&1 | head -1)"; \
-    echo "gradle=$(gradle --version | grep '^Gradle' || echo unknown)"; \
+    echo "oc=$(oc version --client)"; \
+    echo "java=$(java -version 2>&1)"; \
+    echo "gradle=$(gradle --version)"; \
     echo "aws=$(aws --version)"; \
-    echo "docker=$(docker version --format '{{.Client.Version}}' 2>/dev/null || echo unknown)"; \
-    echo "kubectl=$(kubectl version --client -o json 2>/dev/null | grep gitVersion || echo unknown)"; \
+    echo "docker=$(docker version 2>/dev/null || echo unknown)"; \
+    echo "kubectl=$(kubectl version --client 2>/dev/null || echo unknown)"; \
     echo "vault=$(vault --version)"; \
-    echo "shellcheck=$(shellcheck --version | grep version: | head -1)"; \
+    echo "shellcheck=$(shellcheck --version)"; \
     echo "yq=$(yq --version)"; \
-    echo "gcloud=$(gcloud version 2>/dev/null | head -1 || echo unknown)"; \
+    echo "gcloud=$(gcloud version 2>/dev/null || echo unknown)"; \
     echo "roxie=$(roxie version 2>/dev/null || echo unknown)"; \
     } > /i-am-rox-ci-image
 
