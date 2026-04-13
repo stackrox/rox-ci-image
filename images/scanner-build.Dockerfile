@@ -62,4 +62,14 @@ RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --
     rm ossls_linux_amd64 && \
     ossls version
 
+ARG ROX_CI_IMAGE_VERSION=unknown
+ARG ROX_CI_IMAGE_REVISION=unknown
+RUN { \
+    echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "go=$(go version | awk '{print $3}')"; \
+    echo "gcc=$(gcc --version | head -1)"; \
+    echo "make=$(make --version | head -1)"; \
+    } > /i-am-rox-ci-image
+
 WORKDIR /go/src/github.com/stackrox/scanner

@@ -219,6 +219,19 @@ RUN set -ex \
 # Install roxie.
 COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
+ARG ROX_CI_IMAGE_VERSION=unknown
+ARG ROX_CI_IMAGE_REVISION=unknown
+RUN { \
+    echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "go=$(go version | awk '{print $3}')"; \
+    echo "node=$(node --version)"; \
+    echo "helm=$(helm version --short)"; \
+    echo "oc=$(oc version --client | head -1)"; \
+    echo "docker=$(docker version --format '{{.Client.Version}}' 2>/dev/null || echo unknown)"; \
+    echo "kubectl=$(kubectl version --client -o json 2>/dev/null | grep gitVersion || echo unknown)"; \
+    } > /i-am-rox-ci-image
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash

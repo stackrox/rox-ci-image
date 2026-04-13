@@ -2,6 +2,8 @@ ifeq ($(DOCKER),)
 DOCKER=docker
 endif
 QUAY_REPO=stackrox-io
+ROX_CI_IMAGE_VERSION=$(shell git describe --tags --abbrev=10)
+ROX_CI_IMAGE_REVISION=$(shell git rev-parse HEAD)
 
 STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 
@@ -9,6 +11,8 @@ STACKROX_BUILD_TAG=$(shell scripts/get_tag.sh "stackrox-build")
 stackrox-build-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_BUILD_TAG) \
 		-f images/stackrox-build.Dockerfile \
 		images/
@@ -19,8 +23,10 @@ STACKROX_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-test")
 stackrox-test-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
-		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		--build-arg BASE_TAG=$(STACKROX_BUILD_TAG) \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_TEST_TAG) \
 		-f images/stackrox-test.Dockerfile \
 		images/
 
@@ -30,8 +36,10 @@ STACKROX_UI_TEST_TAG=$(shell scripts/get_tag.sh "stackrox-ui-test")
 stackrox-ui-test-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
-		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_UI_TEST_TAG) \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		--build-arg BASE_TAG=$(STACKROX_UI_TEST_TAG) \
+		-t quay.io/$(QUAY_REPO)/apollo-ci:$(STACKROX_UI_TEST_TAG) \
 		-f images/stackrox-ui-test.Dockerfile \
 		images/
 
@@ -51,6 +59,8 @@ test-cci-export:
 scanner-build-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "scanner-build") \
 		-f images/scanner-build.Dockerfile \
 		images/
@@ -59,6 +69,8 @@ scanner-build-image:
 scanner-test-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		--build-arg BASE_TAG=$(shell scripts/get_tag.sh "scanner-build") \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "scanner-test") \
 		-f images/scanner-test.Dockerfile \
@@ -68,6 +80,8 @@ scanner-test-image:
 jenkins-plugin-image:
 	$(DOCKER) build \
 		--platform linux/amd64 \
+		--build-arg ROX_CI_IMAGE_VERSION=$(ROX_CI_IMAGE_VERSION) \
+		--build-arg ROX_CI_IMAGE_REVISION=$(ROX_CI_IMAGE_REVISION) \
 		-t quay.io/$(QUAY_REPO)/apollo-ci:$(shell scripts/get_tag.sh "jenkins-plugin") \
 		-f images/jenkins-plugin.Dockerfile \
 		images/
