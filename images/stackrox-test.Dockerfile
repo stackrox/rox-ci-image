@@ -175,6 +175,7 @@ RUN { \
     echo "go=$(go version | awk '{print $3}')"; \
     echo "helm=$(helm version --short)"; \
     echo "oc=$(oc version --client | head -1)"; \
+    echo "java=$(java -version 2>&1 | head -1)"; \
     echo "gradle=$(gradle --version | grep '^Gradle' || echo unknown)"; \
     echo "aws=$(aws --version)"; \
     echo "docker=$(docker version --format '{{.Client.Version}}' 2>/dev/null || echo unknown)"; \

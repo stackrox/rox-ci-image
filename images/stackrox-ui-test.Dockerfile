@@ -226,6 +226,8 @@ RUN { \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
     echo "go=$(go version | awk '{print $3}')"; \
     echo "node=$(node --version)"; \
+    echo "yarn=$(yarn --version)"; \
+    echo "java=$(java -version 2>&1 | head -1)"; \
     echo "helm=$(helm version --short)"; \
     echo "oc=$(oc version --client | head -1)"; \
     echo "gradle=$(gradle --version | grep '^Gradle' || echo unknown)"; \
