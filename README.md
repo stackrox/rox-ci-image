@@ -15,7 +15,7 @@ Each image flavor (e.g. `stackrox-test`, `scanner-test`) is pushed to
 | Tag | Example | Updated when | Use in |
 |-----|---------|-------------|--------|
 | **versioned** | `stackrox-test-0.5.7` | Every merge to main (auto-tagged) | Release branch prow configs, pinned references |
-| **latest** | `stackrox-test-latest` | Every new version tag on main | Testing PRs against openshift/release (never merge with this tag) |
+| **latest** | `stackrox-test-latest` | Every new version tag on main | Testing rox-ci-image version in openshift/release PRs with `/pj-rehearse` before promoting to stable. |
 | **stable** | `stackrox-test-stable` | Manual promotion via workflow | Master/nightly prow configs in openshift/release |
 
 ### How it works
