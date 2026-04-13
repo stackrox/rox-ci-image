@@ -230,7 +230,7 @@ RUN { \
     echo "gcloud=$(gcloud version)"; \
     echo "go=$(go version)"; \
     echo "gradle=$(gradle --version)"; \
-    echo "helm=$(helm version --short)"; \
+    echo "helm=$(helm version)"; \
     echo "java=$(java -version 2>&1)"; \
     echo "kubectl=$(kubectl version --client)"; \
     echo "node=$(node --version)"; \

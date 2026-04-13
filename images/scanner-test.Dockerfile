@@ -115,7 +115,7 @@ RUN { \
     echo "docker=$(docker version)"; \
     echo "gcloud=$(gcloud version)"; \
     echo "go=$(go version)"; \
-    echo "helm=$(helm version --short)"; \
+    echo "helm=$(helm version)"; \
     echo "kubectl=$(kubectl version --client)"; \
     echo "oc=$(oc version --client)"; \
     echo "yq=$(yq --version)"; \
