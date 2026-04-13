@@ -172,19 +172,19 @@ ARG ROX_CI_IMAGE_REVISION=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
-    echo "go=$(go version)"; \
-    echo "helm=$(helm version --short)"; \
-    echo "oc=$(oc version --client)"; \
-    echo "java=$(java -version 2>&1)"; \
-    echo "gradle=$(gradle --version)"; \
     echo "aws=$(aws --version)"; \
     echo "docker=$(docker version)"; \
-    echo "kubectl=$(kubectl version --client)"; \
-    echo "vault=$(vault --version)"; \
-    echo "shellcheck=$(shellcheck --version)"; \
-    echo "yq=$(yq --version)"; \
     echo "gcloud=$(gcloud version)"; \
+    echo "go=$(go version)"; \
+    echo "gradle=$(gradle --version)"; \
+    echo "helm=$(helm version --short)"; \
+    echo "java=$(java -version 2>&1)"; \
+    echo "kubectl=$(kubectl version --client)"; \
+    echo "oc=$(oc version --client)"; \
     echo "roxie=$(roxie version)"; \
+    echo "shellcheck=$(shellcheck --version)"; \
+    echo "vault=$(vault --version)"; \
+    echo "yq=$(yq --version)"; \
     } > /i-am-rox-ci-image
 
 RUN \

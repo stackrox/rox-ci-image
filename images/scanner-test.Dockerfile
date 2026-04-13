@@ -112,13 +112,13 @@ ARG ROX_CI_IMAGE_REVISION=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "docker=$(docker version)"; \
+    echo "gcloud=$(gcloud version)"; \
     echo "go=$(go version)"; \
     echo "helm=$(helm version --short)"; \
-    echo "oc=$(oc version --client)"; \
-    echo "docker=$(docker version)"; \
     echo "kubectl=$(kubectl version --client)"; \
+    echo "oc=$(oc version --client)"; \
     echo "yq=$(yq --version)"; \
-    echo "gcloud=$(gcloud version)"; \
     } > /i-am-rox-ci-image
 
 RUN \

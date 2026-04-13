@@ -88,8 +88,8 @@ ARG ROX_CI_IMAGE_REVISION=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
     echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
-    echo "go=$(go version)"; \
     echo "gcc=$(gcc --version)"; \
+    echo "go=$(go version)"; \
     echo "make=$(make --version)"; \
     } > /i-am-rox-ci-image
 
