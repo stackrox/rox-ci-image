@@ -168,10 +168,10 @@ RUN set -ex \
 COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
 ARG ROX_CI_IMAGE_VERSION=unknown
-ARG ROX_CI_IMAGE_REVISION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
-    echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
     echo "aws=$(aws --version)"; \
     echo "docker=$(docker version)"; \
     echo "gcloud=$(gcloud version)"; \

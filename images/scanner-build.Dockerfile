@@ -63,10 +63,10 @@ RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --
     ossls version
 
 ARG ROX_CI_IMAGE_VERSION=unknown
-ARG ROX_CI_IMAGE_REVISION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
-    echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
     echo "gcc=$(gcc --version)"; \
     echo "go=$(go version)"; \
     echo "make=$(make --version)"; \

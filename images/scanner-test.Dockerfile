@@ -108,10 +108,10 @@ RUN set -ex \
   && command -v hub-comment
 
 ARG ROX_CI_IMAGE_VERSION=unknown
-ARG ROX_CI_IMAGE_REVISION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
 RUN { \
     echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
-    echo "rox-ci-image-revision=${ROX_CI_IMAGE_REVISION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
     echo "docker=$(docker version)"; \
     echo "gcloud=$(gcloud version)"; \
     echo "go=$(go version)"; \
