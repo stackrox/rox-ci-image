@@ -51,7 +51,7 @@ Prow job configs in `openshift/release` reference these images via
 To mirror a new versioned tag for release branch use:
 
 1. Add an entry to `core-services/image-mirroring/_config.yaml` in openshift/release
-2. PR requires testplatform team review (use `/cc @jmguzik` to request)
+2. PR requires testplatform team review
 
 The `latest` and `stable` floating tags are mirrored once and do not need
 updates per version.
