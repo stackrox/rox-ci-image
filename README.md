@@ -34,7 +34,7 @@ Each image flavor (e.g. `stackrox-test`, `scanner-test`) is pushed to
 
 ### Updating prow jobs in openshift/release
 
-Prow job configs in `openshift/release` reference these images via
+Prow [job configs](https://github.com/openshift/release/tree/main/ci-operator/config/stackrox/stackrox) in the `openshift/release` repository reference these images via
 `build_root.image_stream_tag`. The tags must first be mirrored in
 `core-services/image-mirroring/_config.yaml`.
 
