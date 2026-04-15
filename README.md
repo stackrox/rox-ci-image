@@ -38,7 +38,7 @@ Prow job configs in `openshift/release` reference these images via
 `build_root.image_stream_tag`. The tags must first be mirrored in
 `core-services/image-mirroring/_config.yaml`.
 
-- **Master/nightly configs**: use `stable` tag -- automatically picks up
+- **Master/nightly configs**: use `stable` tag -- periodically, automatically picks up
   promoted versions without config changes.
 - **Release branch configs**: pin to a specific version (e.g. `scanner-test-0.5.7`)
   for reproducibility.
