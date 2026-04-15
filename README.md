@@ -56,6 +56,30 @@ To mirror a new versioned tag for release branch use:
 The `latest` and `stable` floating tags are mirrored once and do not need
 updates per version.
 
+## Step-by-step: Making a CI Image Change
+
+Example: you need to bump a dependency or add a tool to the CI image.
+
+1. **Make your change** on a branch and open a PR in this repo.
+2. **Merge to main** -- once approved, merge the PR. The `tag.yaml` workflow
+   auto-creates a semver tag (e.g. `0.5.8`).
+3. **Wait for the build** -- the `build.yaml` workflow builds all image flavors
+   and pushes both versioned and `latest` tags to quay.io.
+4. **Test in openshift/release** -- open a PR in `openshift/release` that
+   references the `latest` tag and run `/pj-rehearse` to validate affected
+   prow jobs. No config change is needed if the jobs already use `latest`.
+5. **Promote to stable** -- once rehearsals pass, [run the promote-stable
+   workflow](https://github.com/stackrox/rox-ci-image/actions/workflows/promote-stable.yaml)
+   (or `gh workflow run promote-stable.yaml`). This retags `latest` → `stable`.
+   Master/nightly prow jobs pick up the new image automatically.
+6. **Pin release branches** (if needed) -- for release branch configs, update
+   `openshift/release` to reference the specific versioned tag
+   (e.g. `stackrox-test-0.5.8`). This requires testplatform review.
+
+> **Note:** There is only one `latest` tag per flavor, so only one
+> rox-ci-image change can be tested via rehearsal at a time. Coordinate
+> with others if multiple changes are in flight.
+
 ## Updating the Go Version
 
 To bump the Go version across all Docker images in this repository, use the automated script:
