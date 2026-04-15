@@ -23,7 +23,7 @@ Each image flavor (e.g. `stackrox-test`, `scanner-test`) is pushed to
 1. **Merge to main** -- `tag.yaml` auto-creates a semver tag (e.g. `0.5.8`)
 2. **Tag push** -- `build.yaml` builds all images, pushes versioned tags, and
    updates `latest` (only if the tag is the highest version on main)
-3. **Promote to stable** -- run manually when ready:
+3. **Promote to stable** -- [run manually](https://github.com/stackrox/rox-ci-image/actions/workflows/promote-stable.yaml) when ready:
    ```bash
    gh workflow run promote-stable.yaml
    # or with a specific version:
