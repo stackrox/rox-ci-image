@@ -1,0 +1,31 @@
+name: Promote to stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to promote (e.g. 0.5.7). Defaults to 'latest'."
+        required: false
+        default: "latest"
+
+env:
+  QUAY_STACKROX_IO_RW_USERNAME: ${{ secrets.QUAY_STACKROX_IO_RW_USERNAME }}
+  QUAY_STACKROX_IO_RW_PASSWORD: ${{ secrets.QUAY_STACKROX_IO_RW_PASSWORD }}
+
+jobs:
+  promote-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Quay
+        run: |
+          docker login -u "$QUAY_STACKROX_IO_RW_USERNAME" --password-stdin <<<"$QUAY_STACKROX_IO_RW_PASSWORD" quay.io
+      - name: Retag all flavors as stable
+        run: |
+          VERSION="${{ inputs.version }}"
+          VERSION="${VERSION:-latest}"
+          for flavor in scanner-build scanner-test stackrox-build stackrox-test stackrox-ui-test jenkins-plugin; do
+            SRC="quay.io/stackrox-io/apollo-ci:${flavor}-${VERSION}"
+            DST="quay.io/stackrox-io/apollo-ci:${flavor}-stable"
+            echo "Promoting ${SRC} → ${DST}"
+            docker buildx imagetools create --tag "${DST}" "${SRC}"
+          done
