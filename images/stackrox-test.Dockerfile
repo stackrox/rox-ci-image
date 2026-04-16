@@ -2,8 +2,8 @@
 # binaries and images. Builds upon stackrox-build.Dockerfile.
 
 ARG BASE_TAG
-ARG ROXIE_VERSION=0.1.2
-ARG ROXIE_CHECKSUM=sha256:808acf790369f3cb5744c5c03a4f97e2c57e8e752ae2bce952515bed3fdfd00d
+ARG ROXIE_VERSION=0.2.0
+ARG ROXIE_CHECKSUM=sha256:51b2351fad3f6fcd2c211fe3d532f755a33abe6d5e3c394ad9606abf48ee3519
 FROM quay.io/rhacs-eng/roxie:v${ROXIE_VERSION}@${ROXIE_CHECKSUM} AS roxie-installer
 
 FROM quay.io/stackrox-io/apollo-ci:${BASE_TAG} as base
