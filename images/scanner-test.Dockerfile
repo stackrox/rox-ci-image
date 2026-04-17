@@ -107,6 +107,20 @@ RUN set -ex \
   && install hub-comment_linux_amd64 /usr/bin/hub-comment \
   && command -v hub-comment
 
+ARG ROX_CI_IMAGE_VERSION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
+RUN { \
+    echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
+    echo "docker=$(docker version)"; \
+    echo "gcloud=$(gcloud version)"; \
+    echo "go=$(go version)"; \
+    echo "helm=$(helm version)"; \
+    echo "kubectl=$(kubectl version --client)"; \
+    echo "oc=$(oc version --client)"; \
+    echo "yq=$(yq --version)"; \
+    } > /i-am-rox-ci-image
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash

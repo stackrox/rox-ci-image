@@ -83,4 +83,14 @@ RUN fetch --repo="https://github.com/stackrox/ossls" --tag="${OSSLS_VERSION}" --
 
 ENV CGO_ENABLED=1
 
+ARG ROX_CI_IMAGE_VERSION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
+RUN { \
+    echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
+    echo "gcc=$(gcc --version)"; \
+    echo "go=$(go version)"; \
+    echo "make=$(make --version)"; \
+    } > /i-am-rox-ci-image
+
 WORKDIR /go/src/github.com/stackrox/rox

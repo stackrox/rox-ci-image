@@ -167,6 +167,26 @@ RUN set -ex \
 # Install roxie.
 COPY --from=roxie-installer /usr/local/bin/roxie /usr/bin/roxie
 
+ARG ROX_CI_IMAGE_VERSION=unknown
+ARG ROX_CI_IMAGE_GIT_COMMIT=unknown
+RUN { \
+    echo "rox-ci-image-version=${ROX_CI_IMAGE_VERSION}"; \
+    echo "rox-ci-image-revision=${ROX_CI_IMAGE_GIT_COMMIT}"; \
+    echo "aws=$(aws --version)"; \
+    echo "docker=$(docker version)"; \
+    echo "gcloud=$(gcloud version)"; \
+    echo "go=$(go version)"; \
+    echo "gradle=$(gradle --version)"; \
+    echo "helm=$(helm version)"; \
+    echo "java=$(java -version 2>&1)"; \
+    echo "kubectl=$(kubectl version --client)"; \
+    echo "oc=$(oc version --client)"; \
+    echo "roxie=$(roxie version)"; \
+    echo "shellcheck=$(shellcheck --version)"; \
+    echo "vault=$(vault --version)"; \
+    echo "yq=$(yq --version)"; \
+    } > /i-am-rox-ci-image
+
 RUN \
 	mv /bin/bash /bin/real-bash && \
 	mv /bin/bash-wrapper /bin/bash
