@@ -1,7 +1,7 @@
 # Provides the tooling required run UI tests against the StackRox images.
 
-ARG ROXIE_VERSION=0.2.0
-ARG ROXIE_CHECKSUM=sha256:51b2351fad3f6fcd2c211fe3d532f755a33abe6d5e3c394ad9606abf48ee3519
+ARG ROXIE_VERSION=0.2.1
+ARG ROXIE_CHECKSUM=sha256:fcc0737e25afde53d5db6f7ec8a9ddf628a4aac6d0b6442e89cac2b17a4a3381
 FROM quay.io/rhacs-eng/roxie:v${ROXIE_VERSION}@${ROXIE_CHECKSUM} AS roxie-installer
 
 FROM quay.io/centos/centos:stream9
