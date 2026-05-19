@@ -27,5 +27,7 @@ jobs:
             SRC="quay.io/stackrox-io/apollo-ci:${flavor}-${VERSION}"
             DST="quay.io/stackrox-io/apollo-ci:${flavor}-stable"
             echo "Promoting ${SRC} → ${DST}"
-            docker buildx imagetools create --tag "${DST}" "${SRC}"
+            docker pull "${SRC}"
+            docker tag "${SRC}" "${DST}"
+            docker push "${DST}"
           done
