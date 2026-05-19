@@ -7,6 +7,10 @@ on:
         description: "Version to promote (e.g. 0.5.7). Defaults to 'latest'."
         required: false
         default: "latest"
+      target:
+        description: "Target tag suffix (e.g. 'stable', 'stable-test'). Defaults to 'stable'."
+        required: false
+        default: "stable"
 
 env:
   QUAY_STACKROX_IO_RW_USERNAME: ${{ secrets.QUAY_STACKROX_IO_RW_USERNAME }}
@@ -25,7 +29,9 @@ jobs:
           VERSION="${VERSION:-latest}"
           for flavor in scanner-build scanner-test stackrox-build stackrox-test stackrox-ui-test jenkins-plugin; do
             SRC="quay.io/stackrox-io/apollo-ci:${flavor}-${VERSION}"
-            DST="quay.io/stackrox-io/apollo-ci:${flavor}-stable"
+            TARGET="${{ inputs.target }}"
+            TARGET="${TARGET:-stable}"
+            DST="quay.io/stackrox-io/apollo-ci:${flavor}-${TARGET}"
             echo "Promoting ${SRC} → ${DST}"
             skopeo copy "docker://${SRC}" "docker://${DST}"
           done
