@@ -23,9 +23,18 @@ RUN set -ex \
   && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
-# Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
-# an initial BASH_ENV as a foundation for cci-export().
-ENV BASH_ENV /etc/initial-bash.env
+# cci-export() (see /bin/bash-wrapper) persists env vars across bash invocations
+# by appending them to the file named by BASH_ENV, which bash sources on startup.
+# This file must be writable by the arbitrary non-root UID (in GID 0) that
+# OpenShift/Prow assigns at runtime; /etc is not group-writable, so the appends
+# and rewrite (mv) fail with "Permission denied" on every bash invocation and
+# spam CI logs. Host it in a dedicated group-writable directory instead.
+RUN mkdir -p /var/lib/bash-env \
+    && mv /etc/initial-bash.env /var/lib/bash-env/env \
+    && chgrp 0 /var/lib/bash-env /var/lib/bash-env/env \
+    && chmod 0775 /var/lib/bash-env \
+    && chmod 0664 /var/lib/bash-env/env
+ENV BASH_ENV /var/lib/bash-env/env
 
 # Install Postgres repo
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
