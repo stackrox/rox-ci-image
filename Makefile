@@ -43,18 +43,6 @@ stackrox-ui-test-image:
 		-f images/stackrox-ui-test.Dockerfile \
 		images/
 
-.PHONY: test-cci-export
-test-cci-export:
-	$(DOCKER) build \
-		--platform linux/amd64 \
-		-t test-cci-export \
-		--build-arg BASE_TAG=$(STACKROX_TEST_TAG) \
-		-f images/test.cci-export.Dockerfile \
-		images/
-	$(DOCKER) run \
-		--rm \
-		test-cci-export
-
 .PHONY: scanner-build-image
 scanner-build-image:
 	$(DOCKER) build \

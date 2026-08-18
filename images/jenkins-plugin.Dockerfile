@@ -24,11 +24,4 @@ RUN set -ex \
  && sudo apt upgrade \
  && sudo rm -rf /var/lib/apt/lists/*
 
-COPY ./static-contents/bin/bash-wrapper /bin/
-
-RUN \
-  sudo mv /bin/bash /bin/real-bash && \
-  sudo mv /bin/bash-wrapper /bin/bash && \
-  sudo chmod 755 /bin/bash
-
 USER circleci
