@@ -26,10 +26,6 @@ RUN set -ex \
         bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
  && rm -r /static-tmp
 
-# Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
-# an initial BASH_ENV as a foundation for cci-export().
-ENV BASH_ENV /etc/initial-bash.env
-
 # PostgreSQL environment.
 ENV PG_MAJOR=15
 ENV PATH="$PATH:/usr/pgsql-$PG_MAJOR/bin/"
@@ -120,7 +116,3 @@ RUN { \
     echo "oc=$(oc version --client)"; \
     echo "yq=$(yq --version)"; \
     } > /i-am-rox-ci-image
-
-RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash

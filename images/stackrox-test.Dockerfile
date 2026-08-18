@@ -23,9 +23,6 @@ RUN set -ex \
   && find /static-tmp -type f -print0 | \
     xargs -0 -I '{}' -n1 bash -c 'dir="$(dirname "${1}")"; new_dir="${dir#/static-tmp}"; mkdir -p "${new_dir}"; cp "${1}" "${new_dir}";' -- {} \
   && rm -r /static-tmp
-# Circle CI uses BASH_ENV to pass an environment for bash. Other environments need
-# an initial BASH_ENV as a foundation for cci-export().
-ENV BASH_ENV /etc/initial-bash.env
 
 # Install Postgres repo
 RUN dnf --disablerepo="*" install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
@@ -186,7 +183,3 @@ RUN { \
     echo "vault=$(vault --version)"; \
     echo "yq=$(yq --version)"; \
     } > /i-am-rox-ci-image
-
-RUN \
-	mv /bin/bash /bin/real-bash && \
-	mv /bin/bash-wrapper /bin/bash
