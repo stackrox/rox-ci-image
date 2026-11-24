@@ -117,10 +117,10 @@ RUN set -ex \
  && rm -rf aws \
  && aws --version
 
-# Install yq v4.16.2
+# Install yq v4.54.3
 RUN set -ex \
-  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64" \
-  && sha256sum --check --status <<< "5c911c4da418ae64af5527b7ee36e77effb85de20c2ce732ed14c7f72743084d  yq_linux_amd64" \
+  && wget --no-verbose "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_amd64" \
+  && sha256sum --check --status <<< "129534601871538efe0ba4c5e62a34fb1d5f469bcb975c4fddeb467d82974973  yq_linux_amd64" \
   && mv yq_linux_amd64 /usr/bin/yq \
   && chmod +x /usr/bin/yq
 
